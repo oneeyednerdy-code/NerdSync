@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreamVerse - Login & Discover</title>
+  <title>NerdSync - Better Twitch Discovery</title>
   <style>
     * {
       box-sizing: border-box;
@@ -33,46 +33,17 @@
       width: 100%;
       max-width: 400px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .brand-header {
       text-align: center;
-      margin-bottom: 2rem;
     }
 
     .brand-header h1 {
       color: #9146ff;
       font-size: 1.8rem;
       margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: 4px;
-      border: 2px solid #3a3a3d;
-      background-color: #0e0e10;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #9146ff;
-    }
-
-    .btn-purple {
+    .btn-twitch {
       width: 100%;
       padding: 0.8rem;
       background-color: #9146ff;
@@ -82,10 +53,14 @@
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
       transition: background-color 0.2s;
     }
 
-    .btn-purple:hover {
+    .btn-twitch:hover {
       background-color: #772ce8;
     }
 
@@ -104,6 +79,19 @@
       margin-bottom: 2rem;
       padding-bottom: 1rem;
       border-bottom: 1px solid #26262c;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #3a3a3d;
     }
 
     .stream-grid {
@@ -167,101 +155,92 @@
   <div id="login-view" class="login-card">
     <div class="brand-header">
       <svg height="40" viewBox="0 0 40 40" width="40" fill="#9146ff"><path d="M10 6L6 10v20h8v4h4l4-4h6l8-8V6H10zm24 16l-4 4h-6l-4 4v-4h-4V8h18v14zM28 12h-3v8h3v-8zm-8 0h-3v8h3v-8z"/></svg>
-      <h1>Log in to StreamVerse</h1>
+      <h1>StreamVerse</h1>
     </div>
-    <form id="login-form">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" required placeholder="Enter username">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" required placeholder="Enter password">
-      </div>
-      <button type="submit" class="btn-purple">Log In</button>
-    </form>
+    <button id="twitch-login-btn" class="btn-twitch">
+      <svg height="20" viewBox="0 0 40 40" width="20" fill="#ffffff"><path d="M10 6L6 10v20h8v4h4l4-4h6l8-8V6H10zm24 16l-4 4h-6l-4 4v-4h-4V8h18v14zM28 12h-3v8h3v-8zm-8 0h-3v8h3v-8z"/></svg>
+      Log in with Twitch
+    </button>
   </div>
 
   <!-- DISCOVERY SECTION -->
   <div id="discovery-view" class="discovery-container hidden">
     <div class="top-bar">
       <h2>Browse Live Channels</h2>
-      <span id="welcome-msg" style="color: #adadb8;"></span>
+      <div class="user-profile">
+        <img id="user-avatar" class="user-avatar" src="" alt="" />
+        <span id="welcome-msg" style="color: #adadb8;"></span>
+      </div>
     </div>
 
-    <div class="stream-grid">
-      <!-- Stream Card 1 -->
-      <div class="stream-card">
-        <div class="thumbnail">
-          <span class="live-badge">Live</span>
-          Preview Screen
-        </div>
-        <div class="stream-info">
-          <div class="stream-title">Ranked Competitive Grind to Master</div>
-          <div class="streamer-name">GamerOne</div>
-          <div class="game-name">VALORANT</div>
-        </div>
-      </div>
-
-      <!-- Stream Card 2 -->
-      <div class="stream-card">
-        <div class="thumbnail">
-          <span class="live-badge">Live</span>
-          Preview Screen
-        </div>
-        <div class="stream-info">
-          <div class="stream-title">Chill Coding & Lofi Music</div>
-          <div class="streamer-name">DevLife</div>
-          <div class="game-name">Software & Tech</div>
-        </div>
-      </div>
-
-      <!-- Stream Card 3 -->
-      <div class="stream-card">
-        <div class="thumbnail">
-          <span class="live-badge">Live</span>
-          Preview Screen
-        </div>
-        <div class="stream-info">
-          <div class="stream-title">100% Speedrun World Record Attempts</div>
-          <div class="streamer-name">SpeedyPro</div>
-          <div class="game-name">Elden Ring</div>
-        </div>
-      </div>
-
-      <!-- Stream Card 4 -->
-      <div class="stream-card">
-        <div class="thumbnail">
-          <span class="live-badge">Live</span>
-          Preview Screen
-        </div>
-        <div class="stream-info">
-          <div class="stream-title">Community Night & Viewers Games!</div>
-          <div class="streamer-name">VarietyQueen</div>
-          <div class="game-name">Just Chatting</div>
-        </div>
-      </div>
+    <div id="stream-grid" class="stream-grid">
+      <!-- Streams loaded via JS or placeholder -->
     </div>
   </div>
 
   <script>
-    const loginForm = document.getElementById('login-form');
+    // --- CONFIGURATION ---
+    // 1. Register an app on Twitch Developer Console (https://dev.twitch.tv/console)
+    // 2. Set OAuth Redirect URL to your local URL (e.g., http://localhost:3000 or http://127.0.0.1:5500/index.html)
+    // 3. Paste your Client ID below:
+    const CLIENT_ID = 'YOUR_TWITCH_CLIENT_ID';
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+    const SCOPES = 'user:read:email';
+
     const loginView = document.getElementById('login-view');
     const discoveryView = document.getElementById('discovery-view');
-    const welcomeMsg = document.getElementById('welcome-msg');
+    const loginBtn = document.getElementById('twitch-login-btn');
 
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const username = document.getElementById('username').value;
-      
-      // Update welcome message
-      welcomeMsg.textContent = `Welcome, ${username}`;
-
-      // Toggle views
-      loginView.classList.add('hidden');
-      discoveryView.classList.remove('hidden');
+    // OAuth Redirect Handler
+    loginBtn.addEventListener('click', () => {
+      const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
+      window.location.href = authUrl;
     });
+
+    // Parse OAuth token from URL hash on redirect back
+    function getAccessTokenFromUrl() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return params.get('access_token');
+    }
+
+    async function fetchTwitchUserData(accessToken) {
+      try {
+        const response = await fetch('https://api.twitch.tv/helix/users', {
+          headers: {
+            'Client-ID': CLIENT_ID,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        const data = await response.json();
+        return data.data[0];
+      } catch (err) {
+        console.error('Failed to fetch user profile:', err);
+      }
+    }
+
+    async function init() {
+      const token = getAccessTokenFromUrl();
+
+      if (token) {
+        // Clear hash from URL cleanly without reloading page
+        history.replaceState(null, null, ' ');
+
+        // Fetch user info from Twitch Helix API
+        const user = await fetchTwitchUserData(token);
+
+        if (user) {
+          document.getElementById('welcome-msg').textContent = user.display_name;
+          document.getElementById('user-avatar').src = user.profile_image_url;
+        }
+
+        // Show discovery view
+        loginView.classList.add('hidden');
+        discoveryView.classList.remove('hidden');
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
