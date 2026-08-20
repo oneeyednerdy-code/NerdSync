@@ -1,134 +1,49 @@
 # NerdSync
 
-A single-page Twitch dashboard: log in with your Twitch account, browse six
-different discovery views, filter and paginate them, and click into any
-streamer for a detail preview before deciding whether to open their channel.
+Current release: **Alpha-0.0.4**
 
-## Setup
+Version labels use `Alpha-MAJOR.MINOR.PATCH` while the app is in alpha. Increment PATCH for fixes, MINOR for backward-compatible features, and MAJOR for substantial or breaking changes. Keep the login-page badge and this README value synchronized for every release.
 
-1. Register an app at the [Twitch Developer Console](https://dev.twitch.tv/console).
-2. Add this page's exact URL (including protocol and path) as an **OAuth Redirect URL**
-   on that app — e.g. `http://localhost:3000/` or `https://yoursite.pages.dev/`.
-3. Open `config.js` and replace `"YOUR_TWITCH_CLIENT_ID_HERE"` with your app's
-   **Client ID**.
-4. Serve `index.html` (Cloudflare Pages, GitHub Pages, or any static host — it
-   needs no backend and no build step).
-5. Visitors log in with their own Twitch account via OAuth Implicit Flow; no
-   credentials ever touch your server.
+NerdSync is a static, Cloudflare Pages-ready Twitch discovery app focused on smaller live creators. It has no build step, server, database, client secret, or third-party dependency.
 
-> **Security note:** Implicit Flow only ever needs the public **Client ID** in
-> the browser. Never put a Client **Secret** in `config.js` or anywhere in
-> front-end code.
+## Deploy on Cloudflare Pages
 
-## Tabs
+1. Register an app in the [Twitch Developer Console](https://dev.twitch.tv/console).
+2. Add the exact production URL as an OAuth redirect, such as `https://nerdsync.pages.dev/`.
+3. Put the public Twitch Client ID in `config.js`. Never put a Client Secret in this project.
+4. Upload this folder to Cloudflare Pages. Use no build command and set the output directory to `/` (or the folder containing `index.html`).
 
-- **Following** — channels you follow that are live right now.
-- **Teammates** — Twitch doesn't let apps see who another streamer follows
-  (that's private to the account owner), so this uses the closest real
-  substitute: live members of official Twitch Teams that your followed
-  streamers belong to.
-- **Hidden Gems** — small channels (under 75 viewers) playing the same games
-  your followed streamers are currently live in.
-- **Rising Stars** — channels playing today's top categories whose Twitch
-  *account* was created in the last 30 days. **Important caveat:** Twitch's
-  API has no "first stream" field — account-creation date is the closest
-  available proxy for "new channel," so this will both miss genuinely new
-  streamers (who made their account years before they started) and include
-  brand-new accounts that aren't new to streaming elsewhere. Treat it as a
-  rough cut. A status filter (All / Non-affiliate / Affiliate / Partner, from
-  Twitch's own `broadcaster_type` field) and a sort toggle (most viewers /
-  longest uptime) sit above the grid.
-- **Clips** — the last 30 days of clips from up to 20 of your followed
-  channels (live or not), sortable by most-viewed or newest.
-- **Discover** — small channels (under 75 viewers) across today's top Twitch
-  categories generally, not just categories your follows happen to be in.
+OAuth uses Twitch's browser-based implicit flow with a cryptographically random `state` check. The only requested scope is `user:read:follows`. Tokens stay in session storage and local discovery preferences stay in that browser.
 
-## Filters
+## Discovery feeds
 
-Following, Teammates, Hidden Gems, Rising Stars, and Discover all share one
-filter panel (hidden by default — click **Filters** to open it, and it closes
-independently on every tab):
+- **For You** (default) prioritizes selected categories, then categories played by live followed channels, then top Twitch categories. It follows Twitch cursors and scans up to eight directory pages per category until it finds enough channels with 0–75 live viewers. Followed channels and the logged-in creator are excluded.
+- **Hidden Gems** scans up to five pages in eight relevant categories for channels with 1–75 viewers, excluding every fetched followed channel.
+- **Emerging Live** scans selected and top categories for channels with 3–500 current viewers, then ranks account recency, audience fit, and broadcaster status. It is an explainable discovery score, not measured growth.
+- **Following** shows followed channels currently live.
+- **Following Clips** shows recent clips from up to 20 followed channels.
 
-- **Twitch tags** — enter one or more comma-separated tags. Matching is
-  case-insensitive and exact; a stream may match any entered tag.
-- **Game genre groups** — RPG, MMO, Shooter, Strategy, Horror, Survival,
-  Simulation, and Adventure resolve Wormhole's curated game lists through
-  Twitch's IGDB-backed category API.
-- **Game category** — live autocomplete against Twitch's category database.
-  Multiple exact games or creative categories can be selected and removed.
-- **Min / Max viewers** — type in a range.
-- **Followed for at least (days)** — Following tab only, computed from
-  Twitch's `followed_at` timestamp for each channel.
+## Controls
 
-Clips has its own sort control (most-viewed / newest) instead of this panel,
-since clips don't have viewer counts, tags, or a follow-age concept.
+- Sort view counts low-to-high or high-to-low on every panel.
+- Exclude Twitch Partners on every panel.
+- Balance each result page across categories.
+- Hide creators seen in the last seven days, show saved creators only, save a creator, or dismiss one for 30 days. This history is stored locally and partitioned by Twitch user.
+- Include tags, exclude tags, select stream language, use audience presets or custom min/max values, include/exclude categories, and use Wormhole's eight genre groups.
+- Open **Scan details** to see categories, pages, candidates, eligible results, partial failures, API request count, and Twitch rate-limit headroom.
 
-## Pagination
+Card explanations show why a creator appeared. Clicking a live card opens a preview with recent VODs, clips, schedule, and a link to Twitch.
 
-All grids show 12 results per page with Prev/Next controls beneath. Changing
-tabs, filters, search, or sort resets you to page 1.
+## Important follower-count limitation
 
-## Streamer detail view
+Twitch does not let a static third-party app obtain follower totals for arbitrary channels. `Get Channel Followers` requires `moderator:read:followers`, and the logged-in user must own or moderate the requested channel. NerdSync therefore cannot truthfully enforce “0–1,000 followers” on Cloudflare Pages alone and does not mislabel viewer counts as followers.
 
-Clicking a stream card (not a clip card) opens a modal instead of navigating
-away, showing the title, category, live status, tags, and:
+A true follower-growth feed would require an authorized backend or licensed data source. This release stays fully static and labels the proxy feed **Emerging Live**.
 
-- **Recent Broadcasts** — the streamer's last 3 archived VODs (Twitch has no
-  separate "past streams" endpoint, so this uses `Get Videos` filtered to
-  `type=archive`, which is the real equivalent).
-- **Recent Clips** — their top 3 clips by views from the last 30 days.
-- **Upcoming Schedule** — up to 3 segments from Twitch's Stream Schedule
-  feature, when the streamer has one published. Many streamers don't use
-  this feature, in which case it'll say so rather than showing nothing
-  silently.
+## Reliability notes
 
-A **Watch on Twitch** button opens the channel in a new tab. Ctrl/Cmd/Shift/
-middle-click on a card still opens Twitch directly, bypassing the modal, for
-anyone who wants the old one-click behavior.
-
-## Branding
-
-The interface uses Wormhole's true-black, purple-black panel, lavender text,
-and violet glow palette while keeping the NerdSync text wordmark.
-
-## Caching & refresh
-
-Teammates, Hidden Gems, Rising Stars, and Clips can each fire a dozen-plus
-Helix API calls per load. Each tab's result is cached in memory for 3
-minutes; the refresh icon next to the search box forces a fresh pull for the
-current tab and clears the underlying followed-streams/followed-channels
-caches too. The stream detail modal caches its per-streamer data (videos,
-clips, schedule) for 5 minutes so reopening the same streamer is instant.
-None of this is persisted to disk — it's all in-memory JS state, so it resets
-on reload or logout.
-
-## Performance & modern JS notes
-
-- All filter/search text inputs are debounced (300ms) so typing doesn't
-  re-render on every keystroke.
-- Card clicks use a single delegated listener on the grid container rather
-  than one listener per card, so re-rendering a page of cards never leaks or
-  re-attaches handlers.
-- API calls that can partially fail (fetching teams for 8 streamers, clips
-  for 20 channels, etc.) use `Promise.allSettled` so one failed request
-  doesn't blank out the whole tab.
-- Images use `loading="lazy"` and `decoding="async"`.
-- This ships as a single unbuilt HTML file by design — no bundler, no
-  dependencies to audit or update. Cloudflare Pages serves it with Brotli
-  compression automatically, so there's no separate "minify" step needed for
-  transfer size. If the file grows much further, splitting the script into a
-  separate `app.js` (cacheable independently of `index.html`) and adding a
-  minimal build step (e.g. esbuild) would be the next reasonable step — not
-  needed yet at this size.
-
-## Known limitations, stated plainly
-
-- No literal "streamers your streamers follow" feature — Twitch's API
-  doesn't expose another account's follow list to third-party apps.
-- Rising Stars' 30-day window is against account age, not first-stream date,
-  for the reasons above.
-- Implicit Flow tokens expire in a few hours and aren't refreshed — the app
-  asks the user to log back in when that happens, rather than silently
-  failing.
-- "Multi-user" means every visitor authenticates as themselves; there's
-  still no shared backend, so nothing syncs *between* users.
+- Pagination stops only when Twitch omits the cursor; a short page is not treated as the end.
+- Independent category requests use partial-result handling, so one failed directory does not blank the whole feed.
+- A 429 response is retried once after a short rate-limit-aware wait.
+- A 401 produces a clear expired-session message.
+- Tab results are cached for three minutes; the refresh button clears the current tab and followed-channel caches.

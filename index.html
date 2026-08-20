@@ -37,6 +37,7 @@ button { font: inherit; }
 .login-card { background-color: var(--panel); padding: 2.5rem; border: 1px solid var(--border); border-radius: 10px; width: 100%; max-width: 400px; box-shadow: var(--glow); text-align: center; }
 .brand-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
 .brand-header p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.75rem; }
+.release-version { display:inline-block; margin:-.9rem 0 1.25rem; padding:.22rem .55rem; border:1px solid var(--accent-dim); border-radius:999px; color:var(--accent-hover); background:rgba(139,92,246,.1); font-size:.72rem; font-weight:700; letter-spacing:.04em; }
 .btn-twitch { width: 100%; padding: 0.8rem; background-color: var(--accent); border: none; border-radius: 4px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background-color 0.2s; }
 .btn-twitch:hover { background-color: var(--accent-hover); }
 .config-warning { margin-top: 1.25rem; font-size: 0.8rem; color: #f2a33c; line-height: 1.4; }
@@ -64,6 +65,11 @@ button { font: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .filter-toggle-row { margin-bottom: 0.75rem; }
+.global-result-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.65rem 1rem; padding:.7rem .85rem; margin-bottom:.75rem; background:var(--panel); border:1px solid var(--border); border-radius:8px; }
+.global-control { display:flex; align-items:center; gap:.5rem; color:var(--text-dim); font-size:.82rem; }
+.global-control select { min-height:36px; padding:.35rem .65rem; border:1px solid var(--control-border); border-radius:7px; background:var(--panel-2); color:var(--text); }
+.global-control--check { cursor:pointer; color:var(--text); }
+.global-control--check input { accent-color:var(--accent); width:16px; height:16px; }
 .filters-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; margin-left: 6px; background: var(--accent); color: #fff; border-radius: 999px; font-size: 0.7rem; font-weight: 700; padding: 0 4px; }
 .filter-panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:0 1.25rem 1.25rem; margin-bottom:1.25rem; box-shadow:var(--glow); }
 .filter-panel-header,.active-filter-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
@@ -75,7 +81,7 @@ button { font: inherit; }
 .filter-group:first-child,.filter-section-title+.filter-group { border-top:0; }
 .filter-group label,.filter-label { display:block; font-size:.82rem; color:var(--text); margin-bottom:.45rem; font-weight:600; }
 .filter-hint { color:var(--text-dim); font-size:.76rem; line-height:1.45; margin-top:.45rem; }
-.filter-group input { width:100%; background:var(--panel-2); border:1px solid var(--control-border); color:var(--text); min-height:42px; padding:.55rem .75rem; border-radius:8px; font-size:.88rem; }
+.filter-group input,.filter-group select { width:100%; background:var(--panel-2); border:1px solid var(--control-border); color:var(--text); min-height:42px; padding:.55rem .75rem; border-radius:8px; font-size:.88rem; }
 .filter-group input::placeholder { color:#676078; }
 .filter-row-inline { display:flex; gap:.75rem; }
 .filter-row-inline>div { flex:1; }
@@ -96,6 +102,7 @@ button { font: inherit; }
 .chip-row,.active-filter-chips { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.65rem; }
 .filter-chip { display:inline-flex; align-items:center; gap:.35rem; min-height:30px; padding:4px 8px 4px 11px; border:1px solid var(--accent-deep); border-radius:999px; background:rgba(139,92,246,.12); color:var(--accent-hover); font-size:.78rem; }
 .filter-chip.genre { border-color:rgba(255,121,0,.55); background:rgba(255,121,0,.1); color:#ffad63; }
+.filter-chip.exclude { border-color:rgba(255,65,54,.65); background:rgba(255,65,54,.1); color:#ff8b84; }
 .filter-chip button { border:0; background:transparent; color:inherit; cursor:pointer; }
 .active-filter-summary { padding-top:1rem; border-top:1px solid var(--border); }
 .active-filter-heading { color:var(--text-dim); font-size:.8rem; }
@@ -126,6 +133,12 @@ button { font: inherit; }
 .game-name { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.15rem; }
 .clip-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.3rem; }
 .via-tag { display: inline-block; margin-top: 0.5rem; margin-right: 0.3rem; font-size: 0.75rem; color: var(--accent); background: rgba(145,70,255,0.12); padding: 2px 8px; border-radius: 999px; }
+.why-row { color:var(--text-dim); font-size:.75rem; line-height:1.35; margin-top:.55rem; }
+.card-actions { display:flex; gap:.45rem; margin-top:.75rem; }
+.card-action { flex:1; border:1px solid var(--border); background:var(--panel-2); color:var(--text-dim); border-radius:5px; padding:.35rem .5rem; cursor:pointer; font-size:.75rem; }
+.card-action:hover,.card-action.saved { border-color:var(--accent); color:var(--accent-hover); }
+.preset-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.55rem; }
+.diagnostics-panel { margin:-.25rem 0 1rem; padding:.75rem .9rem; border:1px solid var(--border); border-radius:7px; background:var(--panel); color:var(--text-dim); font-size:.78rem; line-height:1.55; }
 
 .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
 .page-indicator { color: var(--text-dim); font-size: 0.85rem; }
@@ -181,6 +194,7 @@ button { font: inherit; }
     <div class="brand-header">
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>Your live channels, all in one place.</p>
+      <span class="release-version">Alpha-0.0.4</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -199,12 +213,11 @@ button { font: inherit; }
 
   <div class="controls-bar">
     <div class="tabs" role="tablist" aria-label="Stream lists">
-      <button id="tab-following" class="tab-btn active" role="tab" aria-selected="true">Following</button>
-      <button id="tab-teammates" class="tab-btn" role="tab" aria-selected="false">Teammates</button>
+      <button id="tab-following" class="tab-btn" role="tab" aria-selected="false">Following</button>
+      <button id="tab-clips" class="tab-btn" role="tab" aria-selected="false">Following Clips</button>
+      <button id="tab-discover" class="tab-btn active" role="tab" aria-selected="true">For You</button>
       <button id="tab-gems" class="tab-btn" role="tab" aria-selected="false">Hidden Gems</button>
-      <button id="tab-rising" class="tab-btn" role="tab" aria-selected="false">Rising Stars</button>
-      <button id="tab-clips" class="tab-btn" role="tab" aria-selected="false">Clips</button>
-      <button id="tab-discover" class="tab-btn" role="tab" aria-selected="false">Discover</button>
+      <button id="tab-rising" class="tab-btn" role="tab" aria-selected="false">Emerging Live</button>
     </div>
     <div class="search-row">
       <input id="search-input" class="search-input" type="search" placeholder="Filter by streamer or game…" aria-label="Filter streams" />
@@ -216,6 +229,23 @@ button { font: inherit; }
 
   <div id="filter-toggle-row" class="filter-toggle-row hidden">
     <button id="filters-toggle-btn" class="btn-logout" type="button">Filters<span id="filters-badge" class="filters-badge hidden">0</span></button>
+  </div>
+
+  <div id="global-result-controls" class="global-result-controls">
+    <label class="global-control" for="view-count-sort">View count
+      <select id="view-count-sort">
+        <option value="default">Default order</option>
+        <option value="asc">Low to high</option>
+        <option value="desc">High to low</option>
+      </select>
+    </label>
+    <label class="global-control global-control--check"><input id="exclude-partners" type="checkbox" /> Exclude Twitch Partners</label>
+    <label class="global-control" for="diversity-limit">Category variety
+      <select id="diversity-limit"><option value="3">Balanced</option><option value="2">High variety</option><option value="4">Light variety</option><option value="off">Off</option></select>
+    </label>
+    <label class="global-control global-control--check"><input id="hide-seen" type="checkbox" /> Hide seen for 7 days</label>
+    <label class="global-control global-control--check"><input id="saved-only" type="checkbox" /> Saved only</label>
+    <button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button>
   </div>
 
   <section id="filter-panel" class="filter-panel hidden" aria-labelledby="filter-panel-title">
@@ -231,11 +261,21 @@ button { font: inherit; }
         <p class="filter-hint">Comma-separated. A channel is included when any entered tag matches exactly.</p>
       </div>
       <div class="filter-group">
+        <label for="excluded-tags">Exclude tags</label>
+        <input id="excluded-tags" type="text" placeholder="e.g. DropsEnabled, VTuber" autocomplete="off" />
+        <p class="filter-hint">Comma-separated. Streams with any matching tag are removed.</p>
+      </div>
+      <div class="filter-group">
+        <label for="language-filter">Stream language</label>
+        <select id="language-filter"><option value="">Any language</option><option value="en">English</option><option value="es">Spanish</option><option value="de">German</option><option value="fr">French</option><option value="pt">Portuguese</option><option value="ja">Japanese</option><option value="ko">Korean</option><option value="it">Italian</option><option value="ru">Russian</option></select>
+      </div>
+      <div class="filter-group">
         <span class="filter-label">Audience size</span>
         <div class="filter-row-inline">
           <div><label for="filter-min-viewers">Minimum</label><input id="filter-min-viewers" type="number" min="0" placeholder="0" /></div>
           <div><label for="filter-max-viewers">Maximum</label><input id="filter-max-viewers" type="number" min="0" placeholder="Any" /></div>
         </div>
+        <div class="preset-row" aria-label="Audience presets"><button class="sort-btn audience-preset" data-min="0" data-max="10" type="button">0–10</button><button class="sort-btn audience-preset" data-min="0" data-max="25" type="button">0–25</button><button class="sort-btn audience-preset" data-min="10" data-max="75" type="button">10–75</button><button class="sort-btn audience-preset" data-min="" data-max="" type="button">Any</button></div>
       </div>
       <div class="filter-group hidden" id="follow-age-group">
         <label for="filter-follow-days">Followed for at least</label>
@@ -259,6 +299,7 @@ button { font: inherit; }
     </div>
     <div class="filter-group">
       <label for="category-search-input">Game category</label>
+      <div class="filter-row-inline" style="margin-bottom:.55rem"><div><select id="category-filter-mode" aria-label="Category filter mode"><option value="include">Include category</option><option value="exclude">Exclude category</option></select></div></div>
       <div class="category-search">
         <input id="category-search-input" type="text" placeholder="Search Twitch games and creative categories…" autocomplete="off" />
         <ul id="category-suggestions" class="category-suggestions hidden"></ul>
@@ -273,8 +314,8 @@ button { font: inherit; }
   </section>
 
   <div id="rising-controls-row" class="clip-sort-row hidden">
-    <button id="rising-sort-viewers" class="sort-btn active" type="button">Most viewers</button>
-    <button id="rising-sort-uptime" class="sort-btn" type="button">Longest uptime</button>
+    <button id="rising-sort-viewers" class="sort-btn active" type="button">Best rising score</button>
+    <button id="rising-sort-uptime" class="sort-btn" type="button">Newest accounts</button>
     <select id="rising-status-filter" class="search-input" style="min-width:170px;">
       <option value="all">All statuses</option>
       <option value="none">Non-affiliate</option>
@@ -289,6 +330,7 @@ button { font: inherit; }
   </div>
 
   <p id="tab-explainer" class="tab-explainer hidden"></p>
+  <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
   <div id="status-area"></div>
   <div id="stream-grid" class="stream-grid"></div>
   <div id="pagination-controls" class="pagination-controls"></div>
@@ -333,19 +375,27 @@ button { font: inherit; }
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
-const SCOPES = 'user:read:email user:read:follows';
+const SCOPES = 'user:read:follows';
 const STORAGE_KEY = 'nerdsync_token';
+const OAUTH_STATE_KEY = 'nerdsync_oauth_state';
+const HISTORY_KEY = 'nerdsync_discovery_history_v1';
 
 // Tuning knobs — kept small to stay well under Twitch's Helix rate limits.
-const MAX_SEED_STREAMERS_FOR_TEAMMATES = 8;
-const MAX_SEED_CATEGORIES_FOR_GEMS = 5;
-const GEMS_PER_CATEGORY = 6;
+const MAX_FOLLOW_PAGES = 10;
+const MAX_SEED_CATEGORIES_FOR_GEMS = 8;
+const MIN_GEM_CATEGORIES = 4;
+const GEMS_PER_CATEGORY = 18;
+const GEMS_STREAM_PAGES = 5;
 const SMALL_STREAM_VIEWER_CEILING = 75;
-const MAX_TOP_CATEGORIES_FOR_DISCOVER = 6;
-const STREAMS_PER_CATEGORY_DISCOVER = 10;
-const RISING_STARS_LOOKBACK_DAYS = 30;
-const MAX_TOP_CATEGORIES_FOR_RISING = 6;
-const MAX_RISING_CANDIDATES = 100;
+const MAX_TOP_CATEGORIES_FOR_DISCOVER = 10;
+const STREAMS_PER_CATEGORY_DISCOVER = 24;
+const DISCOVER_STREAM_PAGES = 8;
+const RISING_ACCOUNT_WINDOW_DAYS = 730;
+const MAX_TOP_CATEGORIES_FOR_RISING = 10;
+const RISING_STREAM_PAGES = 3;
+const MAX_RISING_CANDIDATES = 600;
+const RISING_MIN_VIEWERS = 3;
+const RISING_MAX_VIEWERS = 500;
 const CLIPS_LOOKBACK_DAYS = 30;
 const MAX_SEED_STREAMERS_FOR_CLIPS = 20;
 const CLIPS_PER_STREAMER = 20;
@@ -382,14 +432,23 @@ const filterToggleRow = document.getElementById('filter-toggle-row');
 const filterPanel = document.getElementById('filter-panel');
 const filtersToggleBtn = document.getElementById('filters-toggle-btn');
 const filtersBadge = document.getElementById('filters-badge');
+const viewCountSortEl = document.getElementById('view-count-sort');
+const excludePartnersEl = document.getElementById('exclude-partners');
+const diversityLimitEl = document.getElementById('diversity-limit');
+const hideSeenEl = document.getElementById('hide-seen');
+const savedOnlyEl = document.getElementById('saved-only');
+const diagnosticsPanel = document.getElementById('diagnostics-panel');
 const followAgeGroup = document.getElementById('follow-age-group');
 const tagInput = document.getElementById('filter-tag');
+const excludedTagsInput = document.getElementById('excluded-tags');
+const languageFilterEl = document.getElementById('language-filter');
 const minViewersInput = document.getElementById('filter-min-viewers');
 const maxViewersInput = document.getElementById('filter-max-viewers');
 const followDaysInput = document.getElementById('filter-follow-days');
 const genreFiltersEl = document.getElementById('genre-filters');
 const genreHint = document.getElementById('genre-hint');
 const categorySearchInput = document.getElementById('category-search-input');
+const categoryFilterMode = document.getElementById('category-filter-mode');
 const categorySuggestions = document.getElementById('category-suggestions');
 const selectedCategoriesEl = document.getElementById('selected-categories');
 const activeFilterCount = document.getElementById('active-filter-count');
@@ -407,38 +466,31 @@ const TABS = {
     load: loadFollowing,
     hasCommonFilters: true
   },
-  teammates: {
-    el: document.getElementById('tab-teammates'),
-    explainer: "Twitch doesn't let apps see who another streamer follows, so this is the closest real substitute: live members of official Twitch Teams that your followed streamers belong to.",
-    empty: "None of your live followed streamers are on a public Twitch Team, so there are no teammates to surface yet.",
-    load: loadTeammates,
-    hasCommonFilters: true
-  },
   gems: {
     el: document.getElementById('tab-gems'),
-    explainer: `Small channels (under ${SMALL_STREAM_VIEWER_CEILING} viewers) playing the same games your followed streamers are live in right now.`,
-    empty: "Follow and watch a few live channels first — Hidden Gems is built from the categories they're currently playing.",
+    explainer: `Channels with 1–${SMALL_STREAM_VIEWER_CEILING} viewers found deeper in categories you select or your followed channels are playing. Sparse category lists are supplemented so this view stays useful.`,
+    empty: 'No eligible small channels were found in the scanned categories right now. Try another category, clear restrictive filters, or refresh later.',
     load: loadHiddenGems,
     hasCommonFilters: true
   },
   rising: {
     el: document.getElementById('tab-rising'),
-    explainer: `Channels playing today's top categories whose Twitch account was created in the last ${RISING_STARS_LOOKBACK_DAYS} days. Twitch's API has no "first stream" field, so account-creation date is the closest available signal — treat this as a rough cut, not a precise one.`,
-    empty: "No live channels matched a recently-created account in today's top categories right now — results here will naturally be sparse.",
+    explainer: 'Emerging live channels found deeper in Twitch directories. Twitch does not expose follower totals for arbitrary channels to a static app, so this uses account age, current audience, and broadcaster status—not an unverifiable 0–1,000 follower claim.',
+    empty: 'No eligible emerging channels were found in the sampled categories right now. Try refreshing later or use Discover.',
     load: loadRisingStars,
     hasCommonFilters: true,
     isRising: true
   },
   clips: {
     el: document.getElementById('tab-clips'),
-    explainer: `Clips from the last ${CLIPS_LOOKBACK_DAYS} days, pulled from up to ${MAX_SEED_STREAMERS_FOR_CLIPS} of the channels you follow.`,
+    explainer: `Following Clips from the last ${CLIPS_LOOKBACK_DAYS} days, pulled from up to ${MAX_SEED_STREAMERS_FOR_CLIPS} channels you follow.`,
     empty: `No clips from your followed channels in the last ${CLIPS_LOOKBACK_DAYS} days.`,
     load: loadClips,
     isClips: true
   },
   discover: {
     el: document.getElementById('tab-discover'),
-    explainer: `Small channels (under ${SMALL_STREAM_VIEWER_CEILING} viewers) across today's top Twitch categories — the channels Twitch's own front page buries under the biggest streamers.`,
+    explainer: `A personalized small-stream feed. Selected categories and games your followed channels play come first, then Twitch's top categories fill gaps. NerdSync scans deeper until it finds channels under ${SMALL_STREAM_VIEWER_CEILING} viewers.`,
     empty: 'No small channels found in the top categories right now.',
     load: loadDiscover,
     hasCommonFilters: true
@@ -447,7 +499,7 @@ const TABS = {
 
 let currentUser = null;
 let currentToken = null;
-let activeTab = 'following';
+let activeTab = 'discover';
 let currentPage = 1;
 let allStreams = [];
 let followedLiveCache = null;
@@ -455,9 +507,17 @@ let followedChannelsCache = null;
 let tabCache = {};
 let modalDetailCache = {};
 let clipSort = 'views';
-let risingSort = 'viewers';
+let risingSort = 'potential';
 let risingStatusFilter = 'all';
-let filters = { tags: [], genres: [], categories: [], minViewers: null, maxViewers: null, minFollowDays: null };
+let viewCountSort = 'default';
+let excludePartners = false;
+let diversityLimit = 3;
+let hideSeen = false;
+let savedOnly = false;
+let filters = { tags: [], excludedTags: [], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null };
+let diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
+let discoveryHistory = {};
+let loadGeneration = 0;
 const cardDataById = new Map();
 
 // --- Config guard ---
@@ -478,7 +538,11 @@ function debounce(fn, delay) {
 
 // --- Login / logout ---
 loginBtn.addEventListener('click', () => {
-  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
+  const stateBytes = new Uint8Array(24);
+  crypto.getRandomValues(stateBytes);
+  const state = [...stateBytes].map(value => value.toString(16).padStart(2, '0')).join('');
+  sessionStorage.setItem(OAUTH_STATE_KEY, state);
+  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}&state=${encodeURIComponent(state)}`;
   window.location.href = authUrl;
 });
 
@@ -528,6 +592,8 @@ refreshBtn.addEventListener('click', () => {
 sortTopBtn.addEventListener('click', () => setClipSort('views'));
 sortNewBtn.addEventListener('click', () => setClipSort('newest'));
 function setClipSort(mode) {
+  viewCountSort = 'default';
+  viewCountSortEl.value = 'default';
   clipSort = mode;
   sortTopBtn.classList.toggle('active', mode === 'views');
   sortNewBtn.classList.toggle('active', mode === 'newest');
@@ -535,12 +601,14 @@ function setClipSort(mode) {
   renderGrid();
 }
 
-document.getElementById('rising-sort-viewers').addEventListener('click', () => setRisingSort('viewers'));
-document.getElementById('rising-sort-uptime').addEventListener('click', () => setRisingSort('uptime'));
+document.getElementById('rising-sort-viewers').addEventListener('click', () => setRisingSort('potential'));
+document.getElementById('rising-sort-uptime').addEventListener('click', () => setRisingSort('account'));
 function setRisingSort(mode) {
+  viewCountSort = 'default';
+  viewCountSortEl.value = 'default';
   risingSort = mode;
-  document.getElementById('rising-sort-viewers').classList.toggle('active', mode === 'viewers');
-  document.getElementById('rising-sort-uptime').classList.toggle('active', mode === 'uptime');
+  document.getElementById('rising-sort-viewers').classList.toggle('active', mode === 'potential');
+  document.getElementById('rising-sort-uptime').classList.toggle('active', mode === 'account');
   currentPage = 1;
   renderGrid();
 }
@@ -548,6 +616,30 @@ document.getElementById('rising-status-filter').addEventListener('change', e => 
   risingStatusFilter = e.target.value;
   currentPage = 1;
   renderGrid();
+});
+
+viewCountSortEl.addEventListener('change', () => {
+  viewCountSort = viewCountSortEl.value;
+  currentPage = 1;
+  renderGrid();
+});
+
+excludePartnersEl.addEventListener('change', () => {
+  excludePartners = excludePartnersEl.checked;
+  currentPage = 1;
+  renderGrid();
+});
+
+diversityLimitEl.addEventListener('change', () => {
+  diversityLimit = diversityLimitEl.value === 'off' ? null : Number(diversityLimitEl.value);
+  currentPage = 1;
+  renderGrid();
+});
+hideSeenEl.addEventListener('change', () => { hideSeen = hideSeenEl.checked; currentPage = 1; renderGrid(); });
+savedOnlyEl.addEventListener('change', () => { savedOnly = savedOnlyEl.checked; currentPage = 1; renderGrid(); });
+document.getElementById('diagnostics-toggle').addEventListener('click', () => {
+  diagnosticsPanel.classList.toggle('hidden');
+  renderDiagnostics();
 });
 
 // --- Filters ---
@@ -558,6 +650,20 @@ tagInput.addEventListener('input', debounce(() => {
   filters.tags = parseTagInput(tagInput.value);
   filtersChanged();
 }, DEBOUNCE_MS));
+
+excludedTagsInput.addEventListener('input', debounce(() => {
+  filters.excludedTags = parseTagInput(excludedTagsInput.value);
+  filtersChanged();
+}, DEBOUNCE_MS));
+languageFilterEl.addEventListener('change', () => { filters.language = languageFilterEl.value; filtersChanged(); });
+
+document.querySelectorAll('.audience-preset').forEach(button => button.addEventListener('click', () => {
+  minViewersInput.value = button.dataset.min;
+  maxViewersInput.value = button.dataset.max;
+  filters.minViewers = numOrNull(button.dataset.min);
+  filters.maxViewers = numOrNull(button.dataset.max);
+  filtersChanged();
+}));
 
 function parseTagInput(value) {
   const seen = new Set();
@@ -610,7 +716,7 @@ async function resolveSelectedGenres() {
   filters.categories = filters.categories.filter(category => category.source !== 'genre');
   if (!filters.genres.length) {
     renderSelectedCategories();
-    filtersChanged();
+    categoryFiltersChanged();
     return;
   }
   const names = [...new Set(GENRE_PRESETS.filter(preset => filters.genres.includes(preset.id)).flatMap(preset => preset.games))];
@@ -630,7 +736,7 @@ async function resolveSelectedGenres() {
     genreHint.textContent = 'Could not resolve genre categories. Try again.';
   }
   renderSelectedCategories();
-  filtersChanged();
+  categoryFiltersChanged();
 }
 
 function normalizeCategoryName(value) {
@@ -652,12 +758,12 @@ async function runCategorySearch(query) {
   try {
     const results = await searchTwitchCategories(normalizedQuery, currentToken);
     if (generation !== categorySearchGeneration || categorySearchInput.value.trim() !== normalizedQuery) return;
-    const selectedIds = new Set(filters.categories.map(category => category.id));
+    const selectedIds = new Set([...filters.categories, ...filters.excludedCategories].map(category => category.id));
     const available = results.filter(game => !selectedIds.has(game.id));
     categorySuggestions.innerHTML = available.length ? available.map(game => `<li class="category-suggestion" tabindex="0" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}"><img src="${escapeHtml((game.box_art_url || '').replace('{width}','52').replace('{height}','72'))}" alt="" />${escapeHtml(game.name)}</li>`).join('') : '<li class="category-suggestion-empty">No other matches</li>';
     categorySuggestions.classList.remove('hidden');
     categorySuggestions.querySelectorAll('[data-id]').forEach(item => {
-      const select = () => addCategory({ id:item.dataset.id, name:item.dataset.name, source:'manual' });
+      const select = () => addCategory({ id:item.dataset.id, name:item.dataset.name, source:'manual' }, categoryFilterMode.value);
       item.addEventListener('mousedown', event => { event.preventDefault(); select(); });
       item.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
     });
@@ -668,28 +774,41 @@ async function runCategorySearch(query) {
 }
 
 function hideCategorySuggestions() { categorySuggestions.classList.add('hidden'); }
-function addCategory(category) {
-  if (!filters.categories.some(existing => existing.id === category.id)) filters.categories.push(category);
+function categoryFiltersChanged() {
+  ['discover', 'gems', 'rising'].forEach(tab => { delete tabCache[tab]; });
+  currentPage = 1;
+  renderFilterState();
+  if (['discover', 'gems', 'rising'].includes(activeTab)) loadStreams();
+  else renderGrid();
+}
+function addCategory(category, mode = 'include') {
+  const collection = mode === 'exclude' ? filters.excludedCategories : filters.categories;
+  if (!collection.some(existing => existing.id === category.id)) collection.push(category);
   categorySearchInput.value = '';
   hideCategorySuggestions();
   renderSelectedCategories();
-  filtersChanged();
+  categoryFiltersChanged();
 }
-function removeCategory(id) {
-  filters.categories = filters.categories.filter(category => category.id !== id);
+function removeCategory(id, mode = 'include') {
+  if (mode === 'exclude') filters.excludedCategories = filters.excludedCategories.filter(category => category.id !== id);
+  else filters.categories = filters.categories.filter(category => category.id !== id);
   renderSelectedCategories();
-  filtersChanged();
+  categoryFiltersChanged();
 }
 function renderSelectedCategories() {
-  selectedCategoriesEl.innerHTML = filters.categories.map(category => `<span class="filter-chip${category.source === 'genre' ? ' genre' : ''}" title="${category.source === 'genre' ? `Genre: ${(category.genreLabels || []).join(', ')}` : 'Exact Twitch category'}">${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" aria-label="Remove ${escapeHtml(category.name)}">×</button></span>`).join('');
-  selectedCategoriesEl.querySelectorAll('[data-remove-category]').forEach(button => button.addEventListener('click', () => removeCategory(button.dataset.removeCategory)));
+  const included = filters.categories.map(category => `<span class="filter-chip${category.source === 'genre' ? ' genre' : ''}" title="Included category">${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" data-category-mode="include" aria-label="Remove ${escapeHtml(category.name)}">×</button></span>`);
+  const excluded = filters.excludedCategories.map(category => `<span class="filter-chip exclude" title="Excluded category">Not ${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" data-category-mode="exclude" aria-label="Remove ${escapeHtml(category.name)} exclusion">×</button></span>`);
+  selectedCategoriesEl.innerHTML = [...included, ...excluded].join('');
+  selectedCategoriesEl.querySelectorAll('[data-remove-category]').forEach(button => button.addEventListener('click', () => removeCategory(button.dataset.removeCategory, button.dataset.categoryMode)));
 }
 
 clearFiltersBtn.addEventListener('click', () => {
   genreResolveGeneration += 1;
   clearTimeout(genreResolveTimer);
-  filters = { tags: [], genres: [], categories: [], minViewers: null, maxViewers: null, minFollowDays: null };
+  filters = { tags: [], excludedTags: [], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null };
   tagInput.value = '';
+  excludedTagsInput.value = '';
+  languageFilterEl.value = '';
   minViewersInput.value = '';
   maxViewersInput.value = '';
   followDaysInput.value = '';
@@ -697,15 +816,17 @@ clearFiltersBtn.addEventListener('click', () => {
   categorySearchInput.value = '';
   genreHint.textContent = 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
   renderSelectedCategories();
-  currentPage = 1;
-  filtersChanged();
+  categoryFiltersChanged();
 });
 
 function renderFilterState() {
   const active = [
     ...filters.tags.map(tag => ({ key:`tag:${tag}`, label:`#${tag}` })),
+    ...filters.excludedTags.map(tag => ({ key:`excludedTag:${tag}`, label:`Not #${tag}` })),
+    ...(filters.language ? [{ key:'language', label:`Language ${filters.language.toUpperCase()}` }] : []),
     ...filters.genres.map(id => ({ key:`genre:${id}`, label:(GENRE_PRESETS.find(preset => preset.id === id)?.label || id) })),
     ...filters.categories.filter(category => category.source === 'manual').map(category => ({ key:`category:${category.id}`, label:category.name })),
+    ...filters.excludedCategories.map(category => ({ key:`excludedCategory:${category.id}`, label:`Not ${category.name}` })),
     ...(filters.minViewers != null ? [{ key:'min', label:`Min ${filters.minViewers}` }] : []),
     ...(filters.maxViewers != null ? [{ key:'max', label:`Max ${filters.maxViewers}` }] : []),
     ...(filters.minFollowDays != null ? [{ key:'follow', label:`Followed ${filters.minFollowDays}+ days` }] : [])
@@ -723,7 +844,12 @@ function clearSingleFilter(key) {
     const removed = key.slice(4).toLowerCase();
     filters.tags = filters.tags.filter(tag => tag.toLowerCase() !== removed);
     tagInput.value = filters.tags.join(', ');
-  } else if (key.startsWith('genre:')) {
+  } else if (key.startsWith('excludedTag:')) {
+    const removed = key.slice(12).toLowerCase();
+    filters.excludedTags = filters.excludedTags.filter(tag => tag.toLowerCase() !== removed);
+    excludedTagsInput.value = filters.excludedTags.join(', ');
+  } else if (key === 'language') { filters.language = ''; languageFilterEl.value = ''; }
+  else if (key.startsWith('genre:')) {
     const id = key.slice(6);
     const checkbox = [...genreFiltersEl.querySelectorAll('input')].find(input => input.value === id);
     if (checkbox) checkbox.checked = false;
@@ -733,6 +859,9 @@ function clearSingleFilter(key) {
   } else if (key.startsWith('category:')) {
     removeCategory(key.slice(9));
     return;
+  } else if (key.startsWith('excludedCategory:')) {
+    removeCategory(key.slice(17), 'exclude');
+    return;
   } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; }
   else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; }
   else if (key === 'follow') { filters.minFollowDays = null; followDaysInput.value = ''; }
@@ -740,11 +869,14 @@ function clearSingleFilter(key) {
 }
 
 function passesCommonFilters(s) {
+  const streamTags = (s.tags || []).map(tag => String(tag).trim().toLowerCase());
   if (filters.tags.length) {
-    const streamTags = (s.tags || []).map(tag => String(tag).trim().toLowerCase());
     if (!filters.tags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
   }
+  if (filters.excludedTags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
+  if (filters.language && s.language !== filters.language) return false;
   if (filters.categories.length && !filters.categories.some(category => category.id === s.game_id)) return false;
+  if (filters.excludedCategories.some(category => category.id === s.game_id)) return false;
   if (filters.minViewers != null && s.viewer_count < filters.minViewers) return false;
   if (filters.maxViewers != null && s.viewer_count > filters.maxViewers) return false;
   if (filters.minFollowDays != null && activeTab === 'following') {
@@ -770,26 +902,65 @@ function authHeaders(token) {
   return { 'Client-ID': CLIENT_ID, Authorization: `Bearer ${token}` };
 }
 
+async function apiFetch(url, options = {}, retry = true) {
+  diagnostics.requests += 1;
+  let res = await fetch(url, options);
+  diagnostics.rateRemaining = res.headers.get('Ratelimit-Remaining') || diagnostics.rateRemaining;
+  diagnostics.rateLimit = res.headers.get('Ratelimit-Limit') || diagnostics.rateLimit;
+  if (res.status === 429 && retry) {
+    const resetAt = Number(res.headers.get('Ratelimit-Reset') || 0) * 1000;
+    const waitMs = Math.max(500, Math.min(5000, resetAt - Date.now()));
+    await new Promise(resolve => setTimeout(resolve, waitMs));
+    return apiFetch(url, options, false);
+  }
+  if (res.status === 401) throw new Error('SESSION_EXPIRED');
+  return res;
+}
+
+function renderDiagnostics() {
+  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.failures} partial failures · ${diagnostics.requests} API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}.`;
+}
+
 async function fetchTwitchUserData(token) {
-  const res = await fetch('https://api.twitch.tv/helix/users', { headers: authHeaders(token) });
+  const res = await apiFetch('https://api.twitch.tv/helix/users', { headers: authHeaders(token) });
   if (!res.ok) throw new Error('Failed to load profile');
   return (await res.json()).data[0];
 }
 
 async function fetchFollowedStreams(userId, token) {
-  const res = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${userId}&first=100`, { headers: authHeaders(token) });
-  if (!res.ok) throw new Error('Failed to load followed streams');
-  return (await res.json()).data;
+  const streams = [];
+  let after = '';
+  for (let page = 0; page < MAX_FOLLOW_PAGES; page++) {
+    const params = new URLSearchParams({ user_id:userId, first:'100' });
+    if (after) params.set('after', after);
+    const res = await apiFetch(`https://api.twitch.tv/helix/streams/followed?${params}`, { headers:authHeaders(token) });
+    if (!res.ok) throw new Error('Failed to load followed streams');
+    const payload = await res.json();
+    streams.push(...payload.data);
+    after = payload.pagination?.cursor || '';
+    if (!after) break;
+  }
+  return streams;
 }
 
 async function fetchFollowedChannels(userId, token) {
-  const res = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}&first=100`, { headers: authHeaders(token) });
-  if (!res.ok) throw new Error('Failed to load followed channels');
-  return (await res.json()).data;
+  const channels = [];
+  let after = '';
+  for (let page = 0; page < MAX_FOLLOW_PAGES; page++) {
+    const params = new URLSearchParams({ user_id:userId, first:'100' });
+    if (after) params.set('after', after);
+    const res = await apiFetch(`https://api.twitch.tv/helix/channels/followed?${params}`, { headers:authHeaders(token) });
+    if (!res.ok) throw new Error('Failed to load followed channels');
+    const payload = await res.json();
+    channels.push(...payload.data);
+    after = payload.pagination?.cursor || '';
+    if (!after) break;
+  }
+  return channels;
 }
 
 async function fetchTopGames(token, first) {
-  const res = await fetch(`https://api.twitch.tv/helix/games/top?first=${first}`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/games/top?first=${first}`, { headers: authHeaders(token) });
   if (!res.ok) return [];
   return (await res.json()).data;
 }
@@ -801,7 +972,7 @@ async function fetchGamesByNames(names, token) {
   const responses = await Promise.all(chunks.map(async chunk => {
     const params = new URLSearchParams();
     chunk.forEach(name => params.append('name', name));
-    const res = await fetch(`https://api.twitch.tv/helix/games?${params}`, { headers: authHeaders(token) });
+    const res = await apiFetch(`https://api.twitch.tv/helix/games?${params}`, { headers: authHeaders(token) });
     if (!res.ok) throw new Error('Failed to resolve genre categories');
     return (await res.json()).data;
   }));
@@ -812,40 +983,55 @@ async function fetchGamesByNames(names, token) {
 
 async function searchTwitchCategories(query, token) {
   const params = new URLSearchParams({ query, first:'20' });
-  const res = await fetch(`https://api.twitch.tv/helix/search/categories?${params}`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/search/categories?${params}`, { headers: authHeaders(token) });
   if (!res.ok) throw new Error('Failed to search Twitch categories');
   return (await res.json()).data;
 }
 
-async function fetchChannelTeams(broadcasterId, token) {
-  const res = await fetch(`https://api.twitch.tv/helix/teams/channel?broadcaster_id=${broadcasterId}`, { headers: authHeaders(token) });
-  if (!res.ok) return [];
-  return (await res.json()).data;
-}
-
-async function fetchTeamRoster(teamId, token) {
-  const res = await fetch(`https://api.twitch.tv/helix/teams?id=${teamId}`, { headers: authHeaders(token) });
-  if (!res.ok) return null;
-  return (await res.json()).data[0] || null;
-}
-
-async function fetchStreamsByUserIds(userIds, token) {
-  if (userIds.length === 0) return [];
-  const chunks = [];
-  for (let i = 0; i < userIds.length; i += 100) chunks.push(userIds.slice(i, i + 100));
-  const results = await Promise.all(chunks.map(async chunk => {
-    const params = chunk.map(id => `user_id=${id}`).join('&');
-    const res = await fetch(`https://api.twitch.tv/helix/streams?${params}&first=100`, { headers: authHeaders(token) });
-    if (!res.ok) return [];
-    return (await res.json()).data;
-  }));
-  return results.flat();
-}
-
 async function fetchStreamsByGameId(gameId, token) {
-  const res = await fetch(`https://api.twitch.tv/helix/streams?game_id=${gameId}&first=100`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/streams?game_id=${gameId}&first=100`, { headers: authHeaders(token) });
   if (!res.ok) return [];
   return (await res.json()).data;
+}
+
+async function fetchStreamsByGameIdPages(gameId, token, maxPages) {
+  const streams = [];
+  let after = '';
+  for (let page = 0; page < maxPages; page++) {
+    const params = new URLSearchParams({ game_id:gameId, first:'100' });
+    if (after) params.set('after', after);
+    const res = await apiFetch(`https://api.twitch.tv/helix/streams?${params}`, { headers:authHeaders(token) });
+    if (!res.ok) throw new Error(`Failed to load streams for category ${gameId}`);
+    const payload = await res.json();
+    diagnostics.pages += 1;
+    diagnostics.candidates += payload.data.length;
+    streams.push(...payload.data);
+    after = payload.pagination?.cursor || '';
+    if (!after) break;
+  }
+  return streams;
+}
+
+async function fetchSmallStreamsForGame(gameId, token, options = {}) {
+  const maxPages = options.maxPages || DISCOVER_STREAM_PAGES;
+  const target = options.target || STREAMS_PER_CATEGORY_DISCOVER;
+  const excludedIds = options.excludedIds || new Set();
+  const eligible = [];
+  let after = '';
+  for (let page = 0; page < maxPages && eligible.length < target; page++) {
+    const params = new URLSearchParams({ game_id:gameId, first:'100' });
+    if (after) params.set('after', after);
+    const res = await apiFetch(`https://api.twitch.tv/helix/streams?${params}`, { headers:authHeaders(token) });
+    if (!res.ok) throw new Error(`Failed to scan category ${gameId}`);
+    const payload = await res.json();
+    diagnostics.pages += 1;
+    diagnostics.candidates += payload.data.length;
+    eligible.push(...payload.data.filter(stream => !excludedIds.has(stream.user_id) && stream.viewer_count >= 0 && stream.viewer_count <= SMALL_STREAM_VIEWER_CEILING));
+    after = payload.pagination?.cursor || '';
+    if (!after) break;
+  }
+  diagnostics.eligible += eligible.length;
+  return eligible.slice(0, target);
 }
 
 async function fetchUsersByIds(ids, token) {
@@ -854,28 +1040,37 @@ async function fetchUsersByIds(ids, token) {
   for (let i = 0; i < ids.length; i += 100) chunks.push(ids.slice(i, i + 100));
   const results = await Promise.all(chunks.map(async chunk => {
     const params = chunk.map(id => `id=${id}`).join('&');
-    const res = await fetch(`https://api.twitch.tv/helix/users?${params}`, { headers: authHeaders(token) });
+    const res = await apiFetch(`https://api.twitch.tv/helix/users?${params}`, { headers: authHeaders(token) });
     if (!res.ok) return [];
     return (await res.json()).data;
   }));
   return results.flat();
 }
 
+async function enrichBroadcasterTypes(items, isClips) {
+  const idKey = isClips ? 'broadcaster_id' : 'user_id';
+  const missingIds = [...new Set(items.filter(item => item._broadcasterType == null).map(item => item[idKey]).filter(Boolean))];
+  if (!missingIds.length) return items;
+  const users = await fetchUsersByIds(missingIds, currentToken);
+  const typeById = new Map(users.map(user => [user.id, user.broadcaster_type || 'none']));
+  return items.map(item => item._broadcasterType != null ? item : { ...item, _broadcasterType:typeById.get(item[idKey]) || 'unknown' });
+}
+
 async function fetchClipsForBroadcaster(broadcasterId, token, startedAt, endedAt) {
   const params = new URLSearchParams({ broadcaster_id: broadcasterId, started_at: startedAt, ended_at: endedAt, first: String(CLIPS_PER_STREAMER) });
-  const res = await fetch(`https://api.twitch.tv/helix/clips?${params}`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/clips?${params}`, { headers: authHeaders(token) });
   if (!res.ok) return [];
   return (await res.json()).data;
 }
 
 async function fetchVideosForBroadcaster(broadcasterId, token, first) {
-  const res = await fetch(`https://api.twitch.tv/helix/videos?user_id=${broadcasterId}&type=archive&first=${first}`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/videos?user_id=${broadcasterId}&type=archive&first=${first}`, { headers: authHeaders(token) });
   if (!res.ok) return [];
   return (await res.json()).data;
 }
 
 async function fetchScheduleForBroadcaster(broadcasterId, token, first) {
-  const res = await fetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${broadcasterId}&first=${first}`, { headers: authHeaders(token) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${broadcasterId}&first=${first}`, { headers: authHeaders(token) });
   if (!res.ok) return []; // 404 when the channel has no schedule published
   const data = await res.json();
   return (data.data && data.data.segments) || [];
@@ -901,89 +1096,139 @@ async function loadFollowing() {
 }
 
 async function loadDiscover() {
-  const games = await fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_DISCOVER);
-  if (games.length === 0) return [];
-  const perCategory = await Promise.allSettled(games.map(async g => {
-    const streams = await fetchStreamsByGameId(g.id, currentToken);
-    return streams
-      .filter(s => s.viewer_count < SMALL_STREAM_VIEWER_CEILING)
-      .sort((a, b) => a.viewer_count - b.viewer_count)
-      .slice(0, STREAMS_PER_CATEGORY_DISCOVER)
-      .map(s => ({ ...s, _via: g.name }));
+  const [followedLive, followedChannels, topGames] = await Promise.all([getFollowedLive(), getFollowedChannels(), fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_DISCOVER)]);
+  const excludedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
+  excludedIds.add(currentUser.id);
+  const categoryMap = new Map();
+  filters.categories.slice(0, MAX_TOP_CATEGORIES_FOR_DISCOVER).forEach(category => categoryMap.set(category.id, { id:category.id, name:category.name, reason:'Selected category' }));
+  const frequency = new Map();
+  followedLive.forEach(stream => {
+    if (!stream.game_id) return;
+    const current = frequency.get(stream.game_id) || { id:stream.game_id, name:stream.game_name, count:0 };
+    current.count += 1;
+    frequency.set(stream.game_id, current);
+  });
+  [...frequency.values()].sort((a,b) => b.count-a.count).forEach(game => {
+    if (categoryMap.size < MAX_TOP_CATEGORIES_FOR_DISCOVER && !categoryMap.has(game.id)) categoryMap.set(game.id, { ...game, reason:'Played by channels you follow' });
+  });
+  topGames.forEach(game => {
+    if (categoryMap.size < MAX_TOP_CATEGORIES_FOR_DISCOVER && !categoryMap.has(game.id)) categoryMap.set(game.id, { ...game, reason:'Popular category, smaller channel' });
+  });
+  const games = [...categoryMap.values()];
+  diagnostics.categories = games.length;
+  if (!games.length) return [];
+  const perCategory = await Promise.allSettled(games.map(async game => {
+    const streams = await fetchSmallStreamsForGame(game.id, currentToken, { excludedIds });
+    return streams.sort((a,b) => a.viewer_count-b.viewer_count).map(stream => ({ ...stream, _via:game.name, _why:`${game.reason} · ${stream.viewer_count} live viewers` }));
   }));
+  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
   const merged = new Map();
-  perCategory.forEach(r => { if (r.status === 'fulfilled') r.value.forEach(s => { if (!merged.has(s.user_id)) merged.set(s.user_id, s); }); });
+  const lists = perCategory.filter(result => result.status === 'fulfilled').map(result => result.value);
+  for (let row = 0; ; row++) {
+    let added = false;
+    lists.forEach(list => { const stream = list[row]; if (stream && !merged.has(stream.user_id)) { merged.set(stream.user_id, stream); added = true; } });
+    if (!added) break;
+  }
   return [...merged.values()];
 }
 
-async function loadTeammates() {
-  const seeds = (await getFollowedLive()).slice(0, MAX_SEED_STREAMERS_FOR_TEAMMATES);
-  if (seeds.length === 0) return [];
-  const followedIds = new Set(seeds.map(s => s.user_id));
-
-  const teamLookups = await Promise.allSettled(seeds.map(async s => ({ streamer: s.user_name, teams: await fetchChannelTeams(s.user_id, currentToken) })));
-  const teamIdToStreamer = new Map();
-  teamLookups.forEach(result => {
-    if (result.status !== 'fulfilled') return;
-    result.value.teams.forEach(team => { if (!teamIdToStreamer.has(team.id)) teamIdToStreamer.set(team.id, result.value.streamer); });
-  });
-  if (teamIdToStreamer.size === 0) return [];
-
-  const rosterLookups = await Promise.allSettled([...teamIdToStreamer.keys()].map(async teamId => ({ via: teamIdToStreamer.get(teamId), roster: await fetchTeamRoster(teamId, currentToken) })));
-  const memberIdToVia = new Map();
-  rosterLookups.forEach(result => {
-    if (result.status !== 'fulfilled' || !result.value.roster) return;
-    (result.value.roster.users || []).forEach(member => {
-      if (followedIds.has(member.user_id)) return;
-      if (!memberIdToVia.has(member.user_id)) memberIdToVia.set(member.user_id, `${result.value.via}'s team`);
-    });
-  });
-  if (memberIdToVia.size === 0) return [];
-
-  const liveMembers = await fetchStreamsByUserIds([...memberIdToVia.keys()], currentToken);
-  return liveMembers.map(s => ({ ...s, _via: memberIdToVia.get(s.user_id) }));
-}
-
 async function loadHiddenGems() {
-  const seeds = await getFollowedLive();
-  if (seeds.length === 0) return [];
-  const followedIds = new Set(seeds.map(s => s.user_id));
+  const [seeds, followedChannels] = await Promise.all([getFollowedLive(), getFollowedChannels()]);
+  const followedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
+  followedIds.add(currentUser.id);
+
   const categorySeen = new Map();
-  seeds.forEach(s => { if (s.game_id && !categorySeen.has(s.game_id) && categorySeen.size < MAX_SEED_CATEGORIES_FOR_GEMS) categorySeen.set(s.game_id, s.game_name); });
+  filters.categories.forEach(category => {
+    if (categorySeen.size < MAX_SEED_CATEGORIES_FOR_GEMS) categorySeen.set(category.id, category.name);
+  });
+  const frequency = new Map();
+  seeds.forEach(stream => {
+    if (!stream.game_id) return;
+    const existing = frequency.get(stream.game_id) || { name:stream.game_name, count:0 };
+    existing.count += 1;
+    frequency.set(stream.game_id, existing);
+  });
+  [...frequency.entries()].sort((a,b) => b[1].count - a[1].count).forEach(([id, item]) => {
+    if (categorySeen.size < MAX_SEED_CATEGORIES_FOR_GEMS && !categorySeen.has(id)) categorySeen.set(id, item.name);
+  });
+  if (categorySeen.size < MIN_GEM_CATEGORIES) {
+    const topGames = await fetchTopGames(currentToken, MIN_GEM_CATEGORIES + 2);
+    topGames.forEach(game => {
+      if (categorySeen.size < MIN_GEM_CATEGORIES && !categorySeen.has(game.id)) categorySeen.set(game.id, game.name);
+    });
+  }
   if (categorySeen.size === 0) return [];
 
   const perCategory = await Promise.allSettled([...categorySeen.entries()].map(async ([gameId, gameName]) => {
-    const streams = await fetchStreamsByGameId(gameId, currentToken);
+    const streams = await fetchStreamsByGameIdPages(gameId, currentToken, GEMS_STREAM_PAGES);
     return streams
-      .filter(s => !followedIds.has(s.user_id) && s.viewer_count < SMALL_STREAM_VIEWER_CEILING)
-      .sort((a, b) => a.viewer_count - b.viewer_count)
+      .filter(s => !followedIds.has(s.user_id) && s.viewer_count >= 1 && s.viewer_count <= SMALL_STREAM_VIEWER_CEILING)
+      .map(s => ({ ...s, _gemScore:Math.max(0, 100 - Math.abs(s.viewer_count - 25) * 2) }))
+      .sort((a, b) => b._gemScore - a._gemScore || b.viewer_count - a.viewer_count)
       .slice(0, GEMS_PER_CATEGORY)
-      .map(s => ({ ...s, _via: gameName }));
+      .map(s => ({ ...s, _via: gameName, _why:`Deep in ${gameName} · ${s.viewer_count} live viewers` }));
   }));
+
+  diagnostics.categories = categorySeen.size;
+  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
 
   const merged = new Map();
   perCategory.forEach(result => { if (result.status === 'fulfilled') result.value.forEach(s => { if (!merged.has(s.user_id)) merged.set(s.user_id, s); }); });
+  diagnostics.eligible += merged.size;
   return [...merged.values()];
 }
 
 async function loadRisingStars() {
-  const games = await fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_RISING);
+  const [topGames, followedChannels] = await Promise.all([fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_RISING), getFollowedChannels()]);
+  const gameMap = new Map();
+  filters.categories.slice(0, MAX_TOP_CATEGORIES_FOR_RISING).forEach(category => gameMap.set(category.id, category));
+  topGames.forEach(game => { if (gameMap.size < MAX_TOP_CATEGORIES_FOR_RISING) gameMap.set(game.id, game); });
+  const games = [...gameMap.values()];
+  const excludedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
+  excludedIds.add(currentUser.id);
+  diagnostics.categories = games.length;
   if (games.length === 0) return [];
 
-  const perCategory = await Promise.allSettled(games.map(g => fetchStreamsByGameId(g.id, currentToken)));
+  const perCategory = await Promise.allSettled(games.map(async game => {
+    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, RISING_STREAM_PAGES);
+    return streams
+      .filter(stream => !excludedIds.has(stream.user_id) && stream.viewer_count >= RISING_MIN_VIEWERS && stream.viewer_count <= RISING_MAX_VIEWERS)
+      .map(stream => ({ ...stream, _sourceCategory:game.name }));
+  }));
+  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
+  const categoryLists = perCategory.filter(result => result.status === 'fulfilled').map(result => result.value);
   const candidates = new Map();
-  perCategory.forEach(r => { if (r.status === 'fulfilled') r.value.forEach(s => { if (!candidates.has(s.user_id)) candidates.set(s.user_id, s); }); });
-  const candidateList = [...candidates.values()].slice(0, MAX_RISING_CANDIDATES);
+  for (let row = 0; candidates.size < MAX_RISING_CANDIDATES; row++) {
+    let added = false;
+    categoryLists.forEach(list => {
+      const stream = list[row];
+      if (stream && !candidates.has(stream.user_id) && candidates.size < MAX_RISING_CANDIDATES) {
+        candidates.set(stream.user_id, stream);
+        added = true;
+      }
+    });
+    if (!added) break;
+  }
+  const candidateList = [...candidates.values()];
+  diagnostics.eligible += candidateList.length;
   if (candidateList.length === 0) return [];
 
   const users = await fetchUsersByIds(candidateList.map(s => s.user_id), currentToken);
   const userById = new Map(users.map(u => [u.id, u]));
-  const cutoff = Date.now() - RISING_STARS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
-
   return candidateList
     .map(s => ({ stream: s, user: userById.get(s.user_id) }))
-    .filter(({ user }) => user && new Date(user.created_at).getTime() >= cutoff)
-    .map(({ stream, user }) => ({ ...stream, _broadcasterType: user.broadcaster_type || 'none', _accountCreatedAt: user.created_at }));
+    .filter(({ user }) => Boolean(user))
+    .map(({ stream, user }) => {
+      const ageDays = Math.max(0, (Date.now() - new Date(user.created_at).getTime()) / 86400000);
+      const recencyScore = Math.max(0, 1 - ageDays / RISING_ACCOUNT_WINDOW_DAYS);
+      const audienceScore = Math.min(stream.viewer_count / 75, 75 / Math.max(stream.viewer_count, 1));
+      const type = user.broadcaster_type || 'none';
+      const statusBonus = type === 'none' ? 10 : type === 'affiliate' ? 5 : 0;
+      const score = Math.round(recencyScore * 55 + audienceScore * 35 + statusBonus);
+      const ageLabel = ageDays < 60 ? `${Math.round(ageDays)}d account` : `${Math.max(1, Math.round(ageDays / 30))}mo account`;
+      return { ...stream, _broadcasterType:type, _accountCreatedAt:user.created_at, _risingScore:score, _via:`Score ${score} · ${ageLabel}`, _why:`Newer account signal · ${stream.viewer_count} live viewers · ${type === 'none' ? 'not affiliated' : type}` };
+    })
+    .sort((a,b) => b._risingScore - a._risingScore);
 }
 
 async function loadClips() {
@@ -1030,13 +1275,49 @@ function formatRelativeTime(isoString) {
   return `${Math.floor(diffDays / 7)}w ago`;
 }
 
+function historyFor(id) { return discoveryHistory[id] || {}; }
+function historyStorageKey() { return `${HISTORY_KEY}:${currentUser?.id || 'anonymous'}`; }
+function saveHistory() {
+  try { localStorage.setItem(historyStorageKey(), JSON.stringify(discoveryHistory)); } catch (error) { console.warn('Could not save discovery history', error); }
+}
+function updateHistory(id, patch) {
+  discoveryHistory[id] = { ...historyFor(id), ...patch };
+  saveHistory();
+}
+function isDismissed(id) { return Number(historyFor(id).dismissedUntil || 0) > Date.now(); }
+function wasSeenRecently(id) { return Number(historyFor(id).seenAt || 0) > Date.now() - 7 * 86400000; }
+
+function diversifyItems(items, cap) {
+  if (!cap || activeTab === 'following' || TABS[activeTab].isClips) return items;
+  const remaining = [...items];
+  const output = [];
+  while (remaining.length) {
+    const page = [];
+    const counts = new Map();
+    for (let index = 0; index < remaining.length && page.length < PAGE_SIZE;) {
+      const item = remaining[index];
+      const category = item.game_id || 'none';
+      if ((counts.get(category) || 0) < cap) {
+        page.push(item);
+        counts.set(category, (counts.get(category) || 0) + 1);
+        remaining.splice(index, 1);
+      } else index += 1;
+    }
+    while (page.length < PAGE_SIZE && remaining.length) page.push(remaining.shift());
+    output.push(...page);
+  }
+  return output;
+}
+
 function streamCardHtml(s) {
   const thumb = s.thumbnail_url.replace('{width}', '320').replace('{height}', '180');
   const viewers = new Intl.NumberFormat().format(s.viewer_count);
   const viaTag = s._via ? `<span class="via-tag">via ${escapeHtml(s._via)}</span>` : '';
   const statusTag = s._broadcasterType ? `<span class="status-badge">${escapeHtml(s._broadcasterType === 'none' ? 'not affiliated' : s._broadcasterType)}</span>` : '';
+  const saved = Boolean(historyFor(s.user_id).saved);
+  const why = s._why || (s._via ? `Found via ${s._via}` : 'Live now');
   return `
-    <a class="stream-card" href="https://twitch.tv/${encodeURIComponent(s.user_login)}" target="_blank" rel="noopener noreferrer" data-kind="stream" data-user-id="${s.user_id}">
+    <article class="stream-card" tabindex="0" data-kind="stream" data-user-id="${s.user_id}" data-url="https://twitch.tv/${encodeURIComponent(s.user_login)}">
       <div class="thumb-wrap">
         <img class="thumbnail" src="${thumb}" alt="" loading="lazy" decoding="async" />
         <span class="live-badge">Live</span>
@@ -1048,8 +1329,10 @@ function streamCardHtml(s) {
         <p class="streamer-name">${escapeHtml(s.user_name)}</p>
         <p class="game-name">${escapeHtml(s.game_name || 'No category')}</p>
         ${viaTag}
+        <p class="why-row">Why this: ${escapeHtml(why)}</p>
+        <div class="card-actions"><button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button">${saved ? 'Saved' : 'Save'}</button><button class="card-action" data-action="dismiss" type="button">Dismiss 30d</button></div>
       </div>
-    </a>`;
+    </article>`;
 }
 
 function clipCardHtml(c) {
@@ -1087,16 +1370,30 @@ function renderGrid() {
   const cfg = TABS[activeTab];
   let items = [...allStreams];
 
+  if (excludePartners) items = items.filter(item => item._broadcasterType !== 'partner');
+  items = items.filter(item => !isDismissed(item.user_id || item.broadcaster_id));
+  if (savedOnly) items = items.filter(item => historyFor(item.user_id || item.broadcaster_id).saved);
+  if (hideSeen) items = items.filter(item => !wasSeenRecently(item.user_id || item.broadcaster_id) || historyFor(item.user_id || item.broadcaster_id).saved);
+
   if (cfg.isClips) {
-    items.sort((a, b) => clipSort === 'views' ? b.view_count - a.view_count : new Date(b.created_at) - new Date(a.created_at));
+    items.sort((a, b) => viewCountSort === 'asc'
+      ? a.view_count - b.view_count
+      : viewCountSort === 'desc'
+        ? b.view_count - a.view_count
+        : clipSort === 'views'
+          ? b.view_count - a.view_count
+          : new Date(b.created_at) - new Date(a.created_at));
     if (query) items = items.filter(c => c.broadcaster_name.toLowerCase().includes(query) || c.title.toLowerCase().includes(query));
   } else {
     if (query) items = items.filter(s => s.user_name.toLowerCase().includes(query) || (s.game_name || '').toLowerCase().includes(query));
     if (cfg.hasCommonFilters) items = items.filter(passesCommonFilters);
     if (cfg.isRising) {
       if (risingStatusFilter !== 'all') items = items.filter(s => (s._broadcasterType || 'none') === risingStatusFilter);
-      items.sort((a, b) => risingSort === 'viewers' ? b.viewer_count - a.viewer_count : new Date(a.started_at) - new Date(b.started_at));
+      items.sort((a, b) => risingSort === 'potential' ? (b._risingScore || 0) - (a._risingScore || 0) : new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt));
     }
+    if (viewCountSort === 'asc') items.sort((a,b) => a.viewer_count - b.viewer_count);
+    if (viewCountSort === 'desc') items.sort((a,b) => b.viewer_count - a.viewer_count);
+    items = diversifyItems(items, diversityLimit);
   }
 
   const totalItems = items.length;
@@ -1119,12 +1416,20 @@ function renderGrid() {
     cardDataById.set(item.user_id, item);
     return streamCardHtml(item);
   }).join('');
+  pageItems.forEach(item => {
+    const id = item.user_id || item.broadcaster_id;
+    if (id && !historyFor(id).seenAt) updateHistory(id, { seenAt:Date.now() });
+  });
   renderPagination(totalItems, totalPages);
+  renderDiagnostics();
 }
 
 async function loadStreams() {
-  const cached = tabCache[activeTab];
+  const tabId = activeTab;
+  const generation = ++loadGeneration;
+  const cached = tabCache[tabId];
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (tabId !== activeTab || generation !== loadGeneration) return;
     allStreams = cached.data;
     renderGrid();
     return;
@@ -1132,13 +1437,22 @@ async function loadStreams() {
   streamGrid.innerHTML = '';
   paginationControls.innerHTML = '';
   setStatus('Loading streams…');
+  diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
+  renderDiagnostics();
   try {
-    allStreams = await TABS[activeTab].load();
-    tabCache[activeTab] = { data: allStreams, timestamp: Date.now() };
+    let loaded = await TABS[tabId].load();
+    loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
+    tabCache[tabId] = { data: loaded, timestamp: Date.now() };
+    if (tabId !== activeTab || generation !== loadGeneration) return;
+    allStreams = loaded;
     renderGrid();
   } catch (err) {
     console.error(err);
-    setStatus('Something went wrong loading streams. Try refreshing the page.', true);
+    if (err.message === 'SESSION_EXPIRED') {
+      sessionStorage.removeItem(STORAGE_KEY);
+      setStatus('Your Twitch session expired. Log out and sign in again.', true);
+    } else setStatus(`Could not complete this scan${diagnostics.failures ? ` (${diagnostics.failures} category requests failed)` : ''}. Try refresh or reduce selected categories.`, true);
+    renderDiagnostics();
   }
 }
 
@@ -1146,10 +1460,22 @@ async function loadStreams() {
 streamGrid.addEventListener('click', e => {
   const card = e.target.closest('.stream-card');
   if (!card || card.dataset.kind !== 'stream') return;
+  const action = e.target.closest('[data-action]');
+  if (action) {
+    e.preventDefault();
+    const id = card.dataset.userId;
+    if (action.dataset.action === 'save') updateHistory(id, { saved:!historyFor(id).saved });
+    if (action.dataset.action === 'dismiss') updateHistory(id, { dismissedUntil:Date.now() + 30 * 86400000 });
+    renderGrid();
+    return;
+  }
   if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return; // let modifier/middle clicks open Twitch normally
   e.preventDefault();
   const item = cardDataById.get(card.dataset.userId);
-  if (item) openStreamModal(item);
+  if (item) { updateHistory(item.user_id, { openedAt:Date.now() }); openStreamModal(item); }
+});
+streamGrid.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.stream-card')) { e.preventDefault(); e.target.click(); }
 });
 
 function openStreamModal(s) {
@@ -1230,7 +1556,8 @@ async function showDiscoveryView() {
   document.getElementById('user-avatar').alt = `${currentUser.display_name}'s avatar`;
   loginView.classList.add('hidden');
   discoveryView.classList.remove('hidden');
-  setActiveTab('following');
+  try { discoveryHistory = JSON.parse(localStorage.getItem(historyStorageKey()) || '{}') || {}; } catch (error) { discoveryHistory = {}; }
+  setActiveTab('discover');
 }
 
 async function trySession(token) {
@@ -1247,7 +1574,17 @@ async function trySession(token) {
 async function init() {
   const urlToken = getAccessTokenFromUrl();
   if (urlToken) {
-    history.replaceState(null, null, ' ');
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const returnedState = params.get('state');
+    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
+    if (!expectedState || returnedState !== expectedState) {
+      loginBtn.disabled = false;
+      configWarning.textContent = 'Twitch login could not be verified. Please try signing in again.';
+      configWarning.classList.remove('hidden');
+      return;
+    }
     if (await trySession(urlToken)) return;
   }
   const storedToken = sessionStorage.getItem(STORAGE_KEY);
