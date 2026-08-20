@@ -6,6 +6,18 @@
 - Manual and genre-derived categories use OR matching.
 - Active filters appear as removable chips with a Clear all action.
 - Included/excluded tags, stream language, audience presets, custom viewer ranges, and follow-age filters are available.
-- Selected categories seed For You, Hidden Gems, and Emerging Live scans instead of only filtering an already-fetched list.
+- Selected categories seed For You, Spotlight, Hidden Gems, and Emerging Live scans instead of only filtering an already-fetched list.
+- Alpha-0.5.0 removes the small-stream ceiling from For You, adds five current-live-audience stages, a deliberately balanced default feed, broader audience presets, a dedicated Spotlight panel, and Creator Match networking bands based on current live viewers or a manually entered past peak.
+- Alpha-0.6.0 adds Light, Dark, and System themes; three interface sizes; theme-aware high contrast; automatic and manual reduced motion; stronger keyboard, focus, screen-reader, zoom/reflow, forced-colors, and touch-target support.
+- Alpha-0.7.0 adds a New Affiliates feed using verified Affiliate broadcaster status plus an account age under 365 days, without imposing a viewer ceiling or claiming access to Affiliate-earned dates.
+- Alpha-0.7.1 combines Standard Emerging Live and New Affiliates into one stacked Emerging Live hub, with independent sorting, shared filters, shared API scanning, and duplicate suppression between sections.
+- Alpha-0.7.2 aligns NerdSync with Wormhole's shared black/violet design system, typography, panel depth, control styling, and glow treatment while preserving accessible contrast and NerdSync identity.
+- Alpha-0.7.3 adds a first-use privacy and necessary-storage notice before Twitch login, with a locally remembered acknowledgement and an explicit no-sale, no-advertiser-sharing data promise.
+- Alpha-0.7.4 adds Wormhole-style Twitch Content Classification Labels to live discovery and match cards, filters by official labels, and adds adult-oriented creator tags to the suggested-tag controls.
+- Alpha-0.7.5 splits the monolithic HTML/CSS/JavaScript bundle into versioned, cacheable static assets with deferred ordered scripts and Cloudflare Pages cache headers.
+- Alpha-0.8.0 adds a phone-first responsive discovery interface with swipeable tab navigation, collapsible options, a modal filter sheet, single-column cards, safe-area support, and mobile-specific accessibility behavior.
+- Alpha-0.9.0 adds the NerdSync Discovery Graph: followed-channel category/tag signals, locally followed categories, More/ Less Like This feedback, Watch-on-Twitch intent, a visible private interest profile, optional learning, explainable recommendation lanes, and a 70/20/10 strong-match/discovery/exploration target when enough live candidates exist.
+- Alpha-0.10.0 consolidates navigation into Discover, Following, Match, and Saved; moves secondary feeds into contextual selectors; places comparison tools under Match; moves advanced defaults and accessibility into Settings; adds hash routing; and replaces mobile horizontal tabs with a fixed labelled bottom navigation.
+- Alpha-0.4.0 added locally learned category/tag preferences, explainable Discovery Fit scores, uptime, optional archived-VOD activity and open-chat checks, direct channel search, two-channel comparison, saved/hidden creator management, accessibility modes, and downloadable privacy-safe diagnostics.
 
 No client secret or direct IGDB credential is added.

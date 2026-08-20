@@ -2,203 +2,53 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
 <title>NerdSync - A Better Twitch Discovery Feed</title>
-<style>
-:root {
-  color-scheme: dark;
-  --bg: #000000;
-  --panel: #0d0a14;
-  --panel-2: #150f22;
-  --border: #241b3a;
-  --control-border: #766595;
-  --text: #f1edfb;
-  --text-dim: #948fb0;
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-deep: #6d28d9;
-  --accent-dim: #4c3591;
-  --orange: #ff7900;
-  --live: #ff4136;
-  --focus: #a78bfa;
-  --glow: 0 0 40px -8px rgba(139, 92, 246, 0.35);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif; }
-body { background-color: var(--bg); color: var(--text); min-height: 100vh; background-image: radial-gradient(circle at 15% 0%, rgba(139,92,246,.12), transparent 28rem); }
-.hidden { display: none !important; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-button { font: inherit; }
-
-.logo-nerd { color: var(--accent-hover); }
-.logo-sync { color: #ffffff; }
-
-/* --- LOGIN VIEW --- */
-#login-view { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 1.5rem; }
-.login-card { background-color: var(--panel); padding: 2.5rem; border: 1px solid var(--border); border-radius: 10px; width: 100%; max-width: 400px; box-shadow: var(--glow); text-align: center; }
-.brand-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
-.brand-header p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.75rem; }
-.release-version { display:inline-block; margin:-.9rem 0 1.25rem; padding:.22rem .55rem; border:1px solid var(--accent-dim); border-radius:999px; color:var(--accent-hover); background:rgba(139,92,246,.1); font-size:.72rem; font-weight:700; letter-spacing:.04em; }
-.btn-twitch { width: 100%; padding: 0.8rem; background-color: var(--accent); border: none; border-radius: 4px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background-color 0.2s; }
-.btn-twitch:hover { background-color: var(--accent-hover); }
-.config-warning { margin-top: 1.25rem; font-size: 0.8rem; color: #f2a33c; line-height: 1.4; }
-
-/* --- DISCOVERY VIEW --- */
-.discovery-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.top-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-.brand-mini { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.03em; }
-.user-profile { display: flex; align-items: center; gap: 0.75rem; }
-.user-avatar { width: 36px; height: 36px; border-radius: 50%; background-color: #3a3a3d; object-fit: cover; }
-.btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 0.45rem 0.9rem; border-radius: 4px; cursor: pointer; transition: border-color 0.2s, color 0.2s; white-space: nowrap; }
-.btn-logout:hover { border-color: var(--text-dim); color: var(--text); }
-.btn-logout:disabled { opacity: 0.4; cursor: default; }
-
-.controls-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
-.tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; background: var(--panel); padding: 0.25rem; border-radius: 6px; }
-.tab-btn { background: transparent; border: none; color: var(--text-dim); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.88rem; white-space: nowrap; transition: background-color 0.2s, color 0.2s; }
-.tab-btn.active { background: var(--accent); color: #fff; }
-.search-row { display: flex; align-items: center; gap: 0.5rem; }
-.search-input { background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.9rem; border-radius: 6px; min-width: 220px; font-size: 0.9rem; }
-.search-input::placeholder { color: var(--text-dim); }
-.btn-refresh { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
-.btn-refresh:hover { border-color: var(--text-dim); color: var(--text); }
-.btn-refresh.spinning svg { animation: spin 0.6s linear; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.filter-toggle-row { margin-bottom: 0.75rem; }
-.global-result-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.65rem 1rem; padding:.7rem .85rem; margin-bottom:.75rem; background:var(--panel); border:1px solid var(--border); border-radius:8px; }
-.global-control { display:flex; align-items:center; gap:.5rem; color:var(--text-dim); font-size:.82rem; }
-.global-control select { min-height:36px; padding:.35rem .65rem; border:1px solid var(--control-border); border-radius:7px; background:var(--panel-2); color:var(--text); }
-.global-control--check { cursor:pointer; color:var(--text); }
-.global-control--check input { accent-color:var(--accent); width:16px; height:16px; }
-.filters-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; margin-left: 6px; background: var(--accent); color: #fff; border-radius: 999px; font-size: 0.7rem; font-weight: 700; padding: 0 4px; }
-.filter-panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:0 1.25rem 1.25rem; margin-bottom:1.25rem; box-shadow:var(--glow); }
-.filter-panel-header,.active-filter-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-.filter-panel-header { padding:1.1rem 0; border-bottom:1px solid var(--border); }
-.filter-panel-title { font-size:1.08rem; font-weight:700; }
-.filter-section-title { margin:1.15rem 0 .35rem; color:var(--accent-hover); font-size:.7rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; }
-.filter-layout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 1.5rem; }
-.filter-group { padding:.85rem 0; border-top:1px solid var(--border); }
-.filter-group:first-child,.filter-section-title+.filter-group { border-top:0; }
-.filter-group label,.filter-label { display:block; font-size:.82rem; color:var(--text); margin-bottom:.45rem; font-weight:600; }
-.filter-hint { color:var(--text-dim); font-size:.76rem; line-height:1.45; margin-top:.45rem; }
-.filter-group input,.filter-group select { width:100%; background:var(--panel-2); border:1px solid var(--control-border); color:var(--text); min-height:42px; padding:.55rem .75rem; border-radius:8px; font-size:.88rem; }
-.filter-group input::placeholder { color:#676078; }
-.filter-row-inline { display:flex; gap:.75rem; }
-.filter-row-inline>div { flex:1; }
-.genre-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.55rem .8rem; }
-.toggle { display:flex; align-items:center; gap:.45rem; cursor:pointer; user-select:none; }
-.toggle input { position:absolute; opacity:0; width:1px; height:1px; }
-.toggle-box { width:16px; height:16px; border:1.5px solid var(--border); border-radius:4px; background:var(--panel-2); position:relative; flex:0 0 auto; }
-.toggle-box::after { content:''; position:absolute; inset:3px; border-radius:2px; background:var(--accent); opacity:0; transform:scale(.4); transition:.12s; }
-.toggle input:checked+.toggle-box { border-color:var(--accent); }
-.toggle input:checked+.toggle-box::after { opacity:1; transform:scale(1); }
-.toggle-text { color:var(--text); font-size:.84rem; }
-.category-search { position:relative; }
-.category-suggestions { position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20; list-style:none; padding:6px; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; box-shadow:var(--glow); max-height:260px; overflow-y:auto; }
-.category-suggestion { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:.85rem; }
-.category-suggestion:hover,.category-suggestion:focus-visible { background:rgba(139,92,246,.16); }
-.category-suggestion img { width:24px; height:32px; border-radius:3px; object-fit:cover; }
-.category-suggestion-empty { padding:10px; color:var(--text-dim); text-align:center; font-size:.82rem; }
-.chip-row,.active-filter-chips { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.65rem; }
-.filter-chip { display:inline-flex; align-items:center; gap:.35rem; min-height:30px; padding:4px 8px 4px 11px; border:1px solid var(--accent-deep); border-radius:999px; background:rgba(139,92,246,.12); color:var(--accent-hover); font-size:.78rem; }
-.filter-chip.genre { border-color:rgba(255,121,0,.55); background:rgba(255,121,0,.1); color:#ffad63; }
-.filter-chip.exclude { border-color:rgba(255,65,54,.65); background:rgba(255,65,54,.1); color:#ff8b84; }
-.filter-chip button { border:0; background:transparent; color:inherit; cursor:pointer; }
-.active-filter-summary { padding-top:1rem; border-top:1px solid var(--border); }
-.active-filter-heading { color:var(--text-dim); font-size:.8rem; }
-.active-filter-chips:empty::before { content:'No filters active'; color:var(--text-dim); font-size:.8rem; }
-.active-chip { border:1px solid var(--accent-dim); border-radius:999px; background:rgba(139,92,246,.12); color:var(--accent-hover); padding:.35rem .65rem; cursor:pointer; font-size:.78rem; }
-
-.clip-sort-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; }
-.sort-btn { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
-.sort-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.sort-btn:not(.active):hover { border-color: var(--text-dim); color: var(--text); }
-
-.tab-explainer { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; }
-.status-msg { color: var(--text-dim); padding: 3rem 0; text-align: center; font-size: 0.95rem; line-height: 1.5; }
-.status-msg.error { color: #f2a33c; }
-
-.stream-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-.stream-card { background-color:var(--panel); border:1px solid var(--border); border-radius:8px; overflow:hidden; text-decoration:none; color:inherit; display:block; transition:.15s; cursor:pointer; }
-.stream-card:hover,.stream-card:focus-visible { transform:translateY(-2px); border-color:var(--accent-dim); box-shadow:var(--glow); }
-.thumbnail { width: 100%; height: 150px; background-color: var(--panel-2); display: block; object-fit: cover; }
-.thumb-wrap { position: relative; }
-.live-badge { position: absolute; top: 8px; left: 8px; background-color: var(--live); color: #fff; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-.viewer-badge { position: absolute; bottom: 8px; left: 8px; background-color: rgba(0,0,0,0.7); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
-.duration-badge { position: absolute; bottom: 8px; right: 8px; background-color: rgba(0,0,0,0.7); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
-.status-badge { position: absolute; top: 8px; right: 8px; background-color: rgba(0,0,0,0.7); color: #fff; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-transform: capitalize; }
-.stream-info { padding: 1rem; }
-.stream-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.streamer-name { font-size: 0.85rem; color: var(--text); font-weight: 600; }
-.game-name { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.15rem; }
-.clip-meta { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.3rem; }
-.via-tag { display: inline-block; margin-top: 0.5rem; margin-right: 0.3rem; font-size: 0.75rem; color: var(--accent); background: rgba(145,70,255,0.12); padding: 2px 8px; border-radius: 999px; }
-.why-row { color:var(--text-dim); font-size:.75rem; line-height:1.35; margin-top:.55rem; }
-.card-actions { display:flex; gap:.45rem; margin-top:.75rem; }
-.card-action { flex:1; border:1px solid var(--border); background:var(--panel-2); color:var(--text-dim); border-radius:5px; padding:.35rem .5rem; cursor:pointer; font-size:.75rem; }
-.card-action:hover,.card-action.saved { border-color:var(--accent); color:var(--accent-hover); }
-.preset-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.55rem; }
-.tag-preset.active { background:var(--accent); border-color:var(--accent); color:#fff; }
-.diagnostics-panel { margin:-.25rem 0 1rem; padding:.75rem .9rem; border:1px solid var(--border); border-radius:7px; background:var(--panel); color:var(--text-dim); font-size:.78rem; line-height:1.55; }
-
-.pagination-controls { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
-.page-indicator { color: var(--text-dim); font-size: 0.85rem; }
-
-/* --- MODAL --- */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
-.modal-panel { background: var(--panel); border-radius: 10px; width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto; padding: 1.75rem; position: relative; }
-.modal-close { position: absolute; top: 1rem; right: 1rem; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; line-height: 1; }
-.modal-header { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.9rem; padding-right: 2.5rem; }
-.modal-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--panel-2); flex-shrink: 0; }
-.modal-streamer { font-weight: 700; font-size: 1.1rem; }
-.modal-category { color: var(--text-dim); font-size: 0.88rem; }
-.modal-title-text { font-size: 0.95rem; margin-bottom: 0.75rem; line-height: 1.4; }
-.modal-stats-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
-.modal-stat { color: var(--text-dim); font-size: 0.85rem; }
-.modal-tags { margin-bottom: 1rem; }
-.modal-watch-btn { display: inline-flex; width: auto; padding: 0.6rem 1.3rem; margin-bottom: 1.5rem; text-decoration: none; }
-.modal-section { margin-top: 1.5rem; }
-.modal-section h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.75rem; }
-.modal-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
-.mini-card { background: var(--panel-2); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.15s; }
-.mini-card:not(.static):hover { transform: translateY(-2px); }
-.mini-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
-.mini-card.static { padding: 0.7rem; }
-.mini-title { display: block; font-size: 0.78rem; font-weight: 600; padding: 0.5rem 0.6rem 0.1rem; line-height: 1.3; }
-.mini-meta { display: block; font-size: 0.72rem; color: var(--text-dim); padding: 0 0.6rem 0.6rem; }
-
-@media (max-width: 600px) {
-  .login-card { padding: 1.75rem 1.5rem; }
-  .discovery-container { padding: 1.25rem; }
-  .top-bar { gap: 0.75rem; }
-  .user-profile { gap: 0.5rem; }
-  #welcome-msg { display: none; }
-  .controls-bar { flex-direction: column; align-items: stretch; }
-  .search-row { width: 100%; }
-  .search-input { min-width: 0; width: 100%; }
-  .tabs { width: 100%; }
-  .tab-btn { flex: 1 1 auto; text-align: center; }
-  .stream-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-  .stream-title { font-size: 0.88rem; }
-  .clip-sort-row { flex-wrap: wrap; }
-  .sort-btn { flex: 1; text-align: center; }
-  .filter-layout { grid-template-columns:1fr; }
-  .genre-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .modal-panel { padding: 1.25rem; }
-}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=0.10.0">
+<script src="config.js" defer></script>
+<script src="js/app-core.js?v=0.10.0" defer></script>
+<script src="js/filters.js?v=0.10.0" defer></script>
+<script src="js/twitch-api.js?v=0.10.0" defer></script>
+<script src="js/discovery.js?v=0.10.0" defer></script>
+<script src="js/ui-session.js?v=0.10.0" defer></script>
 </head>
 <body>
 
-<div id="login-view">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<main id="main-content" tabindex="-1">
+
+<div id="privacy-view" role="dialog" aria-modal="true" aria-labelledby="privacy-title" aria-describedby="privacy-summary">
+  <section class="login-card privacy-card">
+    <div class="login-orbit-mark" aria-hidden="true"><span></span></div>
+    <p class="privacy-eyebrow">Privacy &amp; cookies</p>
+    <h1 id="privacy-title">Your data stays yours.</h1>
+    <p id="privacy-summary" class="privacy-lead">Before you connect Twitch, here is NerdSync's simple data promise.</p>
+    <ul class="privacy-points">
+      <li><strong>No selling.</strong> NerdSync will never sell your information or discovery activity.</li>
+      <li><strong>No sharing.</strong> Twitch data is gathered only to build your personal feed. NerdSync does not share it with anyone else, including advertisers or data brokers.</li>
+      <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, and recommendations on this device.</li>
+      <li><strong>No hidden database.</strong> Your Twitch token stays in session storage and your preferences remain in your browser.</li>
+    </ul>
+    <p class="privacy-note">Continuing allows this necessary browser storage. Clearing your browser's site data removes locally saved NerdSync information.</p>
+    <button id="privacy-accept-btn" class="btn-twitch" type="button">I understand — continue to login</button>
+  </section>
+</div>
+
+<div id="login-view" class="hidden">
   <div class="login-card">
     <div class="brand-header">
+      <div class="login-orbit-mark" aria-hidden="true"><span></span></div>
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.1.0</span>
+      <span class="release-version">Alpha-0.10.0</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
+    <button id="privacy-review-btn" class="privacy-review-btn" type="button">Review the NerdSync data promise</button>
   </div>
 </div>
 
@@ -208,18 +58,17 @@ button { font: inherit; }
     <div class="user-profile">
       <img id="user-avatar" class="user-avatar" src="" alt="" />
       <span id="welcome-msg" style="color: var(--text-dim);"></span>
-      <button id="logout-btn" class="btn-logout">Log out</button>
+      <button id="accessibility-toggle" class="btn-logout" type="button" aria-controls="accessibility-panel" aria-expanded="false">Settings</button>
     </div>
   </div>
 
   <div class="controls-bar">
-    <div class="tabs" role="tablist" aria-label="Stream lists">
-      <button id="tab-following" class="tab-btn" role="tab" aria-selected="false">Following</button>
-      <button id="tab-clips" class="tab-btn" role="tab" aria-selected="false">Following Clips</button>
-      <button id="tab-discover" class="tab-btn active" role="tab" aria-selected="true">For You</button>
-      <button id="tab-gems" class="tab-btn" role="tab" aria-selected="false">Hidden Gems</button>
-      <button id="tab-rising" class="tab-btn" role="tab" aria-selected="false">Emerging Live</button>
-    </div>
+    <nav id="primary-nav" class="tabs" aria-label="Primary navigation">
+      <button id="nav-discover" class="tab-btn active" data-destination="discover" type="button" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15 9-2 4-4 2 2-4 4-2Z"></path></svg><span>Discover</span></button>
+      <button id="nav-following" class="tab-btn" data-destination="following" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path></svg><span>Following</span></button>
+      <button id="nav-match" class="tab-btn" data-destination="match" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"></circle><circle cx="16" cy="16" r="3"></circle><path d="m10 10 4 4M14 8h4v4M10 16H6v-4"></path></svg><span>Creator Match</span></button>
+      <button id="nav-saved" class="tab-btn" data-destination="saved" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4Z"></path></svg><span>Saved <span id="saved-count">0</span></span></button>
+    </nav>
     <div class="search-row">
       <input id="search-input" class="search-input" type="search" placeholder="Filter by streamer or game…" aria-label="Filter streams" />
       <button id="refresh-btn" class="btn-refresh" type="button" title="Refresh this tab's data" aria-label="Refresh">
@@ -228,31 +77,108 @@ button { font: inherit; }
     </div>
   </div>
 
-  <div id="filter-toggle-row" class="filter-toggle-row hidden">
-    <button id="filters-toggle-btn" class="btn-logout" type="button">Filters<span id="filters-badge" class="filters-badge hidden">0</span></button>
+  <div id="context-toolbar" class="context-toolbar">
+    <label id="discover-feed-control" class="global-control" for="discover-feed-mode">Discover feed
+      <select id="discover-feed-mode"><option value="discover">For You</option><option value="gems">Hidden Gems</option><option value="rising">Emerging</option><option value="spotlight">Established</option></select>
+    </label>
+    <label id="following-feed-control" class="global-control hidden" for="following-feed-mode">Following feed
+      <select id="following-feed-mode"><option value="following">Live</option><option value="clips">Clips</option></select>
+    </label>
+    <label class="global-control" for="view-count-sort">Sort
+      <select id="view-count-sort"><option value="default">Recommended</option><option value="asc">Low to high</option><option value="desc">High to low</option></select>
+    </label>
+    <div id="filter-toggle-row" class="filter-toggle-row">
+      <button id="filters-toggle-btn" class="btn-logout" type="button" aria-controls="filter-panel" aria-expanded="false">Filters<span id="filters-badge" class="filters-badge hidden">0</span></button>
+    </div>
   </div>
 
-  <div id="global-result-controls" class="global-result-controls">
-    <label class="global-control" for="view-count-sort">View count
-      <select id="view-count-sort">
-        <option value="default">Default order</option>
-        <option value="asc">Low to high</option>
-        <option value="desc">High to low</option>
-      </select>
-    </label>
-    <label class="global-control global-control--check"><input id="exclude-partners" type="checkbox" /> Exclude Twitch Partners</label>
-    <label class="global-control" for="diversity-limit">Category variety
-      <select id="diversity-limit"><option value="3">Balanced</option><option value="2">High variety</option><option value="4">Light variety</option><option value="off">Off</option></select>
-    </label>
-    <label class="global-control global-control--check"><input id="hide-seen" type="checkbox" /> Hide seen for 7 days</label>
-    <label class="global-control global-control--check"><input id="saved-only" type="checkbox" /> Saved only</label>
-    <button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button>
+  <div class="feature-actions" aria-label="Discovery tools">
+    <button id="try-someone-btn" class="btn-twitch" style="width:auto" type="button">Try Someone New</button>
   </div>
+
+  <section id="channel-tools-panel" class="feature-panel hidden" aria-labelledby="channel-tools-title">
+    <div class="feature-panel-head"><h2 id="channel-tools-title">Find and compare Twitch channels</h2></div>
+    <form id="channel-search-form" class="channel-search-form">
+      <input id="channel-search-input" class="search-input" type="search" minlength="2" placeholder="Search a Twitch channel by name…" aria-label="Twitch channel name" />
+      <button class="btn-logout" type="submit">Search Twitch</button>
+    </form>
+    <div id="channel-search-results" class="tool-results" aria-live="polite"></div>
+    <div class="feature-panel-head" style="margin-top:1rem"><h2>Comparison <span id="compare-count">0/2</span></h2><button id="clear-compare-btn" class="btn-logout" type="button">Clear</button></div>
+    <div id="comparison-grid" class="compare-grid"></div>
+  </section>
+
+  <section id="saved-panel" class="feature-panel hidden" aria-labelledby="saved-panel-title" tabindex="-1">
+    <div class="feature-panel-head"><h2 id="saved-panel-title">Saved creators</h2></div>
+    <div class="feature-actions"><button id="clear-seen-btn" class="btn-logout" type="button">Clear seen history</button><button id="restore-dismissed-btn" class="btn-logout" type="button">Restore dismissed</button><button id="reset-recommendations-btn" class="btn-logout" type="button">Reset recommendations</button></div>
+    <section class="recommendation-profile" aria-labelledby="recommendation-profile-title">
+      <h3 id="recommendation-profile-title">Your private discovery profile</h3>
+      <p class="filter-hint">Built only from choices made in NerdSync and saved in this browser. Twitch does not provide NerdSync with your watch history.</p>
+      <div id="recommendation-profile-summary" class="signal-row" aria-live="polite"></div>
+    </section>
+    <div id="saved-list" class="tool-results"></div>
+  </section>
+
+  <section id="accessibility-panel" class="feature-panel hidden" aria-labelledby="accessibility-title">
+    <div class="feature-panel-head"><h2 id="accessibility-title">Settings and accessibility</h2><button class="btn-logout panel-close" data-close-panel="accessibility-panel" type="button">Close</button></div>
+    <h3 class="filter-section-title">Discovery defaults</h3>
+    <div id="global-result-controls" class="settings-grid">
+      <label class="global-control" for="creator-stage">Creator stage
+        <select id="creator-stage"><option value="balanced">Balanced mix</option><option value="new">New &amp; Niche · 0–20</option><option value="growing">Growing · 21–100</option><option value="breakout">Breakout · 101–500</option><option value="established">Established · 501–5,000</option><option value="headliner">Headliners · 5,001+</option><option value="all">All creators</option></select>
+      </label>
+      <label class="global-control global-control--check"><input id="exclude-partners" type="checkbox" /> Exclude Twitch Partners</label>
+      <label class="global-control" for="diversity-limit">Category variety
+        <select id="diversity-limit"><option value="3">Balanced</option><option value="2">High variety</option><option value="4">Light variety</option><option value="off">Off</option></select>
+      </label>
+      <label class="global-control" for="personalization-mode">Personalization
+        <select id="personalization-mode"><option value="on">On — learn on this device</option><option value="off">Off — don't learn from choices</option></select>
+      </label>
+      <label class="global-control global-control--check"><input id="hide-seen" type="checkbox" /> Hide seen for 7 days</label>
+    </div>
+    <h3 class="filter-section-title">Appearance</h3>
+    <div class="settings-grid">
+      <label class="global-control" for="a11y-theme">Appearance
+        <select id="a11y-theme"><option value="system">Use device setting</option><option value="dark">Dark</option><option value="light">Light</option></select>
+      </label>
+      <label class="global-control" for="a11y-text-size">Interface size
+        <select id="a11y-text-size"><option value="normal">Normal</option><option value="large">Large</option><option value="xlarge">Extra large</option></select>
+      </label>
+      <label class="global-control global-control--check"><input id="a11y-large-cards" type="checkbox" /> Larger stream cards</label>
+      <label class="global-control global-control--check"><input id="a11y-high-contrast" type="checkbox" /> Higher contrast</label>
+      <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
+    </div>
+    <div class="feature-actions" style="margin-top:1rem"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
+    <p class="filter-hint">NerdSync never sells or shares your Twitch data. Your token stays in session storage and discovery preferences remain in this browser.</p>
+    <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
+  </section>
+
+  <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
+    <div class="feature-panel-head"><div><h2 id="creator-match-title">Find networking matches</h2><p class="filter-hint">Match live creators to your current audience or a past peak. Existing NerdSync filters refine the results.</p></div></div>
+    <div class="settings-grid">
+      <div class="filter-group">
+        <label for="match-source">Audience source</label>
+        <select id="match-source"><option value="live">My audience live now</option><option value="manual">Enter a past peak</option><option value="vod">Past VOD + entered peak</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="match-tolerance">Match range</label>
+        <select id="match-tolerance"><option value="50">Within ±50%</option><option value="75">Within ±75%</option><option value="100">Within ±100%</option></select>
+      </div>
+      <div id="match-vod-group" class="filter-group hidden">
+        <label for="match-vod">Past broadcast</label>
+        <select id="match-vod"><option value="">Load past broadcasts…</option></select>
+        <p class="filter-hint">Twitch reports total VOD plays, not peak live viewers. Select a VOD for context, then enter the peak you observed.</p>
+      </div>
+      <div id="match-peak-group" class="filter-group hidden">
+        <label for="match-peak">Past peak live viewers</label>
+        <input id="match-peak" type="number" min="1" inputmode="numeric" placeholder="e.g. 20" />
+      </div>
+    </div>
+    <div class="feature-actions"><button id="run-creator-match" class="btn-twitch" style="width:auto" type="button">Find Creator Matches</button><span id="match-range-summary" class="empty-compact" aria-live="polite"></span></div>
+  </section>
 
   <section id="filter-panel" class="filter-panel hidden" aria-labelledby="filter-panel-title">
     <div class="filter-panel-header">
       <div><div class="filter-section-title" style="margin:0 0 .25rem">Discovery controls</div><h2 id="filter-panel-title" class="filter-panel-title">Filters</h2></div>
-      <button id="filter-panel-close" class="btn-logout" type="button">Collapse</button>
+      <button id="filter-panel-close" class="btn-logout" type="button">Close filters</button>
     </div>
     <h3 class="filter-section-title">Content</h3>
     <div class="filter-layout">
@@ -274,6 +200,15 @@ button { font: inherit; }
           <button class="sort-btn tag-preset" data-tag="Disabled" type="button">Disabled</button>
           <button class="sort-btn tag-preset" data-tag="Neurodivergent" type="button">Neurodivergent</button>
         </div>
+        <p class="filter-hint" style="margin-top:.85rem">Adult-oriented creator tags</p>
+        <div class="preset-row" aria-label="Adult-oriented Twitch tags">
+          <button class="sort-btn tag-preset" data-tag="MDNI" type="button">MDNI</button>
+          <button class="sort-btn tag-preset" data-tag="18Plus" type="button">18+</button>
+          <button class="sort-btn tag-preset" data-tag="AdultOnly" type="button">Adult Only</button>
+          <button class="sort-btn tag-preset" data-tag="AdultsOnly" type="button">Adults Only</button>
+          <button class="sort-btn tag-preset" data-tag="MatureAudience" type="button">Mature Audience</button>
+        </div>
+        <p class="filter-hint">These are creator-entered discovery tags, not proof of age and not an age gate.</p>
       </div>
       <div class="filter-group">
         <label for="excluded-tags">Exclude tags</label>
@@ -290,7 +225,33 @@ button { font: inherit; }
           <div><label for="filter-min-viewers">Minimum</label><input id="filter-min-viewers" type="number" min="0" placeholder="0" /></div>
           <div><label for="filter-max-viewers">Maximum</label><input id="filter-max-viewers" type="number" min="0" placeholder="Any" /></div>
         </div>
-        <div class="preset-row" aria-label="Audience presets"><button class="sort-btn audience-preset" data-min="0" data-max="10" type="button">0–10</button><button class="sort-btn audience-preset" data-min="0" data-max="25" type="button">0–25</button><button class="sort-btn audience-preset" data-min="10" data-max="75" type="button">10–75</button><button class="sort-btn audience-preset" data-min="" data-max="" type="button">Any</button></div>
+        <div class="preset-row" aria-label="Audience presets"><button class="sort-btn audience-preset" data-min="0" data-max="20" type="button">0–20</button><button class="sort-btn audience-preset" data-min="21" data-max="100" type="button">21–100</button><button class="sort-btn audience-preset" data-min="101" data-max="500" type="button">101–500</button><button class="sort-btn audience-preset" data-min="501" data-max="5000" type="button">501–5K</button><button class="sort-btn audience-preset" data-min="5001" data-max="" type="button">5K+</button><button class="sort-btn audience-preset" data-min="" data-max="" type="button">Any</button></div>
+      </div>
+      <div class="filter-group">
+        <label for="filter-max-uptime">Maximum stream uptime</label>
+        <select id="filter-max-uptime"><option value="">Any uptime</option><option value="2">2 hours</option><option value="4">4 hours</option><option value="8">8 hours</option><option value="12">12 hours</option><option value="24">24 hours</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="activity-filter">Recent creator activity</label>
+        <select id="activity-filter"><option value="">Do not check</option><option value="30">Archived VOD in last 30 days</option><option value="90">Archived VOD in last 90 days</option></select>
+        <p class="filter-hint">Checks recent archived VOD activity for up to the strongest 40 candidates and caches the result. Channels with VODs disabled may not qualify.</p>
+      </div>
+      <div class="filter-group">
+        <label class="global-control global-control--check"><input id="open-chat-only" type="checkbox" /> Open chat only</label>
+        <p class="filter-hint">Excludes follower-only, subscriber-only, and emote-only chats after checking the strongest candidates.</p>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Twitch content classification</span>
+        <div id="content-label-filters" class="content-label-filter-grid">
+          <label class="toggle"><input type="checkbox" value="DebatedSocialIssuesAndPolitics"><span class="toggle-box"></span><span class="toggle-text">Politics &amp; sensitive issues</span></label>
+          <label class="toggle"><input type="checkbox" value="DrugsIntoxication"><span class="toggle-box"></span><span class="toggle-text">Drugs / intoxication</span></label>
+          <label class="toggle"><input type="checkbox" value="Gambling"><span class="toggle-box"></span><span class="toggle-text">Gambling</span></label>
+          <label class="toggle"><input type="checkbox" value="MatureGame"><span class="toggle-box"></span><span class="toggle-text">Mature-rated game</span></label>
+          <label class="toggle"><input type="checkbox" value="ProfanityVulgarity"><span class="toggle-box"></span><span class="toggle-text">Profanity</span></label>
+          <label class="toggle"><input type="checkbox" value="SexualThemes"><span class="toggle-box"></span><span class="toggle-text">Sexual themes</span></label>
+          <label class="toggle"><input type="checkbox" value="ViolentGraphic"><span class="toggle-box"></span><span class="toggle-text">Graphic violence</span></label>
+        </div>
+        <p class="filter-hint">Matches any selected official Twitch label. Labels are displayed separately from creator-entered tags.</p>
       </div>
       <div class="filter-group hidden" id="follow-age-group">
         <label for="filter-follow-days">Followed for at least</label>
@@ -328,7 +289,11 @@ button { font: inherit; }
     </div>
   </section>
 
+  <button id="mobile-filter-backdrop" class="mobile-filter-backdrop hidden" type="button" aria-label="Close filters"></button>
+
+  <div id="results-area">
   <div id="rising-controls-row" class="clip-sort-row hidden">
+    <strong class="section-control-title">Standard Emerging Live</strong>
     <button id="rising-sort-viewers" class="sort-btn active" type="button">Best rising score</button>
     <button id="rising-sort-uptime" class="sort-btn" type="button">Newest accounts</button>
     <select id="rising-status-filter" class="search-input" style="min-width:170px;">
@@ -339,21 +304,29 @@ button { font: inherit; }
     </select>
   </div>
 
+  <div id="new-affiliate-controls-row" class="clip-sort-row hidden" role="group" aria-label="Sort new affiliates">
+    <strong class="section-control-title">New Affiliates</strong>
+    <button id="new-affiliate-sort-fit" class="sort-btn active" type="button">Best discovery fit</button>
+    <button id="new-affiliate-sort-newest" class="sort-btn" type="button">Newest accounts</button>
+  </div>
+
   <div id="clip-sort-row" class="clip-sort-row hidden" role="group" aria-label="Sort clips">
     <button id="sort-top" class="sort-btn active" type="button">Most viewed</button>
     <button id="sort-new" class="sort-btn" type="button">Newest</button>
   </div>
 
   <p id="tab-explainer" class="tab-explainer hidden"></p>
-  <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
-  <div id="status-area"></div>
-  <div id="stream-grid" class="stream-grid"></div>
+  <div id="status-area" role="status" aria-live="polite" aria-atomic="true"></div>
+  <p id="results-summary" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div id="stream-grid" class="stream-grid" aria-label="Twitch discovery results"></div>
   <div id="pagination-controls" class="pagination-controls"></div>
+  </div>
 </div>
+</main>
 
 <div id="stream-modal" class="modal-overlay hidden">
-  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-streamer">
-    <button id="modal-close" class="modal-close" aria-label="Close" type="button">&times;</button>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-streamer" aria-describedby="modal-title-text" tabindex="-1">
+    <button id="modal-close" class="modal-close" aria-label="Close stream details" type="button">&times;</button>
     <div class="modal-header">
       <img id="modal-avatar" class="modal-avatar" src="" alt="" />
       <div>
@@ -368,1266 +341,21 @@ button { font: inherit; }
     </div>
     <div id="modal-tags" class="modal-tags"></div>
     <a id="modal-watch-btn" class="btn-twitch modal-watch-btn" href="#" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>
+    <button id="modal-compare-btn" class="btn-logout" type="button">Add to comparison</button>
     <div class="modal-section">
       <h3>Recent Broadcasts</h3>
-      <div id="modal-videos" class="modal-mini-grid"><p class="status-msg">Loading…</p></div>
+      <div id="modal-videos" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
     <div class="modal-section">
       <h3>Recent Clips</h3>
-      <div id="modal-clips" class="modal-mini-grid"><p class="status-msg">Loading…</p></div>
+      <div id="modal-clips" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
     <div class="modal-section">
       <h3>Upcoming Schedule</h3>
-      <div id="modal-schedule" class="modal-mini-grid"><p class="status-msg">Loading…</p></div>
+      <div id="modal-schedule" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
   </div>
 </div>
 
-<script src="config.js"></script>
-<script>
-'use strict';
-
-// --- CONFIGURATION ---
-const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const REDIRECT_URI = window.location.origin + window.location.pathname;
-const SCOPES = 'user:read:follows';
-const STORAGE_KEY = 'nerdsync_token';
-const OAUTH_STATE_KEY = 'nerdsync_oauth_state';
-const HISTORY_KEY = 'nerdsync_discovery_history_v1';
-
-// Tuning knobs — kept small to stay well under Twitch's Helix rate limits.
-const MAX_FOLLOW_PAGES = 10;
-const MAX_SEED_CATEGORIES_FOR_GEMS = 8;
-const MIN_GEM_CATEGORIES = 4;
-const GEMS_PER_CATEGORY = 18;
-const GEMS_STREAM_PAGES = 5;
-const SMALL_STREAM_VIEWER_CEILING = 75;
-const MAX_TOP_CATEGORIES_FOR_DISCOVER = 10;
-const STREAMS_PER_CATEGORY_DISCOVER = 24;
-const DISCOVER_STREAM_PAGES = 8;
-const RISING_ACCOUNT_WINDOW_DAYS = 730;
-const MAX_TOP_CATEGORIES_FOR_RISING = 10;
-const RISING_STREAM_PAGES = 3;
-const MAX_RISING_CANDIDATES = 600;
-const RISING_MIN_VIEWERS = 3;
-const RISING_MAX_VIEWERS = 500;
-const CLIPS_LOOKBACK_DAYS = 30;
-const MAX_SEED_STREAMERS_FOR_CLIPS = 20;
-const CLIPS_PER_STREAMER = 20;
-const CACHE_TTL_MS = 3 * 60 * 1000;
-const MODAL_CACHE_TTL_MS = 5 * 60 * 1000;
-const PAGE_SIZE = 12;
-const DEBOUNCE_MS = 300;
-
-const GENRE_PRESETS = [
-  { id:'rpg', label:'RPG', games:["Baldur's Gate 3",'The Elder Scrolls V: Skyrim','Cyberpunk 2077','Fallout 4','Elden Ring','Diablo IV','Path of Exile 2','Persona 5 Royal'] },
-  { id:'mmo', label:'MMO', games:['World of Warcraft','FINAL FANTASY XIV ONLINE','The Elder Scrolls Online','Star Wars: The Old Republic','Guild Wars 2','Black Desert','Old School RuneScape','New World: Aeternum'] },
-  { id:'shooter', label:'Shooter', games:['Fortnite','VALORANT','Counter-Strike 2','Call of Duty: Warzone','Apex Legends','Overwatch 2',"Tom Clancy's Rainbow Six Siege",'Destiny 2'] },
-  { id:'strategy', label:'Strategy', games:['StarCraft II',"Sid Meier's Civilization VI",'Age of Empires IV','Total War: WARHAMMER III','Hearts of Iron IV','Crusader Kings III','Teamfight Tactics','XCOM 2'] },
-  { id:'horror', label:'Horror', games:['Dead by Daylight','Phasmophobia','Resident Evil 4','Silent Hill 2','The Outlast Trials','Lethal Company','Alien: Isolation','SOMA'] },
-  { id:'survival', label:'Survival', games:['Minecraft','Rust','ARK: Survival Ascended','Valheim','DayZ','7 Days to Die','Sons of the Forest','Icarus'] },
-  { id:'simulation', label:'Simulation', games:['The Sims 4','Microsoft Flight Simulator 2024','Euro Truck Simulator 2','Farming Simulator 25','Cities: Skylines II','House Flipper 2','PowerWash Simulator','Planet Zoo'] },
-  { id:'adventure', label:'Adventure', games:['The Legend of Zelda: Tears of the Kingdom','God of War Ragnarök','Stray',"Uncharted 4: A Thief's End",'Indiana Jones and the Great Circle','A Plague Tale: Requiem','Red Dead Redemption 2','Star Wars Jedi: Survivor'] }
-];
-
-const loginView = document.getElementById('login-view');
-const discoveryView = document.getElementById('discovery-view');
-const loginBtn = document.getElementById('twitch-login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const configWarning = document.getElementById('config-warning');
-const searchInput = document.getElementById('search-input');
-const refreshBtn = document.getElementById('refresh-btn');
-const statusArea = document.getElementById('status-area');
-const streamGrid = document.getElementById('stream-grid');
-const tabExplainer = document.getElementById('tab-explainer');
-const clipSortRow = document.getElementById('clip-sort-row');
-const sortTopBtn = document.getElementById('sort-top');
-const sortNewBtn = document.getElementById('sort-new');
-const filterToggleRow = document.getElementById('filter-toggle-row');
-const filterPanel = document.getElementById('filter-panel');
-const filtersToggleBtn = document.getElementById('filters-toggle-btn');
-const filtersBadge = document.getElementById('filters-badge');
-const viewCountSortEl = document.getElementById('view-count-sort');
-const excludePartnersEl = document.getElementById('exclude-partners');
-const diversityLimitEl = document.getElementById('diversity-limit');
-const hideSeenEl = document.getElementById('hide-seen');
-const savedOnlyEl = document.getElementById('saved-only');
-const diagnosticsPanel = document.getElementById('diagnostics-panel');
-const followAgeGroup = document.getElementById('follow-age-group');
-const tagInput = document.getElementById('filter-tag');
-const excludedTagsInput = document.getElementById('excluded-tags');
-const languageFilterEl = document.getElementById('language-filter');
-const minViewersInput = document.getElementById('filter-min-viewers');
-const maxViewersInput = document.getElementById('filter-max-viewers');
-const followDaysInput = document.getElementById('filter-follow-days');
-const genreFiltersEl = document.getElementById('genre-filters');
-const genreHint = document.getElementById('genre-hint');
-const categorySearchInput = document.getElementById('category-search-input');
-const categoryFilterMode = document.getElementById('category-filter-mode');
-const categorySuggestions = document.getElementById('category-suggestions');
-const selectedCategoriesEl = document.getElementById('selected-categories');
-const activeFilterCount = document.getElementById('active-filter-count');
-const activeFilterChips = document.getElementById('active-filter-chips');
-const clearFiltersBtn = document.getElementById('clear-filters-btn');
-const risingControlsRow = document.getElementById('rising-controls-row');
-const paginationControls = document.getElementById('pagination-controls');
-const streamModal = document.getElementById('stream-modal');
-
-const TABS = {
-  following: {
-    el: document.getElementById('tab-following'),
-    explainer: 'Channels you follow that are live right now.',
-    empty: "None of the channels you follow are live right now. Try Discover to see what's trending.",
-    load: loadFollowing,
-    hasCommonFilters: true
-  },
-  gems: {
-    el: document.getElementById('tab-gems'),
-    explainer: `Channels with 1–${SMALL_STREAM_VIEWER_CEILING} viewers found deeper in categories you select or your followed channels are playing. Sparse category lists are supplemented so this view stays useful.`,
-    empty: 'No eligible small channels were found in the scanned categories right now. Try another category, clear restrictive filters, or refresh later.',
-    load: loadHiddenGems,
-    hasCommonFilters: true
-  },
-  rising: {
-    el: document.getElementById('tab-rising'),
-    explainer: 'Emerging live channels found deeper in Twitch directories. Twitch does not expose follower totals for arbitrary channels to a static app, so this uses account age, current audience, and broadcaster status—not an unverifiable 0–1,000 follower claim.',
-    empty: 'No eligible emerging channels were found in the sampled categories right now. Try refreshing later or use Discover.',
-    load: loadRisingStars,
-    hasCommonFilters: true,
-    isRising: true
-  },
-  clips: {
-    el: document.getElementById('tab-clips'),
-    explainer: `Following Clips from the last ${CLIPS_LOOKBACK_DAYS} days, pulled from up to ${MAX_SEED_STREAMERS_FOR_CLIPS} channels you follow.`,
-    empty: `No clips from your followed channels in the last ${CLIPS_LOOKBACK_DAYS} days.`,
-    load: loadClips,
-    isClips: true
-  },
-  discover: {
-    el: document.getElementById('tab-discover'),
-    explainer: `A personalized small-stream feed. Selected categories and games your followed channels play come first, then Twitch's top categories fill gaps. NerdSync scans deeper until it finds channels under ${SMALL_STREAM_VIEWER_CEILING} viewers.`,
-    empty: 'No small channels found in the top categories right now.',
-    load: loadDiscover,
-    hasCommonFilters: true
-  }
-};
-
-let currentUser = null;
-let currentToken = null;
-let activeTab = 'discover';
-let currentPage = 1;
-let allStreams = [];
-let followedLiveCache = null;
-let followedChannelsCache = null;
-let tabCache = {};
-let modalDetailCache = {};
-let clipSort = 'views';
-let risingSort = 'potential';
-let risingStatusFilter = 'all';
-let viewCountSort = 'default';
-let excludePartners = false;
-let diversityLimit = 3;
-let hideSeen = false;
-let savedOnly = false;
-let filters = { tags: [], excludedTags: [], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null };
-let diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
-let discoveryHistory = {};
-let loadGeneration = 0;
-const cardDataById = new Map();
-
-// --- Config guard ---
-if (!CLIENT_ID || CLIENT_ID === 'YOUR_TWITCH_CLIENT_ID_HERE') {
-  loginBtn.disabled = true;
-  loginBtn.style.opacity = '0.5';
-  loginBtn.style.cursor = 'not-allowed';
-  configWarning.classList.remove('hidden');
-}
-
-function debounce(fn, delay) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
-
-// --- Login / logout ---
-loginBtn.addEventListener('click', () => {
-  const stateBytes = new Uint8Array(24);
-  crypto.getRandomValues(stateBytes);
-  const state = [...stateBytes].map(value => value.toString(16).padStart(2, '0')).join('');
-  sessionStorage.setItem(OAUTH_STATE_KEY, state);
-  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPES)}&state=${encodeURIComponent(state)}`;
-  window.location.href = authUrl;
-});
-
-logoutBtn.addEventListener('click', () => {
-  sessionStorage.removeItem(STORAGE_KEY);
-  currentToken = null;
-  currentUser = null;
-  followedLiveCache = null;
-  followedChannelsCache = null;
-  tabCache = {};
-  modalDetailCache = {};
-  discoveryView.classList.add('hidden');
-  loginView.classList.remove('hidden');
-});
-
-// --- Tabs ---
-function setActiveTab(tabId) {
-  activeTab = tabId;
-  currentPage = 1;
-  const cfg = TABS[tabId];
-  Object.entries(TABS).forEach(([id, tab]) => {
-    tab.el.classList.toggle('active', id === tabId);
-    tab.el.setAttribute('aria-selected', id === tabId);
-  });
-  tabExplainer.textContent = cfg.explainer;
-  tabExplainer.classList.remove('hidden');
-  clipSortRow.classList.toggle('hidden', !cfg.isClips);
-  risingControlsRow.classList.toggle('hidden', !cfg.isRising);
-  filterToggleRow.classList.toggle('hidden', !cfg.hasCommonFilters);
-  if (!cfg.hasCommonFilters) filterPanel.classList.add('hidden');
-  followAgeGroup.classList.toggle('hidden', tabId !== 'following');
-  loadStreams();
-}
-Object.entries(TABS).forEach(([id, tab]) => tab.el.addEventListener('click', () => setActiveTab(id)));
-
-searchInput.addEventListener('input', debounce(() => { currentPage = 1; renderGrid(); }, DEBOUNCE_MS));
-
-refreshBtn.addEventListener('click', () => {
-  delete tabCache[activeTab];
-  followedLiveCache = null;
-  followedChannelsCache = null;
-  refreshBtn.classList.add('spinning');
-  setTimeout(() => refreshBtn.classList.remove('spinning'), 600);
-  loadStreams();
-});
-
-sortTopBtn.addEventListener('click', () => setClipSort('views'));
-sortNewBtn.addEventListener('click', () => setClipSort('newest'));
-function setClipSort(mode) {
-  viewCountSort = 'default';
-  viewCountSortEl.value = 'default';
-  clipSort = mode;
-  sortTopBtn.classList.toggle('active', mode === 'views');
-  sortNewBtn.classList.toggle('active', mode === 'newest');
-  currentPage = 1;
-  renderGrid();
-}
-
-document.getElementById('rising-sort-viewers').addEventListener('click', () => setRisingSort('potential'));
-document.getElementById('rising-sort-uptime').addEventListener('click', () => setRisingSort('account'));
-function setRisingSort(mode) {
-  viewCountSort = 'default';
-  viewCountSortEl.value = 'default';
-  risingSort = mode;
-  document.getElementById('rising-sort-viewers').classList.toggle('active', mode === 'potential');
-  document.getElementById('rising-sort-uptime').classList.toggle('active', mode === 'account');
-  currentPage = 1;
-  renderGrid();
-}
-document.getElementById('rising-status-filter').addEventListener('change', e => {
-  risingStatusFilter = e.target.value;
-  currentPage = 1;
-  renderGrid();
-});
-
-viewCountSortEl.addEventListener('change', () => {
-  viewCountSort = viewCountSortEl.value;
-  currentPage = 1;
-  renderGrid();
-});
-
-excludePartnersEl.addEventListener('change', () => {
-  excludePartners = excludePartnersEl.checked;
-  currentPage = 1;
-  renderGrid();
-});
-
-diversityLimitEl.addEventListener('change', () => {
-  diversityLimit = diversityLimitEl.value === 'off' ? null : Number(diversityLimitEl.value);
-  currentPage = 1;
-  renderGrid();
-});
-hideSeenEl.addEventListener('change', () => { hideSeen = hideSeenEl.checked; currentPage = 1; renderGrid(); });
-savedOnlyEl.addEventListener('change', () => { savedOnly = savedOnlyEl.checked; currentPage = 1; renderGrid(); });
-document.getElementById('diagnostics-toggle').addEventListener('click', () => {
-  diagnosticsPanel.classList.toggle('hidden');
-  renderDiagnostics();
-});
-
-// --- Filters ---
-filtersToggleBtn.addEventListener('click', () => filterPanel.classList.toggle('hidden'));
-document.getElementById('filter-panel-close').addEventListener('click', () => filterPanel.classList.add('hidden'));
-
-tagInput.addEventListener('input', debounce(() => {
-  filters.tags = parseTagInput(tagInput.value);
-  syncPopularTagButtons();
-  filtersChanged();
-}, DEBOUNCE_MS));
-
-function syncPopularTagButtons() {
-  const selected = new Set(filters.tags.map(tag => tag.toLowerCase()));
-  document.querySelectorAll('.tag-preset').forEach(button => {
-    const active = selected.has(button.dataset.tag.toLowerCase());
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-}
-
-document.querySelectorAll('.tag-preset').forEach(button => button.addEventListener('click', () => {
-  const tag = button.dataset.tag;
-  const exists = filters.tags.some(selected => selected.toLowerCase() === tag.toLowerCase());
-  filters.tags = exists ? filters.tags.filter(selected => selected.toLowerCase() !== tag.toLowerCase()) : [...filters.tags, tag];
-  tagInput.value = filters.tags.join(', ');
-  syncPopularTagButtons();
-  filtersChanged();
-}));
-
-excludedTagsInput.addEventListener('input', debounce(() => {
-  filters.excludedTags = parseTagInput(excludedTagsInput.value);
-  filtersChanged();
-}, DEBOUNCE_MS));
-languageFilterEl.addEventListener('change', () => { filters.language = languageFilterEl.value; filtersChanged(); });
-
-document.querySelectorAll('.audience-preset').forEach(button => button.addEventListener('click', () => {
-  minViewersInput.value = button.dataset.min;
-  maxViewersInput.value = button.dataset.max;
-  filters.minViewers = numOrNull(button.dataset.min);
-  filters.maxViewers = numOrNull(button.dataset.max);
-  filtersChanged();
-}));
-
-function parseTagInput(value) {
-  const seen = new Set();
-  return String(value || '').split(',').map(tag => tag.trim()).filter(tag => {
-    const key = tag.toLowerCase();
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function numOrNull(val) {
-  const n = parseInt(val, 10);
-  return Number.isNaN(n) ? null : n;
-}
-
-minViewersInput.addEventListener('input', debounce(() => {
-  filters.minViewers = numOrNull(minViewersInput.value);
-  filtersChanged();
-}, DEBOUNCE_MS));
-
-maxViewersInput.addEventListener('input', debounce(() => {
-  filters.maxViewers = numOrNull(maxViewersInput.value);
-  filtersChanged();
-}, DEBOUNCE_MS));
-
-followDaysInput.addEventListener('input', debounce(() => {
-  filters.minFollowDays = numOrNull(followDaysInput.value);
-  filtersChanged();
-}, DEBOUNCE_MS));
-
-function filtersChanged() {
-  currentPage = 1;
-  renderFilterState();
-  renderGrid();
-}
-
-let genreResolveTimer = null;
-let genreResolveGeneration = 0;
-genreFiltersEl.addEventListener('change', () => {
-  filters.genres = [...genreFiltersEl.querySelectorAll('input:checked')].map(input => input.value);
-  renderFilterState();
-  clearTimeout(genreResolveTimer);
-  genreHint.textContent = filters.genres.length ? 'Resolving genre games against Twitch categories…' : 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
-  genreResolveTimer = setTimeout(resolveSelectedGenres, 250);
-});
-
-async function resolveSelectedGenres() {
-  const generation = ++genreResolveGeneration;
-  filters.categories = filters.categories.filter(category => category.source !== 'genre');
-  if (!filters.genres.length) {
-    renderSelectedCategories();
-    categoryFiltersChanged();
-    return;
-  }
-  const names = [...new Set(GENRE_PRESETS.filter(preset => filters.genres.includes(preset.id)).flatMap(preset => preset.games))];
-  try {
-    const games = await fetchGamesByNames(names, currentToken);
-    if (generation !== genreResolveGeneration) return;
-    games.forEach(game => {
-      if (!filters.categories.some(category => category.id === game.id)) {
-        const labels = GENRE_PRESETS.filter(preset => filters.genres.includes(preset.id) && preset.games.some(name => normalizeCategoryName(name) === normalizeCategoryName(game.name))).map(preset => preset.label);
-        filters.categories.push({ id: game.id, name: game.name, source: 'genre', genreLabels: labels });
-      }
-    });
-    const unresolved = names.length - games.length;
-    genreHint.textContent = `${games.length} genre ${games.length === 1 ? 'category' : 'categories'} selected${unresolved ? `; ${unresolved} unavailable names were skipped` : ''}.`;
-  } catch (error) {
-    console.error(error);
-    genreHint.textContent = 'Could not resolve genre categories. Try again.';
-  }
-  renderSelectedCategories();
-  categoryFiltersChanged();
-}
-
-function normalizeCategoryName(value) {
-  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
-let categorySearchTimer = null;
-let categorySearchGeneration = 0;
-categorySearchInput.addEventListener('input', () => {
-  clearTimeout(categorySearchTimer);
-  if (!categorySearchInput.value.trim()) return hideCategorySuggestions();
-  categorySearchTimer = setTimeout(() => runCategorySearch(categorySearchInput.value), DEBOUNCE_MS);
-});
-categorySearchInput.addEventListener('blur', () => setTimeout(hideCategorySuggestions, 150));
-
-async function runCategorySearch(query) {
-  const generation = ++categorySearchGeneration;
-  const normalizedQuery = query.trim();
-  try {
-    const results = await searchTwitchCategories(normalizedQuery, currentToken);
-    if (generation !== categorySearchGeneration || categorySearchInput.value.trim() !== normalizedQuery) return;
-    const selectedIds = new Set([...filters.categories, ...filters.excludedCategories].map(category => category.id));
-    const available = results.filter(game => !selectedIds.has(game.id));
-    categorySuggestions.innerHTML = available.length ? available.map(game => `<li class="category-suggestion" tabindex="0" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}"><img src="${escapeHtml((game.box_art_url || '').replace('{width}','52').replace('{height}','72'))}" alt="" />${escapeHtml(game.name)}</li>`).join('') : '<li class="category-suggestion-empty">No other matches</li>';
-    categorySuggestions.classList.remove('hidden');
-    categorySuggestions.querySelectorAll('[data-id]').forEach(item => {
-      const select = () => addCategory({ id:item.dataset.id, name:item.dataset.name, source:'manual' }, categoryFilterMode.value);
-      item.addEventListener('mousedown', event => { event.preventDefault(); select(); });
-      item.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
-    });
-  } catch (error) {
-    console.error(error);
-    hideCategorySuggestions();
-  }
-}
-
-function hideCategorySuggestions() { categorySuggestions.classList.add('hidden'); }
-function categoryFiltersChanged() {
-  ['discover', 'gems', 'rising'].forEach(tab => { delete tabCache[tab]; });
-  currentPage = 1;
-  renderFilterState();
-  if (['discover', 'gems', 'rising'].includes(activeTab)) loadStreams();
-  else renderGrid();
-}
-function addCategory(category, mode = 'include') {
-  const collection = mode === 'exclude' ? filters.excludedCategories : filters.categories;
-  if (!collection.some(existing => existing.id === category.id)) collection.push(category);
-  categorySearchInput.value = '';
-  hideCategorySuggestions();
-  renderSelectedCategories();
-  categoryFiltersChanged();
-}
-function removeCategory(id, mode = 'include') {
-  if (mode === 'exclude') filters.excludedCategories = filters.excludedCategories.filter(category => category.id !== id);
-  else filters.categories = filters.categories.filter(category => category.id !== id);
-  renderSelectedCategories();
-  categoryFiltersChanged();
-}
-function renderSelectedCategories() {
-  const included = filters.categories.map(category => `<span class="filter-chip${category.source === 'genre' ? ' genre' : ''}" title="Included category">${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" data-category-mode="include" aria-label="Remove ${escapeHtml(category.name)}">×</button></span>`);
-  const excluded = filters.excludedCategories.map(category => `<span class="filter-chip exclude" title="Excluded category">Not ${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" data-category-mode="exclude" aria-label="Remove ${escapeHtml(category.name)} exclusion">×</button></span>`);
-  selectedCategoriesEl.innerHTML = [...included, ...excluded].join('');
-  selectedCategoriesEl.querySelectorAll('[data-remove-category]').forEach(button => button.addEventListener('click', () => removeCategory(button.dataset.removeCategory, button.dataset.categoryMode)));
-}
-
-clearFiltersBtn.addEventListener('click', () => {
-  genreResolveGeneration += 1;
-  clearTimeout(genreResolveTimer);
-  filters = { tags: [], excludedTags: [], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null };
-  tagInput.value = '';
-  excludedTagsInput.value = '';
-  languageFilterEl.value = '';
-  minViewersInput.value = '';
-  maxViewersInput.value = '';
-  followDaysInput.value = '';
-  genreFiltersEl.querySelectorAll('input').forEach(input => { input.checked = false; });
-  categorySearchInput.value = '';
-  syncPopularTagButtons();
-  genreHint.textContent = 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
-  renderSelectedCategories();
-  categoryFiltersChanged();
-});
-
-function renderFilterState() {
-  const active = [
-    ...filters.tags.map(tag => ({ key:`tag:${tag}`, label:`#${tag}` })),
-    ...filters.excludedTags.map(tag => ({ key:`excludedTag:${tag}`, label:`Not #${tag}` })),
-    ...(filters.language ? [{ key:'language', label:`Language ${filters.language.toUpperCase()}` }] : []),
-    ...filters.genres.map(id => ({ key:`genre:${id}`, label:(GENRE_PRESETS.find(preset => preset.id === id)?.label || id) })),
-    ...filters.categories.filter(category => category.source === 'manual').map(category => ({ key:`category:${category.id}`, label:category.name })),
-    ...filters.excludedCategories.map(category => ({ key:`excludedCategory:${category.id}`, label:`Not ${category.name}` })),
-    ...(filters.minViewers != null ? [{ key:'min', label:`Min ${filters.minViewers}` }] : []),
-    ...(filters.maxViewers != null ? [{ key:'max', label:`Max ${filters.maxViewers}` }] : []),
-    ...(filters.minFollowDays != null ? [{ key:'follow', label:`Followed ${filters.minFollowDays}+ days` }] : [])
-  ];
-  const count = active.length;
-  filtersBadge.textContent = String(count);
-  filtersBadge.classList.toggle('hidden', count === 0);
-  activeFilterCount.textContent = `${count} active filter${count === 1 ? '' : 's'}`;
-  activeFilterChips.innerHTML = active.map(item => `<button class="active-chip" type="button" data-clear-filter="${escapeHtml(item.key)}" aria-label="Remove ${escapeHtml(item.label)} filter">${escapeHtml(item.label)} ×</button>`).join('');
-  activeFilterChips.querySelectorAll('[data-clear-filter]').forEach(button => button.addEventListener('click', () => clearSingleFilter(button.dataset.clearFilter)));
-}
-
-function clearSingleFilter(key) {
-  if (key.startsWith('tag:')) {
-    const removed = key.slice(4).toLowerCase();
-    filters.tags = filters.tags.filter(tag => tag.toLowerCase() !== removed);
-    tagInput.value = filters.tags.join(', ');
-    syncPopularTagButtons();
-  } else if (key.startsWith('excludedTag:')) {
-    const removed = key.slice(12).toLowerCase();
-    filters.excludedTags = filters.excludedTags.filter(tag => tag.toLowerCase() !== removed);
-    excludedTagsInput.value = filters.excludedTags.join(', ');
-  } else if (key === 'language') { filters.language = ''; languageFilterEl.value = ''; }
-  else if (key.startsWith('genre:')) {
-    const id = key.slice(6);
-    const checkbox = [...genreFiltersEl.querySelectorAll('input')].find(input => input.value === id);
-    if (checkbox) checkbox.checked = false;
-    filters.genres = filters.genres.filter(genre => genre !== id);
-    resolveSelectedGenres();
-    return;
-  } else if (key.startsWith('category:')) {
-    removeCategory(key.slice(9));
-    return;
-  } else if (key.startsWith('excludedCategory:')) {
-    removeCategory(key.slice(17), 'exclude');
-    return;
-  } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; }
-  else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; }
-  else if (key === 'follow') { filters.minFollowDays = null; followDaysInput.value = ''; }
-  filtersChanged();
-}
-
-function passesCommonFilters(s) {
-  const streamTags = (s.tags || []).map(tag => String(tag).trim().toLowerCase());
-  if (filters.tags.length) {
-    if (!filters.tags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
-  }
-  if (filters.excludedTags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
-  if (filters.language && s.language !== filters.language) return false;
-  if (filters.categories.length && !filters.categories.some(category => category.id === s.game_id)) return false;
-  if (filters.excludedCategories.some(category => category.id === s.game_id)) return false;
-  if (filters.minViewers != null && s.viewer_count < filters.minViewers) return false;
-  if (filters.maxViewers != null && s.viewer_count > filters.maxViewers) return false;
-  if (filters.minFollowDays != null && activeTab === 'following') {
-    const days = s._followedAt ? (Date.now() - new Date(s._followedAt).getTime()) / 86400000 : null;
-    if (days == null || days < filters.minFollowDays) return false;
-  }
-  return true;
-}
-
-// --- Token handling ---
-function getAccessTokenFromUrl() {
-  const params = new URLSearchParams(window.location.hash.substring(1));
-  return params.get('access_token');
-}
-
-async function validateToken(token) {
-  const res = await fetch('https://id.twitch.tv/oauth2/validate', { headers: { Authorization: `OAuth ${token}` } });
-  if (!res.ok) return null;
-  return res.json();
-}
-
-function authHeaders(token) {
-  return { 'Client-ID': CLIENT_ID, Authorization: `Bearer ${token}` };
-}
-
-async function apiFetch(url, options = {}, retry = true) {
-  diagnostics.requests += 1;
-  let res = await fetch(url, options);
-  diagnostics.rateRemaining = res.headers.get('Ratelimit-Remaining') || diagnostics.rateRemaining;
-  diagnostics.rateLimit = res.headers.get('Ratelimit-Limit') || diagnostics.rateLimit;
-  if (res.status === 429 && retry) {
-    const resetAt = Number(res.headers.get('Ratelimit-Reset') || 0) * 1000;
-    const waitMs = Math.max(500, Math.min(5000, resetAt - Date.now()));
-    await new Promise(resolve => setTimeout(resolve, waitMs));
-    return apiFetch(url, options, false);
-  }
-  if (res.status === 401) throw new Error('SESSION_EXPIRED');
-  return res;
-}
-
-function renderDiagnostics() {
-  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.failures} partial failures · ${diagnostics.requests} API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}.`;
-}
-
-async function fetchTwitchUserData(token) {
-  const res = await apiFetch('https://api.twitch.tv/helix/users', { headers: authHeaders(token) });
-  if (!res.ok) throw new Error('Failed to load profile');
-  return (await res.json()).data[0];
-}
-
-async function fetchFollowedStreams(userId, token) {
-  const streams = [];
-  let after = '';
-  for (let page = 0; page < MAX_FOLLOW_PAGES; page++) {
-    const params = new URLSearchParams({ user_id:userId, first:'100' });
-    if (after) params.set('after', after);
-    const res = await apiFetch(`https://api.twitch.tv/helix/streams/followed?${params}`, { headers:authHeaders(token) });
-    if (!res.ok) throw new Error('Failed to load followed streams');
-    const payload = await res.json();
-    streams.push(...payload.data);
-    after = payload.pagination?.cursor || '';
-    if (!after) break;
-  }
-  return streams;
-}
-
-async function fetchFollowedChannels(userId, token) {
-  const channels = [];
-  let after = '';
-  for (let page = 0; page < MAX_FOLLOW_PAGES; page++) {
-    const params = new URLSearchParams({ user_id:userId, first:'100' });
-    if (after) params.set('after', after);
-    const res = await apiFetch(`https://api.twitch.tv/helix/channels/followed?${params}`, { headers:authHeaders(token) });
-    if (!res.ok) throw new Error('Failed to load followed channels');
-    const payload = await res.json();
-    channels.push(...payload.data);
-    after = payload.pagination?.cursor || '';
-    if (!after) break;
-  }
-  return channels;
-}
-
-async function fetchTopGames(token, first) {
-  const res = await apiFetch(`https://api.twitch.tv/helix/games/top?first=${first}`, { headers: authHeaders(token) });
-  if (!res.ok) return [];
-  return (await res.json()).data;
-}
-
-async function fetchGamesByNames(names, token) {
-  if (!names.length) return [];
-  const chunks = [];
-  for (let i = 0; i < names.length; i += 100) chunks.push(names.slice(i, i + 100));
-  const responses = await Promise.all(chunks.map(async chunk => {
-    const params = new URLSearchParams();
-    chunk.forEach(name => params.append('name', name));
-    const res = await apiFetch(`https://api.twitch.tv/helix/games?${params}`, { headers: authHeaders(token) });
-    if (!res.ok) throw new Error('Failed to resolve genre categories');
-    return (await res.json()).data;
-  }));
-  const unique = new Map();
-  responses.flat().forEach(game => unique.set(game.id, game));
-  return [...unique.values()];
-}
-
-async function searchTwitchCategories(query, token) {
-  const params = new URLSearchParams({ query, first:'20' });
-  const res = await apiFetch(`https://api.twitch.tv/helix/search/categories?${params}`, { headers: authHeaders(token) });
-  if (!res.ok) throw new Error('Failed to search Twitch categories');
-  return (await res.json()).data;
-}
-
-async function fetchStreamsByGameId(gameId, token) {
-  const res = await apiFetch(`https://api.twitch.tv/helix/streams?game_id=${gameId}&first=100`, { headers: authHeaders(token) });
-  if (!res.ok) return [];
-  return (await res.json()).data;
-}
-
-async function fetchStreamsByGameIdPages(gameId, token, maxPages) {
-  const streams = [];
-  let after = '';
-  for (let page = 0; page < maxPages; page++) {
-    const params = new URLSearchParams({ game_id:gameId, first:'100' });
-    if (after) params.set('after', after);
-    const res = await apiFetch(`https://api.twitch.tv/helix/streams?${params}`, { headers:authHeaders(token) });
-    if (!res.ok) throw new Error(`Failed to load streams for category ${gameId}`);
-    const payload = await res.json();
-    diagnostics.pages += 1;
-    diagnostics.candidates += payload.data.length;
-    streams.push(...payload.data);
-    after = payload.pagination?.cursor || '';
-    if (!after) break;
-  }
-  return streams;
-}
-
-async function fetchSmallStreamsForGame(gameId, token, options = {}) {
-  const maxPages = options.maxPages || DISCOVER_STREAM_PAGES;
-  const target = options.target || STREAMS_PER_CATEGORY_DISCOVER;
-  const excludedIds = options.excludedIds || new Set();
-  const eligible = [];
-  let after = '';
-  for (let page = 0; page < maxPages && eligible.length < target; page++) {
-    const params = new URLSearchParams({ game_id:gameId, first:'100' });
-    if (after) params.set('after', after);
-    const res = await apiFetch(`https://api.twitch.tv/helix/streams?${params}`, { headers:authHeaders(token) });
-    if (!res.ok) throw new Error(`Failed to scan category ${gameId}`);
-    const payload = await res.json();
-    diagnostics.pages += 1;
-    diagnostics.candidates += payload.data.length;
-    eligible.push(...payload.data.filter(stream => !excludedIds.has(stream.user_id) && stream.viewer_count >= 0 && stream.viewer_count <= SMALL_STREAM_VIEWER_CEILING));
-    after = payload.pagination?.cursor || '';
-    if (!after) break;
-  }
-  diagnostics.eligible += eligible.length;
-  return eligible.slice(0, target);
-}
-
-async function fetchUsersByIds(ids, token) {
-  if (ids.length === 0) return [];
-  const chunks = [];
-  for (let i = 0; i < ids.length; i += 100) chunks.push(ids.slice(i, i + 100));
-  const results = await Promise.all(chunks.map(async chunk => {
-    const params = chunk.map(id => `id=${id}`).join('&');
-    const res = await apiFetch(`https://api.twitch.tv/helix/users?${params}`, { headers: authHeaders(token) });
-    if (!res.ok) return [];
-    return (await res.json()).data;
-  }));
-  return results.flat();
-}
-
-async function enrichBroadcasterTypes(items, isClips) {
-  const idKey = isClips ? 'broadcaster_id' : 'user_id';
-  const missingIds = [...new Set(items.filter(item => item._broadcasterType == null).map(item => item[idKey]).filter(Boolean))];
-  if (!missingIds.length) return items;
-  const users = await fetchUsersByIds(missingIds, currentToken);
-  const typeById = new Map(users.map(user => [user.id, user.broadcaster_type || 'none']));
-  return items.map(item => item._broadcasterType != null ? item : { ...item, _broadcasterType:typeById.get(item[idKey]) || 'unknown' });
-}
-
-async function fetchClipsForBroadcaster(broadcasterId, token, startedAt, endedAt) {
-  const params = new URLSearchParams({ broadcaster_id: broadcasterId, started_at: startedAt, ended_at: endedAt, first: String(CLIPS_PER_STREAMER) });
-  const res = await apiFetch(`https://api.twitch.tv/helix/clips?${params}`, { headers: authHeaders(token) });
-  if (!res.ok) return [];
-  return (await res.json()).data;
-}
-
-async function fetchVideosForBroadcaster(broadcasterId, token, first) {
-  const res = await apiFetch(`https://api.twitch.tv/helix/videos?user_id=${broadcasterId}&type=archive&first=${first}`, { headers: authHeaders(token) });
-  if (!res.ok) return [];
-  return (await res.json()).data;
-}
-
-async function fetchScheduleForBroadcaster(broadcasterId, token, first) {
-  const res = await apiFetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${broadcasterId}&first=${first}`, { headers: authHeaders(token) });
-  if (!res.ok) return []; // 404 when the channel has no schedule published
-  const data = await res.json();
-  return (data.data && data.data.segments) || [];
-}
-
-async function getFollowedLive() {
-  if (followedLiveCache) return followedLiveCache;
-  followedLiveCache = await fetchFollowedStreams(currentUser.id, currentToken);
-  return followedLiveCache;
-}
-
-async function getFollowedChannels() {
-  if (followedChannelsCache) return followedChannelsCache;
-  followedChannelsCache = await fetchFollowedChannels(currentUser.id, currentToken);
-  return followedChannelsCache;
-}
-
-// --- Tab data builders ---
-async function loadFollowing() {
-  const [live, channels] = await Promise.all([getFollowedLive(), getFollowedChannels()]);
-  const followedAtById = new Map(channels.map(c => [c.broadcaster_id, c.followed_at]));
-  return live.map(s => ({ ...s, _followedAt: followedAtById.get(s.user_id) }));
-}
-
-async function loadDiscover() {
-  const [followedLive, followedChannels, topGames] = await Promise.all([getFollowedLive(), getFollowedChannels(), fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_DISCOVER)]);
-  const excludedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
-  excludedIds.add(currentUser.id);
-  const categoryMap = new Map();
-  filters.categories.slice(0, MAX_TOP_CATEGORIES_FOR_DISCOVER).forEach(category => categoryMap.set(category.id, { id:category.id, name:category.name, reason:'Selected category' }));
-  const frequency = new Map();
-  followedLive.forEach(stream => {
-    if (!stream.game_id) return;
-    const current = frequency.get(stream.game_id) || { id:stream.game_id, name:stream.game_name, count:0 };
-    current.count += 1;
-    frequency.set(stream.game_id, current);
-  });
-  [...frequency.values()].sort((a,b) => b.count-a.count).forEach(game => {
-    if (categoryMap.size < MAX_TOP_CATEGORIES_FOR_DISCOVER && !categoryMap.has(game.id)) categoryMap.set(game.id, { ...game, reason:'Played by channels you follow' });
-  });
-  topGames.forEach(game => {
-    if (categoryMap.size < MAX_TOP_CATEGORIES_FOR_DISCOVER && !categoryMap.has(game.id)) categoryMap.set(game.id, { ...game, reason:'Popular category, smaller channel' });
-  });
-  const games = [...categoryMap.values()];
-  diagnostics.categories = games.length;
-  if (!games.length) return [];
-  const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchSmallStreamsForGame(game.id, currentToken, { excludedIds });
-    return streams.sort((a,b) => a.viewer_count-b.viewer_count).map(stream => ({ ...stream, _via:game.name, _why:`${game.reason} · ${stream.viewer_count} live viewers` }));
-  }));
-  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
-  const merged = new Map();
-  const lists = perCategory.filter(result => result.status === 'fulfilled').map(result => result.value);
-  for (let row = 0; ; row++) {
-    let added = false;
-    lists.forEach(list => { const stream = list[row]; if (stream && !merged.has(stream.user_id)) { merged.set(stream.user_id, stream); added = true; } });
-    if (!added) break;
-  }
-  return [...merged.values()];
-}
-
-async function loadHiddenGems() {
-  const [seeds, followedChannels] = await Promise.all([getFollowedLive(), getFollowedChannels()]);
-  const followedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
-  followedIds.add(currentUser.id);
-
-  const categorySeen = new Map();
-  filters.categories.forEach(category => {
-    if (categorySeen.size < MAX_SEED_CATEGORIES_FOR_GEMS) categorySeen.set(category.id, category.name);
-  });
-  const frequency = new Map();
-  seeds.forEach(stream => {
-    if (!stream.game_id) return;
-    const existing = frequency.get(stream.game_id) || { name:stream.game_name, count:0 };
-    existing.count += 1;
-    frequency.set(stream.game_id, existing);
-  });
-  [...frequency.entries()].sort((a,b) => b[1].count - a[1].count).forEach(([id, item]) => {
-    if (categorySeen.size < MAX_SEED_CATEGORIES_FOR_GEMS && !categorySeen.has(id)) categorySeen.set(id, item.name);
-  });
-  if (categorySeen.size < MIN_GEM_CATEGORIES) {
-    const topGames = await fetchTopGames(currentToken, MIN_GEM_CATEGORIES + 2);
-    topGames.forEach(game => {
-      if (categorySeen.size < MIN_GEM_CATEGORIES && !categorySeen.has(game.id)) categorySeen.set(game.id, game.name);
-    });
-  }
-  if (categorySeen.size === 0) return [];
-
-  const perCategory = await Promise.allSettled([...categorySeen.entries()].map(async ([gameId, gameName]) => {
-    const streams = await fetchStreamsByGameIdPages(gameId, currentToken, GEMS_STREAM_PAGES);
-    return streams
-      .filter(s => !followedIds.has(s.user_id) && s.viewer_count >= 1 && s.viewer_count <= SMALL_STREAM_VIEWER_CEILING)
-      .map(s => ({ ...s, _gemScore:Math.max(0, 100 - Math.abs(s.viewer_count - 25) * 2) }))
-      .sort((a, b) => b._gemScore - a._gemScore || b.viewer_count - a.viewer_count)
-      .slice(0, GEMS_PER_CATEGORY)
-      .map(s => ({ ...s, _via: gameName, _why:`Deep in ${gameName} · ${s.viewer_count} live viewers` }));
-  }));
-
-  diagnostics.categories = categorySeen.size;
-  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
-
-  const merged = new Map();
-  perCategory.forEach(result => { if (result.status === 'fulfilled') result.value.forEach(s => { if (!merged.has(s.user_id)) merged.set(s.user_id, s); }); });
-  diagnostics.eligible += merged.size;
-  return [...merged.values()];
-}
-
-async function loadRisingStars() {
-  const [topGames, followedChannels] = await Promise.all([fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_RISING), getFollowedChannels()]);
-  const gameMap = new Map();
-  filters.categories.slice(0, MAX_TOP_CATEGORIES_FOR_RISING).forEach(category => gameMap.set(category.id, category));
-  topGames.forEach(game => { if (gameMap.size < MAX_TOP_CATEGORIES_FOR_RISING) gameMap.set(game.id, game); });
-  const games = [...gameMap.values()];
-  const excludedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
-  excludedIds.add(currentUser.id);
-  diagnostics.categories = games.length;
-  if (games.length === 0) return [];
-
-  const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, RISING_STREAM_PAGES);
-    return streams
-      .filter(stream => !excludedIds.has(stream.user_id) && stream.viewer_count >= RISING_MIN_VIEWERS && stream.viewer_count <= RISING_MAX_VIEWERS)
-      .map(stream => ({ ...stream, _sourceCategory:game.name }));
-  }));
-  diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
-  const categoryLists = perCategory.filter(result => result.status === 'fulfilled').map(result => result.value);
-  const candidates = new Map();
-  for (let row = 0; candidates.size < MAX_RISING_CANDIDATES; row++) {
-    let added = false;
-    categoryLists.forEach(list => {
-      const stream = list[row];
-      if (stream && !candidates.has(stream.user_id) && candidates.size < MAX_RISING_CANDIDATES) {
-        candidates.set(stream.user_id, stream);
-        added = true;
-      }
-    });
-    if (!added) break;
-  }
-  const candidateList = [...candidates.values()];
-  diagnostics.eligible += candidateList.length;
-  if (candidateList.length === 0) return [];
-
-  const users = await fetchUsersByIds(candidateList.map(s => s.user_id), currentToken);
-  const userById = new Map(users.map(u => [u.id, u]));
-  return candidateList
-    .map(s => ({ stream: s, user: userById.get(s.user_id) }))
-    .filter(({ user }) => Boolean(user))
-    .map(({ stream, user }) => {
-      const ageDays = Math.max(0, (Date.now() - new Date(user.created_at).getTime()) / 86400000);
-      const recencyScore = Math.max(0, 1 - ageDays / RISING_ACCOUNT_WINDOW_DAYS);
-      const audienceScore = Math.min(stream.viewer_count / 75, 75 / Math.max(stream.viewer_count, 1));
-      const type = user.broadcaster_type || 'none';
-      const statusBonus = type === 'none' ? 10 : type === 'affiliate' ? 5 : 0;
-      const score = Math.round(recencyScore * 55 + audienceScore * 35 + statusBonus);
-      const ageLabel = ageDays < 60 ? `${Math.round(ageDays)}d account` : `${Math.max(1, Math.round(ageDays / 30))}mo account`;
-      return { ...stream, _broadcasterType:type, _accountCreatedAt:user.created_at, _risingScore:score, _via:`Score ${score} · ${ageLabel}`, _why:`Newer account signal · ${stream.viewer_count} live viewers · ${type === 'none' ? 'not affiliated' : type}` };
-    })
-    .sort((a,b) => b._risingScore - a._risingScore);
-}
-
-async function loadClips() {
-  const channels = (await getFollowedChannels()).slice(0, MAX_SEED_STREAMERS_FOR_CLIPS);
-  if (channels.length === 0) return [];
-  const now = new Date();
-  const since = new Date(now.getTime() - CLIPS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
-  const startedAt = since.toISOString();
-  const endedAt = now.toISOString();
-
-  const perStreamer = await Promise.allSettled(channels.map(c => fetchClipsForBroadcaster(c.broadcaster_id, currentToken, startedAt, endedAt)));
-  const clips = [];
-  perStreamer.forEach(result => { if (result.status === 'fulfilled') clips.push(...result.value); });
-
-  const uniqueById = new Map();
-  clips.forEach(c => { if (!uniqueById.has(c.id)) uniqueById.set(c.id, c); });
-  return [...uniqueById.values()];
-}
-
-// --- Rendering ---
-function setStatus(message, isError) {
-  statusArea.innerHTML = message ? `<p class="status-msg${isError ? ' error' : ''}">${message}</p>` : '';
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  return div.innerHTML;
-}
-
-function formatDuration(seconds) {
-  const total = Math.round(seconds || 0);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
-
-function formatRelativeTime(isoString) {
-  const diffMs = Date.now() - new Date(isoString).getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays <= 0) return `${Math.max(1, Math.floor(diffMs / (1000 * 60 * 60)))}h ago`;
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return `${Math.floor(diffDays / 7)}w ago`;
-}
-
-function historyFor(id) { return discoveryHistory[id] || {}; }
-function historyStorageKey() { return `${HISTORY_KEY}:${currentUser?.id || 'anonymous'}`; }
-function saveHistory() {
-  try { localStorage.setItem(historyStorageKey(), JSON.stringify(discoveryHistory)); } catch (error) { console.warn('Could not save discovery history', error); }
-}
-function updateHistory(id, patch) {
-  discoveryHistory[id] = { ...historyFor(id), ...patch };
-  saveHistory();
-}
-function isDismissed(id) { return Number(historyFor(id).dismissedUntil || 0) > Date.now(); }
-function wasSeenRecently(id) { return Number(historyFor(id).seenAt || 0) > Date.now() - 7 * 86400000; }
-
-function diversifyItems(items, cap) {
-  if (!cap || activeTab === 'following' || TABS[activeTab].isClips) return items;
-  const remaining = [...items];
-  const output = [];
-  while (remaining.length) {
-    const page = [];
-    const counts = new Map();
-    for (let index = 0; index < remaining.length && page.length < PAGE_SIZE;) {
-      const item = remaining[index];
-      const category = item.game_id || 'none';
-      if ((counts.get(category) || 0) < cap) {
-        page.push(item);
-        counts.set(category, (counts.get(category) || 0) + 1);
-        remaining.splice(index, 1);
-      } else index += 1;
-    }
-    while (page.length < PAGE_SIZE && remaining.length) page.push(remaining.shift());
-    output.push(...page);
-  }
-  return output;
-}
-
-function streamCardHtml(s) {
-  const thumb = s.thumbnail_url.replace('{width}', '320').replace('{height}', '180');
-  const viewers = new Intl.NumberFormat().format(s.viewer_count);
-  const viaTag = s._via ? `<span class="via-tag">via ${escapeHtml(s._via)}</span>` : '';
-  const statusTag = s._broadcasterType ? `<span class="status-badge">${escapeHtml(s._broadcasterType === 'none' ? 'not affiliated' : s._broadcasterType)}</span>` : '';
-  const saved = Boolean(historyFor(s.user_id).saved);
-  const why = s._why || (s._via ? `Found via ${s._via}` : 'Live now');
-  return `
-    <article class="stream-card" tabindex="0" data-kind="stream" data-user-id="${s.user_id}" data-url="https://twitch.tv/${encodeURIComponent(s.user_login)}">
-      <div class="thumb-wrap">
-        <img class="thumbnail" src="${thumb}" alt="" loading="lazy" decoding="async" />
-        <span class="live-badge">Live</span>
-        ${statusTag}
-        <span class="viewer-badge">${viewers} viewers</span>
-      </div>
-      <div class="stream-info">
-        <p class="stream-title">${escapeHtml(s.title)}</p>
-        <p class="streamer-name">${escapeHtml(s.user_name)}</p>
-        <p class="game-name">${escapeHtml(s.game_name || 'No category')}</p>
-        ${viaTag}
-        <p class="why-row">Why this: ${escapeHtml(why)}</p>
-        <div class="card-actions"><button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button">${saved ? 'Saved' : 'Save'}</button><button class="card-action" data-action="dismiss" type="button">Dismiss 30d</button></div>
-      </div>
-    </article>`;
-}
-
-function clipCardHtml(c) {
-  const views = new Intl.NumberFormat().format(c.view_count);
-  const creatorNote = c.creator_name && c.creator_name !== c.broadcaster_name ? ` · clipped by ${escapeHtml(c.creator_name)}` : '';
-  return `
-    <a class="stream-card" href="${c.url}" target="_blank" rel="noopener noreferrer" data-kind="clip">
-      <div class="thumb-wrap">
-        <img class="thumbnail" src="${c.thumbnail_url}" alt="" loading="lazy" decoding="async" />
-        <span class="viewer-badge">${views} views</span>
-        <span class="duration-badge">${formatDuration(c.duration)}</span>
-      </div>
-      <div class="stream-info">
-        <p class="stream-title">${escapeHtml(c.title)}</p>
-        <p class="streamer-name">${escapeHtml(c.broadcaster_name)}</p>
-        <p class="clip-meta">${formatRelativeTime(c.created_at)}${creatorNote}</p>
-      </div>
-    </a>`;
-}
-
-function renderPagination(totalItems, totalPages) {
-  if (totalPages <= 1) { paginationControls.innerHTML = ''; return; }
-  paginationControls.innerHTML = `
-    <button id="page-prev" class="btn-logout" ${currentPage <= 1 ? 'disabled' : ''} type="button">&larr; Prev</button>
-    <span class="page-indicator">Page ${currentPage} of ${totalPages} · ${totalItems} results</span>
-    <button id="page-next" class="btn-logout" ${currentPage >= totalPages ? 'disabled' : ''} type="button">Next &rarr;</button>`;
-  const prevBtn = document.getElementById('page-prev');
-  const nextBtn = document.getElementById('page-next');
-  if (prevBtn) prevBtn.addEventListener('click', () => { currentPage--; renderGrid(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  if (nextBtn) nextBtn.addEventListener('click', () => { currentPage++; renderGrid(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-}
-
-function renderGrid() {
-  const query = searchInput.value.trim().toLowerCase();
-  const cfg = TABS[activeTab];
-  let items = [...allStreams];
-
-  if (excludePartners) items = items.filter(item => item._broadcasterType !== 'partner');
-  items = items.filter(item => !isDismissed(item.user_id || item.broadcaster_id));
-  if (savedOnly) items = items.filter(item => historyFor(item.user_id || item.broadcaster_id).saved);
-  if (hideSeen) items = items.filter(item => !wasSeenRecently(item.user_id || item.broadcaster_id) || historyFor(item.user_id || item.broadcaster_id).saved);
-
-  if (cfg.isClips) {
-    items.sort((a, b) => viewCountSort === 'asc'
-      ? a.view_count - b.view_count
-      : viewCountSort === 'desc'
-        ? b.view_count - a.view_count
-        : clipSort === 'views'
-          ? b.view_count - a.view_count
-          : new Date(b.created_at) - new Date(a.created_at));
-    if (query) items = items.filter(c => c.broadcaster_name.toLowerCase().includes(query) || c.title.toLowerCase().includes(query));
-  } else {
-    if (query) items = items.filter(s => s.user_name.toLowerCase().includes(query) || (s.game_name || '').toLowerCase().includes(query));
-    if (cfg.hasCommonFilters) items = items.filter(passesCommonFilters);
-    if (cfg.isRising) {
-      if (risingStatusFilter !== 'all') items = items.filter(s => (s._broadcasterType || 'none') === risingStatusFilter);
-      items.sort((a, b) => risingSort === 'potential' ? (b._risingScore || 0) - (a._risingScore || 0) : new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt));
-    }
-    if (viewCountSort === 'asc') items.sort((a,b) => a.viewer_count - b.viewer_count);
-    if (viewCountSort === 'desc') items.sort((a,b) => b.viewer_count - a.viewer_count);
-    items = diversifyItems(items, diversityLimit);
-  }
-
-  const totalItems = items.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  currentPage = Math.min(Math.max(1, currentPage), totalPages);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = items.slice(start, start + PAGE_SIZE);
-
-  if (totalItems === 0) {
-    streamGrid.innerHTML = '';
-    paginationControls.innerHTML = '';
-    setStatus(allStreams.length === 0 ? cfg.empty : 'No results match your filters.');
-    return;
-  }
-
-  setStatus('');
-  cardDataById.clear();
-  streamGrid.innerHTML = pageItems.map(item => {
-    if (cfg.isClips) return clipCardHtml(item);
-    cardDataById.set(item.user_id, item);
-    return streamCardHtml(item);
-  }).join('');
-  pageItems.forEach(item => {
-    const id = item.user_id || item.broadcaster_id;
-    if (id && !historyFor(id).seenAt) updateHistory(id, { seenAt:Date.now() });
-  });
-  renderPagination(totalItems, totalPages);
-  renderDiagnostics();
-}
-
-async function loadStreams() {
-  const tabId = activeTab;
-  const generation = ++loadGeneration;
-  const cached = tabCache[tabId];
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    if (tabId !== activeTab || generation !== loadGeneration) return;
-    allStreams = cached.data;
-    renderGrid();
-    return;
-  }
-  streamGrid.innerHTML = '';
-  paginationControls.innerHTML = '';
-  setStatus('Loading streams…');
-  diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
-  renderDiagnostics();
-  try {
-    let loaded = await TABS[tabId].load();
-    loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
-    tabCache[tabId] = { data: loaded, timestamp: Date.now() };
-    if (tabId !== activeTab || generation !== loadGeneration) return;
-    allStreams = loaded;
-    renderGrid();
-  } catch (err) {
-    console.error(err);
-    if (err.message === 'SESSION_EXPIRED') {
-      sessionStorage.removeItem(STORAGE_KEY);
-      setStatus('Your Twitch session expired. Log out and sign in again.', true);
-    } else setStatus(`Could not complete this scan${diagnostics.failures ? ` (${diagnostics.failures} category requests failed)` : ''}. Try refresh or reduce selected categories.`, true);
-    renderDiagnostics();
-  }
-}
-
-// --- Stream detail modal (click a card instead of navigating away) ---
-streamGrid.addEventListener('click', e => {
-  const card = e.target.closest('.stream-card');
-  if (!card || card.dataset.kind !== 'stream') return;
-  const action = e.target.closest('[data-action]');
-  if (action) {
-    e.preventDefault();
-    const id = card.dataset.userId;
-    if (action.dataset.action === 'save') updateHistory(id, { saved:!historyFor(id).saved });
-    if (action.dataset.action === 'dismiss') updateHistory(id, { dismissedUntil:Date.now() + 30 * 86400000 });
-    renderGrid();
-    return;
-  }
-  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return; // let modifier/middle clicks open Twitch normally
-  e.preventDefault();
-  const item = cardDataById.get(card.dataset.userId);
-  if (item) { updateHistory(item.user_id, { openedAt:Date.now() }); openStreamModal(item); }
-});
-streamGrid.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.stream-card')) { e.preventDefault(); e.target.click(); }
-});
-
-function openStreamModal(s) {
-  document.getElementById('modal-streamer').textContent = s.user_name;
-  document.getElementById('modal-category').textContent = s.game_name || 'No category';
-  document.getElementById('modal-title-text').textContent = s.title || '';
-  document.getElementById('modal-viewers').textContent = s.viewer_count != null ? `${new Intl.NumberFormat().format(s.viewer_count)} viewers` : '';
-  document.getElementById('modal-live-badge').classList.toggle('hidden', s.type !== 'live');
-  document.getElementById('modal-tags').innerHTML = (s.tags || []).map(t => `<span class="via-tag">${escapeHtml(t)}</span>`).join('');
-  document.getElementById('modal-watch-btn').href = `https://twitch.tv/${encodeURIComponent(s.user_login)}`;
-  document.getElementById('modal-avatar').src = '';
-  document.getElementById('modal-avatar').alt = '';
-  streamModal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  loadModalDetails(s.user_id);
-}
-
-function closeStreamModal() {
-  streamModal.classList.add('hidden');
-  document.body.style.overflow = '';
-}
-document.getElementById('modal-close').addEventListener('click', closeStreamModal);
-streamModal.addEventListener('click', e => { if (e.target === streamModal) closeStreamModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !streamModal.classList.contains('hidden')) closeStreamModal(); });
-
-async function loadModalDetails(userId) {
-  const videosEl = document.getElementById('modal-videos');
-  const clipsEl = document.getElementById('modal-clips');
-  const scheduleEl = document.getElementById('modal-schedule');
-  videosEl.innerHTML = '<p class="status-msg">Loading…</p>';
-  clipsEl.innerHTML = '<p class="status-msg">Loading…</p>';
-  scheduleEl.innerHTML = '<p class="status-msg">Loading…</p>';
-
-  const cached = modalDetailCache[userId];
-  let result;
-  if (cached && Date.now() - cached.timestamp < MODAL_CACHE_TTL_MS) {
-    result = cached;
-  } else {
-    const since = new Date(Date.now() - CLIPS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const [videosR, clipsR, scheduleR, userR] = await Promise.allSettled([
-      fetchVideosForBroadcaster(userId, currentToken, 3),
-      fetchClipsForBroadcaster(userId, currentToken, since, new Date().toISOString()),
-      fetchScheduleForBroadcaster(userId, currentToken, 3),
-      fetchUsersByIds([userId], currentToken)
-    ]);
-    result = {
-      timestamp: Date.now(),
-      videos: videosR.status === 'fulfilled' ? videosR.value.slice(0, 3) : [],
-      clips: clipsR.status === 'fulfilled' ? [...clipsR.value].sort((a, b) => b.view_count - a.view_count).slice(0, 3) : [],
-      schedule: scheduleR.status === 'fulfilled' ? scheduleR.value.slice(0, 3) : [],
-      user: userR.status === 'fulfilled' ? userR.value[0] : null
-    };
-    modalDetailCache[userId] = result;
-  }
-
-  if (result.user) {
-    document.getElementById('modal-avatar').src = result.user.profile_image_url;
-    document.getElementById('modal-avatar').alt = `${result.user.display_name}'s avatar`;
-  }
-
-  videosEl.innerHTML = result.videos.length
-    ? result.videos.map(v => `<a class="mini-card" href="${v.url}" target="_blank" rel="noopener noreferrer"><img src="${v.thumbnail_url.replace('%{width}', '160').replace('%{height}', '90')}" alt="" loading="lazy" decoding="async" /><span class="mini-title">${escapeHtml(v.title)}</span><span class="mini-meta">${formatRelativeTime(v.created_at)}</span></a>`).join('')
-    : '<p class="status-msg">No recent broadcasts found.</p>';
-
-  clipsEl.innerHTML = result.clips.length
-    ? result.clips.map(c => `<a class="mini-card" href="${c.url}" target="_blank" rel="noopener noreferrer"><img src="${c.thumbnail_url}" alt="" loading="lazy" decoding="async" /><span class="mini-title">${escapeHtml(c.title)}</span><span class="mini-meta">${new Intl.NumberFormat().format(c.view_count)} views</span></a>`).join('')
-    : '<p class="status-msg">No clips in the last 30 days.</p>';
-
-  scheduleEl.innerHTML = result.schedule.length
-    ? result.schedule.map(seg => `<div class="mini-card static"><span class="mini-title">${escapeHtml(seg.title || (seg.category && seg.category.name) || 'Scheduled stream')}</span><span class="mini-meta">${new Date(seg.start_time).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span></div>`).join('')
-    : '<p class="status-msg">No upcoming schedule published.</p>';
-}
-
-// --- Session bootstrap ---
-async function showDiscoveryView() {
-  document.getElementById('welcome-msg').textContent = currentUser.display_name;
-  document.getElementById('user-avatar').src = currentUser.profile_image_url;
-  document.getElementById('user-avatar').alt = `${currentUser.display_name}'s avatar`;
-  loginView.classList.add('hidden');
-  discoveryView.classList.remove('hidden');
-  try { discoveryHistory = JSON.parse(localStorage.getItem(historyStorageKey()) || '{}') || {}; } catch (error) { discoveryHistory = {}; }
-  setActiveTab('discover');
-}
-
-async function trySession(token) {
-  const validation = await validateToken(token);
-  if (!validation) { sessionStorage.removeItem(STORAGE_KEY); return false; }
-  currentToken = token;
-  sessionStorage.setItem(STORAGE_KEY, token);
-  currentUser = await fetchTwitchUserData(token);
-  currentUser.id = validation.user_id;
-  await showDiscoveryView();
-  return true;
-}
-
-async function init() {
-  const urlToken = getAccessTokenFromUrl();
-  if (urlToken) {
-    const params = new URLSearchParams(window.location.hash.substring(1));
-    const returnedState = params.get('state');
-    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY);
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    sessionStorage.removeItem(OAUTH_STATE_KEY);
-    if (!expectedState || returnedState !== expectedState) {
-      loginBtn.disabled = false;
-      configWarning.textContent = 'Twitch login could not be verified. Please try signing in again.';
-      configWarning.classList.remove('hidden');
-      return;
-    }
-    if (await trySession(urlToken)) return;
-  }
-  const storedToken = sessionStorage.getItem(STORAGE_KEY);
-  if (storedToken) await trySession(storedToken);
-}
-
-init();
-</script>
 </body>
 </html>
