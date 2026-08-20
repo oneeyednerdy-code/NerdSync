@@ -1,6 +1,6 @@
 # NerdSync
 
-Current release: **Alpha-0.0.4**
+Current release: **Alpha-0.1.0**
 
 Version labels use `Alpha-MAJOR.MINOR.PATCH` while the app is in alpha. Increment PATCH for fixes, MINOR for backward-compatible features, and MAJOR for substantial or breaking changes. Keep the login-page badge and this README value synchronized for every release.
 
@@ -30,6 +30,7 @@ OAuth uses Twitch's browser-based implicit flow with a cryptographically random 
 - Balance each result page across categories.
 - Hide creators seen in the last seven days, show saved creators only, save a creator, or dismiss one for 30 days. This history is stored locally and partitioned by Twitch user.
 - Include tags, exclude tags, select stream language, use audience presets or custom min/max values, include/exclude categories, and use Wormhole's eight genre groups.
+- Add or remove common Twitch tags with one click, including VTuber, AI Opted Out, AMA, Chatty, LGBTQIA+, Cozy, First Playthrough, Playing With Viewers, No Backseating, Speedrun, Disabled, and Neurodivergent.
 - Open **Scan details** to see categories, pages, candidates, eligible results, partial failures, API request count, and Twitch rate-limit headroom.
 
 Card explanations show why a creator appeared. Clicking a live card opens a preview with recent VODs, clips, schedule, and a link to Twitch.

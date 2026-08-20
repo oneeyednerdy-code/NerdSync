@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NerdSync - Better Twitch Discovery</title>
+<title>NerdSync - A Better Twitch Discovery Feed</title>
 <style>
 :root {
   color-scheme: dark;
@@ -138,6 +138,7 @@ button { font: inherit; }
 .card-action { flex:1; border:1px solid var(--border); background:var(--panel-2); color:var(--text-dim); border-radius:5px; padding:.35rem .5rem; cursor:pointer; font-size:.75rem; }
 .card-action:hover,.card-action.saved { border-color:var(--accent); color:var(--accent-hover); }
 .preset-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.55rem; }
+.tag-preset.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 .diagnostics-panel { margin:-.25rem 0 1rem; padding:.75rem .9rem; border:1px solid var(--border); border-radius:7px; background:var(--panel); color:var(--text-dim); font-size:.78rem; line-height:1.55; }
 
 .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
@@ -193,8 +194,8 @@ button { font: inherit; }
   <div class="login-card">
     <div class="brand-header">
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
-      <p>Your live channels, all in one place.</p>
-      <span class="release-version">Alpha-0.0.4</span>
+      <p>A better Twitch discovery feed.</p>
+      <span class="release-version">Alpha-0.1.0</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -259,6 +260,20 @@ button { font: inherit; }
         <label for="filter-tag">Twitch tags</label>
         <input id="filter-tag" type="text" placeholder="e.g. GenAIOptedOut, speedrun, cozy" autocomplete="off" />
         <p class="filter-hint">Comma-separated. A channel is included when any entered tag matches exactly.</p>
+        <div id="popular-tag-presets" class="preset-row" aria-label="Popular Twitch tags">
+          <button class="sort-btn tag-preset" data-tag="VTuber" type="button">VTuber</button>
+          <button class="sort-btn tag-preset" data-tag="AIOptedOut" type="button">AI Opted Out</button>
+          <button class="sort-btn tag-preset" data-tag="AMA" type="button">AMA</button>
+          <button class="sort-btn tag-preset" data-tag="Chatty" type="button">Chatty</button>
+          <button class="sort-btn tag-preset" data-tag="LGBTQIAPlus" type="button">LGBTQIA+</button>
+          <button class="sort-btn tag-preset" data-tag="Cozy" type="button">Cozy</button>
+          <button class="sort-btn tag-preset" data-tag="FirstPlaythrough" type="button">First Playthrough</button>
+          <button class="sort-btn tag-preset" data-tag="PlayingWithViewers" type="button">Playing With Viewers</button>
+          <button class="sort-btn tag-preset" data-tag="NoBackseating" type="button">No Backseating</button>
+          <button class="sort-btn tag-preset" data-tag="Speedrun" type="button">Speedrun</button>
+          <button class="sort-btn tag-preset" data-tag="Disabled" type="button">Disabled</button>
+          <button class="sort-btn tag-preset" data-tag="Neurodivergent" type="button">Neurodivergent</button>
+        </div>
       </div>
       <div class="filter-group">
         <label for="excluded-tags">Exclude tags</label>
@@ -648,8 +663,27 @@ document.getElementById('filter-panel-close').addEventListener('click', () => fi
 
 tagInput.addEventListener('input', debounce(() => {
   filters.tags = parseTagInput(tagInput.value);
+  syncPopularTagButtons();
   filtersChanged();
 }, DEBOUNCE_MS));
+
+function syncPopularTagButtons() {
+  const selected = new Set(filters.tags.map(tag => tag.toLowerCase()));
+  document.querySelectorAll('.tag-preset').forEach(button => {
+    const active = selected.has(button.dataset.tag.toLowerCase());
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+document.querySelectorAll('.tag-preset').forEach(button => button.addEventListener('click', () => {
+  const tag = button.dataset.tag;
+  const exists = filters.tags.some(selected => selected.toLowerCase() === tag.toLowerCase());
+  filters.tags = exists ? filters.tags.filter(selected => selected.toLowerCase() !== tag.toLowerCase()) : [...filters.tags, tag];
+  tagInput.value = filters.tags.join(', ');
+  syncPopularTagButtons();
+  filtersChanged();
+}));
 
 excludedTagsInput.addEventListener('input', debounce(() => {
   filters.excludedTags = parseTagInput(excludedTagsInput.value);
@@ -814,6 +848,7 @@ clearFiltersBtn.addEventListener('click', () => {
   followDaysInput.value = '';
   genreFiltersEl.querySelectorAll('input').forEach(input => { input.checked = false; });
   categorySearchInput.value = '';
+  syncPopularTagButtons();
   genreHint.textContent = 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
   renderSelectedCategories();
   categoryFiltersChanged();
@@ -844,6 +879,7 @@ function clearSingleFilter(key) {
     const removed = key.slice(4).toLowerCase();
     filters.tags = filters.tags.filter(tag => tag.toLowerCase() !== removed);
     tagInput.value = filters.tags.join(', ');
+    syncPopularTagButtons();
   } else if (key.startsWith('excludedTag:')) {
     const removed = key.slice(12).toLowerCase();
     filters.excludedTags = filters.excludedTags.filter(tag => tag.toLowerCase() !== removed);
