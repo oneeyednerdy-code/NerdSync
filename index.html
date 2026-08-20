@@ -6,29 +6,35 @@
 <title>NerdSync - Better Twitch Discovery</title>
 <style>
 :root {
-  --bg: #0e0e10;
-  --panel: #18181b;
-  --panel-2: #1f1f23;
-  --border: #26262c;
-  --text: #efeff1;
-  --text-dim: #adadb8;
-  --accent: #9146ff;
-  --accent-hover: #772ce8;
-  --live: #eb0400;
-  --focus: #bf94ff;
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #0d0a14;
+  --panel-2: #150f22;
+  --border: #241b3a;
+  --control-border: #766595;
+  --text: #f1edfb;
+  --text-dim: #948fb0;
+  --accent: #8b5cf6;
+  --accent-hover: #a78bfa;
+  --accent-deep: #6d28d9;
+  --accent-dim: #4c3591;
+  --orange: #ff7900;
+  --live: #ff4136;
+  --focus: #a78bfa;
+  --glow: 0 0 40px -8px rgba(139, 92, 246, 0.35);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif; }
-body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+body { background-color: var(--bg); color: var(--text); min-height: 100vh; background-image: radial-gradient(circle at 15% 0%, rgba(139,92,246,.12), transparent 28rem); }
 .hidden { display: none !important; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 button { font: inherit; }
 
-.logo-nerd { color: var(--accent); }
+.logo-nerd { color: var(--accent-hover); }
 .logo-sync { color: #ffffff; }
 
 /* --- LOGIN VIEW --- */
 #login-view { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 1.5rem; }
-.login-card { background-color: var(--panel); padding: 2.5rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); text-align: center; }
+.login-card { background-color: var(--panel); padding: 2.5rem; border: 1px solid var(--border); border-radius: 10px; width: 100%; max-width: 400px; box-shadow: var(--glow); text-align: center; }
 .brand-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
 .brand-header p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.75rem; }
 .btn-twitch { width: 100%; padding: 0.8rem; background-color: var(--accent); border: none; border-radius: 4px; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background-color 0.2s; }
@@ -59,16 +65,42 @@ button { font: inherit; }
 
 .filter-toggle-row { margin-bottom: 0.75rem; }
 .filters-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; margin-left: 6px; background: var(--accent); color: #fff; border-radius: 999px; font-size: 0.7rem; font-weight: 700; padding: 0 4px; }
-.filter-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end; }
-.filter-group label { display: block; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 0.35rem; font-weight: 600; }
-.filter-group input, .filter-group select { width: 100%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.7rem; border-radius: 6px; font-size: 0.88rem; }
-.filter-row-inline { display: flex; gap: 0.75rem; }
-.filter-row-inline > div { flex: 1; }
-.genre-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.pill { background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim); padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
-.pill.active, .pill:hover { border-color: var(--accent); color: var(--text); }
-.pill.active { background: var(--accent); color: #fff; }
-#clear-filters-btn { align-self: end; height: fit-content; }
+.filter-panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:0 1.25rem 1.25rem; margin-bottom:1.25rem; box-shadow:var(--glow); }
+.filter-panel-header,.active-filter-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.filter-panel-header { padding:1.1rem 0; border-bottom:1px solid var(--border); }
+.filter-panel-title { font-size:1.08rem; font-weight:700; }
+.filter-section-title { margin:1.15rem 0 .35rem; color:var(--accent-hover); font-size:.7rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; }
+.filter-layout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 1.5rem; }
+.filter-group { padding:.85rem 0; border-top:1px solid var(--border); }
+.filter-group:first-child,.filter-section-title+.filter-group { border-top:0; }
+.filter-group label,.filter-label { display:block; font-size:.82rem; color:var(--text); margin-bottom:.45rem; font-weight:600; }
+.filter-hint { color:var(--text-dim); font-size:.76rem; line-height:1.45; margin-top:.45rem; }
+.filter-group input { width:100%; background:var(--panel-2); border:1px solid var(--control-border); color:var(--text); min-height:42px; padding:.55rem .75rem; border-radius:8px; font-size:.88rem; }
+.filter-group input::placeholder { color:#676078; }
+.filter-row-inline { display:flex; gap:.75rem; }
+.filter-row-inline>div { flex:1; }
+.genre-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.55rem .8rem; }
+.toggle { display:flex; align-items:center; gap:.45rem; cursor:pointer; user-select:none; }
+.toggle input { position:absolute; opacity:0; width:1px; height:1px; }
+.toggle-box { width:16px; height:16px; border:1.5px solid var(--border); border-radius:4px; background:var(--panel-2); position:relative; flex:0 0 auto; }
+.toggle-box::after { content:''; position:absolute; inset:3px; border-radius:2px; background:var(--accent); opacity:0; transform:scale(.4); transition:.12s; }
+.toggle input:checked+.toggle-box { border-color:var(--accent); }
+.toggle input:checked+.toggle-box::after { opacity:1; transform:scale(1); }
+.toggle-text { color:var(--text); font-size:.84rem; }
+.category-search { position:relative; }
+.category-suggestions { position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20; list-style:none; padding:6px; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; box-shadow:var(--glow); max-height:260px; overflow-y:auto; }
+.category-suggestion { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:.85rem; }
+.category-suggestion:hover,.category-suggestion:focus-visible { background:rgba(139,92,246,.16); }
+.category-suggestion img { width:24px; height:32px; border-radius:3px; object-fit:cover; }
+.category-suggestion-empty { padding:10px; color:var(--text-dim); text-align:center; font-size:.82rem; }
+.chip-row,.active-filter-chips { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.65rem; }
+.filter-chip { display:inline-flex; align-items:center; gap:.35rem; min-height:30px; padding:4px 8px 4px 11px; border:1px solid var(--accent-deep); border-radius:999px; background:rgba(139,92,246,.12); color:var(--accent-hover); font-size:.78rem; }
+.filter-chip.genre { border-color:rgba(255,121,0,.55); background:rgba(255,121,0,.1); color:#ffad63; }
+.filter-chip button { border:0; background:transparent; color:inherit; cursor:pointer; }
+.active-filter-summary { padding-top:1rem; border-top:1px solid var(--border); }
+.active-filter-heading { color:var(--text-dim); font-size:.8rem; }
+.active-filter-chips:empty::before { content:'No filters active'; color:var(--text-dim); font-size:.8rem; }
+.active-chip { border:1px solid var(--accent-dim); border-radius:999px; background:rgba(139,92,246,.12); color:var(--accent-hover); padding:.35rem .65rem; cursor:pointer; font-size:.78rem; }
 
 .clip-sort-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; }
 .sort-btn { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
@@ -80,8 +112,8 @@ button { font: inherit; }
 .status-msg.error { color: #f2a33c; }
 
 .stream-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-.stream-card { background-color: var(--panel); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; }
-.stream-card:hover, .stream-card:focus-visible { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+.stream-card { background-color:var(--panel); border:1px solid var(--border); border-radius:8px; overflow:hidden; text-decoration:none; color:inherit; display:block; transition:.15s; cursor:pointer; }
+.stream-card:hover,.stream-card:focus-visible { transform:translateY(-2px); border-color:var(--accent-dim); box-shadow:var(--glow); }
 .thumbnail { width: 100%; height: 150px; background-color: var(--panel-2); display: block; object-fit: cover; }
 .thumb-wrap { position: relative; }
 .live-badge { position: absolute; top: 8px; left: 8px; background-color: var(--live); color: #fff; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
@@ -136,7 +168,8 @@ button { font: inherit; }
   .stream-title { font-size: 0.88rem; }
   .clip-sort-row { flex-wrap: wrap; }
   .sort-btn { flex: 1; text-align: center; }
-  .filter-panel { grid-template-columns: 1fr; }
+  .filter-layout { grid-template-columns:1fr; }
+  .genre-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .modal-panel { padding: 1.25rem; }
 }
 </style>
@@ -185,36 +218,59 @@ button { font: inherit; }
     <button id="filters-toggle-btn" class="btn-logout" type="button">Filters<span id="filters-badge" class="filters-badge hidden">0</span></button>
   </div>
 
-  <div id="filter-panel" class="filter-panel hidden">
-    <div class="filter-group">
-      <label for="filter-tag">Tag</label>
-      <input id="filter-tag" type="text" placeholder="e.g. speedrun, cozy" />
+  <section id="filter-panel" class="filter-panel hidden" aria-labelledby="filter-panel-title">
+    <div class="filter-panel-header">
+      <div><div class="filter-section-title" style="margin:0 0 .25rem">Discovery controls</div><h2 id="filter-panel-title" class="filter-panel-title">Filters</h2></div>
+      <button id="filter-panel-close" class="btn-logout" type="button">Collapse</button>
     </div>
-    <div class="filter-group" style="grid-column: span 2;">
-      <label>Genre</label>
-      <div id="genre-pills" class="genre-pills">
-        <button class="pill active" data-genre="all" type="button">All</button>
-        <button class="pill" data-genre="horror" type="button">Horror</button>
-        <button class="pill" data-genre="mmo" type="button">MMO</button>
-        <button class="pill" data-genre="rpg" type="button">RPG</button>
-        <button class="pill" data-genre="shooter" type="button">Shooter</button>
-        <button class="pill" data-genre="creative" type="button">Creative</button>
+    <h3 class="filter-section-title">Content</h3>
+    <div class="filter-layout">
+      <div class="filter-group">
+        <label for="filter-tag">Twitch tags</label>
+        <input id="filter-tag" type="text" placeholder="e.g. GenAIOptedOut, speedrun, cozy" autocomplete="off" />
+        <p class="filter-hint">Comma-separated. A channel is included when any entered tag matches exactly.</p>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Audience size</span>
+        <div class="filter-row-inline">
+          <div><label for="filter-min-viewers">Minimum</label><input id="filter-min-viewers" type="number" min="0" placeholder="0" /></div>
+          <div><label for="filter-max-viewers">Maximum</label><input id="filter-max-viewers" type="number" min="0" placeholder="Any" /></div>
+        </div>
+      </div>
+      <div class="filter-group hidden" id="follow-age-group">
+        <label for="filter-follow-days">Followed for at least</label>
+        <input id="filter-follow-days" type="number" min="0" placeholder="Days" />
       </div>
     </div>
+    <h3 class="filter-section-title">Advanced discovery</h3>
     <div class="filter-group">
-      <label for="filter-min-viewers">Min viewers</label>
-      <input id="filter-min-viewers" type="number" min="0" placeholder="0" />
+      <span class="filter-label">Game genre groups</span>
+      <div id="genre-filters" class="genre-grid">
+        <label class="toggle"><input type="checkbox" value="rpg"><span class="toggle-box"></span><span class="toggle-text">RPG</span></label>
+        <label class="toggle"><input type="checkbox" value="mmo"><span class="toggle-box"></span><span class="toggle-text">MMO</span></label>
+        <label class="toggle"><input type="checkbox" value="shooter"><span class="toggle-box"></span><span class="toggle-text">Shooter</span></label>
+        <label class="toggle"><input type="checkbox" value="strategy"><span class="toggle-box"></span><span class="toggle-text">Strategy</span></label>
+        <label class="toggle"><input type="checkbox" value="horror"><span class="toggle-box"></span><span class="toggle-text">Horror</span></label>
+        <label class="toggle"><input type="checkbox" value="survival"><span class="toggle-box"></span><span class="toggle-text">Survival</span></label>
+        <label class="toggle"><input type="checkbox" value="simulation"><span class="toggle-box"></span><span class="toggle-text">Simulation</span></label>
+        <label class="toggle"><input type="checkbox" value="adventure"><span class="toggle-box"></span><span class="toggle-text">Adventure</span></label>
+      </div>
+      <p id="genre-hint" class="filter-hint">Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.</p>
     </div>
     <div class="filter-group">
-      <label for="filter-max-viewers">Max viewers</label>
-      <input id="filter-max-viewers" type="number" min="0" placeholder="Any" />
+      <label for="category-search-input">Game category</label>
+      <div class="category-search">
+        <input id="category-search-input" type="text" placeholder="Search Twitch games and creative categories…" autocomplete="off" />
+        <ul id="category-suggestions" class="category-suggestions hidden"></ul>
+      </div>
+      <p class="filter-hint">Searches Twitch's IGDB-backed category database. Add multiple categories; results may match any selected category.</p>
+      <div id="selected-categories" class="chip-row"></div>
     </div>
-    <div class="filter-group hidden" id="follow-age-group">
-      <label for="filter-follow-days">Followed for at least (days)</label>
-      <input id="filter-follow-days" type="number" min="0" placeholder="0" />
+    <div class="active-filter-summary">
+      <div class="active-filter-heading"><span id="active-filter-count">0 active filters</span><button id="clear-filters-btn" class="btn-logout" type="button">Clear all</button></div>
+      <div id="active-filter-chips" class="active-filter-chips" aria-live="polite"></div>
     </div>
-    <button id="clear-filters-btn" class="btn-logout" type="button">Clear filters</button>
-  </div>
+  </section>
 
   <div id="rising-controls-row" class="clip-sort-row hidden">
     <button id="rising-sort-viewers" class="sort-btn active" type="button">Most viewers</button>
@@ -298,16 +354,16 @@ const MODAL_CACHE_TTL_MS = 5 * 60 * 1000;
 const PAGE_SIZE = 12;
 const DEBOUNCE_MS = 300;
 
-// Client-side genre approximation (see chat note: IGDB needs a server-side
-// secret we can't safely hold in a static front end, so this is a curated
-// keyword match against Twitch's own category names instead).
-const GENRE_KEYWORDS = {
-  horror: ['horror', 'resident evil', 'silent hill', 'dead by daylight', 'phasmophobia', 'outlast', 'five nights', 'until dawn'],
-  mmo: ['world of warcraft', 'final fantasy xiv', 'elder scrolls online', 'guild wars', 'runescape', 'new world', 'lost ark', 'albion'],
-  rpg: ['elden ring', "baldur's gate", 'dark souls', 'diablo', 'path of exile', 'witcher', 'skyrim', 'final fantasy', 'persona', 'dragon age'],
-  shooter: ['valorant', 'call of duty', 'counter-strike', 'apex legends', 'overwatch', 'fortnite', 'pubg', 'rainbow six', 'destiny'],
-  creative: ['just chatting', 'art', 'music', 'talk shows', 'food & drink', 'makers & crafting', 'asmr', 'special events']
-};
+const GENRE_PRESETS = [
+  { id:'rpg', label:'RPG', games:["Baldur's Gate 3",'The Elder Scrolls V: Skyrim','Cyberpunk 2077','Fallout 4','Elden Ring','Diablo IV','Path of Exile 2','Persona 5 Royal'] },
+  { id:'mmo', label:'MMO', games:['World of Warcraft','FINAL FANTASY XIV ONLINE','The Elder Scrolls Online','Star Wars: The Old Republic','Guild Wars 2','Black Desert','Old School RuneScape','New World: Aeternum'] },
+  { id:'shooter', label:'Shooter', games:['Fortnite','VALORANT','Counter-Strike 2','Call of Duty: Warzone','Apex Legends','Overwatch 2',"Tom Clancy's Rainbow Six Siege",'Destiny 2'] },
+  { id:'strategy', label:'Strategy', games:['StarCraft II',"Sid Meier's Civilization VI",'Age of Empires IV','Total War: WARHAMMER III','Hearts of Iron IV','Crusader Kings III','Teamfight Tactics','XCOM 2'] },
+  { id:'horror', label:'Horror', games:['Dead by Daylight','Phasmophobia','Resident Evil 4','Silent Hill 2','The Outlast Trials','Lethal Company','Alien: Isolation','SOMA'] },
+  { id:'survival', label:'Survival', games:['Minecraft','Rust','ARK: Survival Ascended','Valheim','DayZ','7 Days to Die','Sons of the Forest','Icarus'] },
+  { id:'simulation', label:'Simulation', games:['The Sims 4','Microsoft Flight Simulator 2024','Euro Truck Simulator 2','Farming Simulator 25','Cities: Skylines II','House Flipper 2','PowerWash Simulator','Planet Zoo'] },
+  { id:'adventure', label:'Adventure', games:['The Legend of Zelda: Tears of the Kingdom','God of War Ragnarök','Stray',"Uncharted 4: A Thief's End",'Indiana Jones and the Great Circle','A Plague Tale: Requiem','Red Dead Redemption 2','Star Wars Jedi: Survivor'] }
+];
 
 const loginView = document.getElementById('login-view');
 const discoveryView = document.getElementById('discovery-view');
@@ -331,7 +387,13 @@ const tagInput = document.getElementById('filter-tag');
 const minViewersInput = document.getElementById('filter-min-viewers');
 const maxViewersInput = document.getElementById('filter-max-viewers');
 const followDaysInput = document.getElementById('filter-follow-days');
-const genrePillsEl = document.getElementById('genre-pills');
+const genreFiltersEl = document.getElementById('genre-filters');
+const genreHint = document.getElementById('genre-hint');
+const categorySearchInput = document.getElementById('category-search-input');
+const categorySuggestions = document.getElementById('category-suggestions');
+const selectedCategoriesEl = document.getElementById('selected-categories');
+const activeFilterCount = document.getElementById('active-filter-count');
+const activeFilterChips = document.getElementById('active-filter-chips');
 const clearFiltersBtn = document.getElementById('clear-filters-btn');
 const risingControlsRow = document.getElementById('rising-controls-row');
 const paginationControls = document.getElementById('pagination-controls');
@@ -395,7 +457,7 @@ let modalDetailCache = {};
 let clipSort = 'views';
 let risingSort = 'viewers';
 let risingStatusFilter = 'all';
-let filters = { tag: '', genre: 'all', minViewers: null, maxViewers: null, minFollowDays: null };
+let filters = { tags: [], genres: [], categories: [], minViewers: null, maxViewers: null, minFollowDays: null };
 const cardDataById = new Map();
 
 // --- Config guard ---
@@ -490,13 +552,22 @@ document.getElementById('rising-status-filter').addEventListener('change', e => 
 
 // --- Filters ---
 filtersToggleBtn.addEventListener('click', () => filterPanel.classList.toggle('hidden'));
+document.getElementById('filter-panel-close').addEventListener('click', () => filterPanel.classList.add('hidden'));
 
 tagInput.addEventListener('input', debounce(() => {
-  filters.tag = tagInput.value.trim().toLowerCase();
-  currentPage = 1;
-  updateFiltersBadge();
-  renderGrid();
+  filters.tags = parseTagInput(tagInput.value);
+  filtersChanged();
 }, DEBOUNCE_MS));
+
+function parseTagInput(value) {
+  const seen = new Set();
+  return String(value || '').split(',').map(tag => tag.trim()).filter(tag => {
+    const key = tag.toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 function numOrNull(val) {
   const n = parseInt(val, 10);
@@ -505,67 +576,175 @@ function numOrNull(val) {
 
 minViewersInput.addEventListener('input', debounce(() => {
   filters.minViewers = numOrNull(minViewersInput.value);
-  currentPage = 1;
-  updateFiltersBadge();
-  renderGrid();
+  filtersChanged();
 }, DEBOUNCE_MS));
 
 maxViewersInput.addEventListener('input', debounce(() => {
   filters.maxViewers = numOrNull(maxViewersInput.value);
-  currentPage = 1;
-  updateFiltersBadge();
-  renderGrid();
+  filtersChanged();
 }, DEBOUNCE_MS));
 
 followDaysInput.addEventListener('input', debounce(() => {
   filters.minFollowDays = numOrNull(followDaysInput.value);
-  currentPage = 1;
-  updateFiltersBadge();
-  renderGrid();
+  filtersChanged();
 }, DEBOUNCE_MS));
 
-genrePillsEl.addEventListener('click', e => {
-  const btn = e.target.closest('.pill');
-  if (!btn) return;
-  genrePillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  filters.genre = btn.dataset.genre;
+function filtersChanged() {
   currentPage = 1;
-  updateFiltersBadge();
+  renderFilterState();
   renderGrid();
+}
+
+let genreResolveTimer = null;
+let genreResolveGeneration = 0;
+genreFiltersEl.addEventListener('change', () => {
+  filters.genres = [...genreFiltersEl.querySelectorAll('input:checked')].map(input => input.value);
+  renderFilterState();
+  clearTimeout(genreResolveTimer);
+  genreHint.textContent = filters.genres.length ? 'Resolving genre games against Twitch categories…' : 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
+  genreResolveTimer = setTimeout(resolveSelectedGenres, 250);
 });
 
+async function resolveSelectedGenres() {
+  const generation = ++genreResolveGeneration;
+  filters.categories = filters.categories.filter(category => category.source !== 'genre');
+  if (!filters.genres.length) {
+    renderSelectedCategories();
+    filtersChanged();
+    return;
+  }
+  const names = [...new Set(GENRE_PRESETS.filter(preset => filters.genres.includes(preset.id)).flatMap(preset => preset.games))];
+  try {
+    const games = await fetchGamesByNames(names, currentToken);
+    if (generation !== genreResolveGeneration) return;
+    games.forEach(game => {
+      if (!filters.categories.some(category => category.id === game.id)) {
+        const labels = GENRE_PRESETS.filter(preset => filters.genres.includes(preset.id) && preset.games.some(name => normalizeCategoryName(name) === normalizeCategoryName(game.name))).map(preset => preset.label);
+        filters.categories.push({ id: game.id, name: game.name, source: 'genre', genreLabels: labels });
+      }
+    });
+    const unresolved = names.length - games.length;
+    genreHint.textContent = `${games.length} genre ${games.length === 1 ? 'category' : 'categories'} selected${unresolved ? `; ${unresolved} unavailable names were skipped` : ''}.`;
+  } catch (error) {
+    console.error(error);
+    genreHint.textContent = 'Could not resolve genre categories. Try again.';
+  }
+  renderSelectedCategories();
+  filtersChanged();
+}
+
+function normalizeCategoryName(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+let categorySearchTimer = null;
+let categorySearchGeneration = 0;
+categorySearchInput.addEventListener('input', () => {
+  clearTimeout(categorySearchTimer);
+  if (!categorySearchInput.value.trim()) return hideCategorySuggestions();
+  categorySearchTimer = setTimeout(() => runCategorySearch(categorySearchInput.value), DEBOUNCE_MS);
+});
+categorySearchInput.addEventListener('blur', () => setTimeout(hideCategorySuggestions, 150));
+
+async function runCategorySearch(query) {
+  const generation = ++categorySearchGeneration;
+  const normalizedQuery = query.trim();
+  try {
+    const results = await searchTwitchCategories(normalizedQuery, currentToken);
+    if (generation !== categorySearchGeneration || categorySearchInput.value.trim() !== normalizedQuery) return;
+    const selectedIds = new Set(filters.categories.map(category => category.id));
+    const available = results.filter(game => !selectedIds.has(game.id));
+    categorySuggestions.innerHTML = available.length ? available.map(game => `<li class="category-suggestion" tabindex="0" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}"><img src="${escapeHtml((game.box_art_url || '').replace('{width}','52').replace('{height}','72'))}" alt="" />${escapeHtml(game.name)}</li>`).join('') : '<li class="category-suggestion-empty">No other matches</li>';
+    categorySuggestions.classList.remove('hidden');
+    categorySuggestions.querySelectorAll('[data-id]').forEach(item => {
+      const select = () => addCategory({ id:item.dataset.id, name:item.dataset.name, source:'manual' });
+      item.addEventListener('mousedown', event => { event.preventDefault(); select(); });
+      item.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
+    });
+  } catch (error) {
+    console.error(error);
+    hideCategorySuggestions();
+  }
+}
+
+function hideCategorySuggestions() { categorySuggestions.classList.add('hidden'); }
+function addCategory(category) {
+  if (!filters.categories.some(existing => existing.id === category.id)) filters.categories.push(category);
+  categorySearchInput.value = '';
+  hideCategorySuggestions();
+  renderSelectedCategories();
+  filtersChanged();
+}
+function removeCategory(id) {
+  filters.categories = filters.categories.filter(category => category.id !== id);
+  renderSelectedCategories();
+  filtersChanged();
+}
+function renderSelectedCategories() {
+  selectedCategoriesEl.innerHTML = filters.categories.map(category => `<span class="filter-chip${category.source === 'genre' ? ' genre' : ''}" title="${category.source === 'genre' ? `Genre: ${(category.genreLabels || []).join(', ')}` : 'Exact Twitch category'}">${escapeHtml(category.name)}<button type="button" data-remove-category="${escapeHtml(category.id)}" aria-label="Remove ${escapeHtml(category.name)}">×</button></span>`).join('');
+  selectedCategoriesEl.querySelectorAll('[data-remove-category]').forEach(button => button.addEventListener('click', () => removeCategory(button.dataset.removeCategory)));
+}
+
 clearFiltersBtn.addEventListener('click', () => {
-  filters = { tag: '', genre: 'all', minViewers: null, maxViewers: null, minFollowDays: null };
+  genreResolveGeneration += 1;
+  clearTimeout(genreResolveTimer);
+  filters = { tags: [], genres: [], categories: [], minViewers: null, maxViewers: null, minFollowDays: null };
   tagInput.value = '';
   minViewersInput.value = '';
   maxViewersInput.value = '';
   followDaysInput.value = '';
-  genrePillsEl.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.genre === 'all'));
+  genreFiltersEl.querySelectorAll('input').forEach(input => { input.checked = false; });
+  categorySearchInput.value = '';
+  genreHint.textContent = 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
+  renderSelectedCategories();
   currentPage = 1;
-  updateFiltersBadge();
-  renderGrid();
+  filtersChanged();
 });
 
-function updateFiltersBadge() {
-  const count = [filters.tag, filters.genre !== 'all', filters.minViewers != null, filters.maxViewers != null, filters.minFollowDays != null].filter(Boolean).length;
+function renderFilterState() {
+  const active = [
+    ...filters.tags.map(tag => ({ key:`tag:${tag}`, label:`#${tag}` })),
+    ...filters.genres.map(id => ({ key:`genre:${id}`, label:(GENRE_PRESETS.find(preset => preset.id === id)?.label || id) })),
+    ...filters.categories.filter(category => category.source === 'manual').map(category => ({ key:`category:${category.id}`, label:category.name })),
+    ...(filters.minViewers != null ? [{ key:'min', label:`Min ${filters.minViewers}` }] : []),
+    ...(filters.maxViewers != null ? [{ key:'max', label:`Max ${filters.maxViewers}` }] : []),
+    ...(filters.minFollowDays != null ? [{ key:'follow', label:`Followed ${filters.minFollowDays}+ days` }] : [])
+  ];
+  const count = active.length;
   filtersBadge.textContent = String(count);
   filtersBadge.classList.toggle('hidden', count === 0);
+  activeFilterCount.textContent = `${count} active filter${count === 1 ? '' : 's'}`;
+  activeFilterChips.innerHTML = active.map(item => `<button class="active-chip" type="button" data-clear-filter="${escapeHtml(item.key)}" aria-label="Remove ${escapeHtml(item.label)} filter">${escapeHtml(item.label)} ×</button>`).join('');
+  activeFilterChips.querySelectorAll('[data-clear-filter]').forEach(button => button.addEventListener('click', () => clearSingleFilter(button.dataset.clearFilter)));
 }
 
-function matchesGenre(gameName, genreKey) {
-  if (!gameName) return false;
-  const name = gameName.toLowerCase();
-  const keywords = GENRE_KEYWORDS[genreKey] || [];
-  return keywords.some(k => name.includes(k));
+function clearSingleFilter(key) {
+  if (key.startsWith('tag:')) {
+    const removed = key.slice(4).toLowerCase();
+    filters.tags = filters.tags.filter(tag => tag.toLowerCase() !== removed);
+    tagInput.value = filters.tags.join(', ');
+  } else if (key.startsWith('genre:')) {
+    const id = key.slice(6);
+    const checkbox = [...genreFiltersEl.querySelectorAll('input')].find(input => input.value === id);
+    if (checkbox) checkbox.checked = false;
+    filters.genres = filters.genres.filter(genre => genre !== id);
+    resolveSelectedGenres();
+    return;
+  } else if (key.startsWith('category:')) {
+    removeCategory(key.slice(9));
+    return;
+  } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; }
+  else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; }
+  else if (key === 'follow') { filters.minFollowDays = null; followDaysInput.value = ''; }
+  filtersChanged();
 }
 
 function passesCommonFilters(s) {
-  if (filters.tag) {
-    const tags = s.tags || [];
-    if (!tags.some(t => t.toLowerCase().includes(filters.tag))) return false;
+  if (filters.tags.length) {
+    const streamTags = (s.tags || []).map(tag => String(tag).trim().toLowerCase());
+    if (!filters.tags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
   }
-  if (filters.genre !== 'all' && !matchesGenre(s.game_name, filters.genre)) return false;
+  if (filters.categories.length && !filters.categories.some(category => category.id === s.game_id)) return false;
   if (filters.minViewers != null && s.viewer_count < filters.minViewers) return false;
   if (filters.maxViewers != null && s.viewer_count > filters.maxViewers) return false;
   if (filters.minFollowDays != null && activeTab === 'following') {
@@ -612,6 +791,29 @@ async function fetchFollowedChannels(userId, token) {
 async function fetchTopGames(token, first) {
   const res = await fetch(`https://api.twitch.tv/helix/games/top?first=${first}`, { headers: authHeaders(token) });
   if (!res.ok) return [];
+  return (await res.json()).data;
+}
+
+async function fetchGamesByNames(names, token) {
+  if (!names.length) return [];
+  const chunks = [];
+  for (let i = 0; i < names.length; i += 100) chunks.push(names.slice(i, i + 100));
+  const responses = await Promise.all(chunks.map(async chunk => {
+    const params = new URLSearchParams();
+    chunk.forEach(name => params.append('name', name));
+    const res = await fetch(`https://api.twitch.tv/helix/games?${params}`, { headers: authHeaders(token) });
+    if (!res.ok) throw new Error('Failed to resolve genre categories');
+    return (await res.json()).data;
+  }));
+  const unique = new Map();
+  responses.flat().forEach(game => unique.set(game.id, game));
+  return [...unique.values()];
+}
+
+async function searchTwitchCategories(query, token) {
+  const params = new URLSearchParams({ query, first:'20' });
+  const res = await fetch(`https://api.twitch.tv/helix/search/categories?${params}`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error('Failed to search Twitch categories');
   return (await res.json()).data;
 }
 

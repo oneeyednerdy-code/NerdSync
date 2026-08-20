@@ -49,13 +49,13 @@ Following, Teammates, Hidden Gems, Rising Stars, and Discover all share one
 filter panel (hidden by default — click **Filters** to open it, and it closes
 independently on every tab):
 
-- **Tag** — free-text match against each stream's live Twitch tags.
-- **Genre** — Horror / MMO / RPG / Shooter / Creative pills. This is a
-  **curated keyword match against Twitch's own category names**, not a real
-  IGDB genre lookup — IGDB's API requires a Client Secret to authenticate,
-  and a secret can never safely live in front-end code (anyone viewing the
-  page source could take it). If you later add a small backend, swapping in
-  real IGDB genre data would be a clean upgrade.
+- **Twitch tags** — enter one or more comma-separated tags. Matching is
+  case-insensitive and exact; a stream may match any entered tag.
+- **Game genre groups** — RPG, MMO, Shooter, Strategy, Horror, Survival,
+  Simulation, and Adventure resolve Wormhole's curated game lists through
+  Twitch's IGDB-backed category API.
+- **Game category** — live autocomplete against Twitch's category database.
+  Multiple exact games or creative categories can be selected and removed.
 - **Min / Max viewers** — type in a range.
 - **Followed for at least (days)** — Following tab only, computed from
   Twitch's `followed_at` timestamp for each channel.
@@ -88,8 +88,8 @@ anyone who wants the old one-click behavior.
 
 ## Branding
 
-No Twitch glyph/icon anywhere — just a text wordmark, "Nerd" in the accent
-purple and "Sync" in white, on both the login screen and the in-app header.
+The interface uses Wormhole's true-black, purple-black panel, lavender text,
+and violet glow palette while keeping the NerdSync text wordmark.
 
 ## Caching & refresh
 
