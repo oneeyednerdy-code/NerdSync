@@ -5,5 +5,5 @@
 //    (OAuth Implicit Flow only ever needs the Client ID in the browser).
 //    Never put a Client Secret in this file or anywhere in front-end code.
 const CONFIG = {
-  TWITCH_CLIENT_ID: "TEST_CLIENT_ID"
+  TWITCH_CLIENT_ID: "0kvyl010kornp9v8a5lwtein3ftmu1"
 };
