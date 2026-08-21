@@ -6,7 +6,7 @@ import path from 'node:path';
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 const outAssets = path.join(dist, 'assets');
-const version = '0.17.1';
+const version = '0.17.2';
 
 const jsSources = [
   'js/app-foundation.js',

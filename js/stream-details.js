@@ -3,6 +3,8 @@
 streamGrid.addEventListener('click', e => {
   const card = e.target.closest('.stream-card');
   if (!card || card.dataset.kind !== 'stream') return;
+  const externalCardLink = e.target.closest('a.card-action-link');
+  if (externalCardLink) return;
   const action = e.target.closest('[data-action]');
   if (action) {
     e.preventDefault();

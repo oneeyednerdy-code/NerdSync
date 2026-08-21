@@ -1,6 +1,13 @@
 # NerdSync
 
-Current release: **Alpha-0.17.1**
+Current release: **Alpha-0.17.2**
+
+## Alpha-0.17.2 Creator Match TwitchTracker link
+
+- Adds a **TwitchTracker stats** action directly to Creator Match cards.
+- Opens the creator's public TwitchTracker profile in a new tab for deeper historical statistics.
+- Keeps NerdSync Details available for the summarized 30-day context already loaded through NerdSync's proxy.
+- The direct profile link never includes a Twitch OAuth token or private NerdSync data.
 
 ## Alpha-0.17.1 Newer Affiliate signals
 
@@ -97,7 +104,7 @@ Current release: **Alpha-0.17.1**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.1 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.2 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
 
 ## Build and deploy on Cloudflare
 
@@ -110,7 +117,7 @@ NerdSync is a personalized Twitch discovery app for finding relevant live creato
 
 For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
 
-For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.1 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.2 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
 
 For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` and `functions/api/twitchtracker-category-summary.js` files in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 
@@ -265,6 +272,7 @@ Accessibility preferences remain browser-local and partitioned by the logged-in 
 - **Spotlight** provides a dedicated discovery panel for Established and Headliner creators while excluding channels already followed.
 - **Creator Match** finds live networking peers within ±50%, ±75%, or ±100% of the logged-in creator's current audience or a manually entered past peak.
 - Opening a Creator Match's **Details** loads an optional TwitchTracker 30-day summary through NerdSync's same-origin Cloudflare endpoint. When available, it shows 30-day average viewers, peak viewers, streamed hours, hours watched, follower gain, and TwitchTracker rank.
+- Creator Match cards include a **TwitchTracker stats** link that opens the creator's public TwitchTracker profile in a new tab for deeper historical information.
 - TwitchTracker requests are on demand and cached briefly. Only the public Twitch login is sent; the Twitch OAuth token is never sent to TwitchTracker.
 - A past VOD can be selected as context alongside an entered peak; the VOD play count is never misrepresented as a live peak.
 - Selected categories are prioritized, followed-channel interests are used as seeds, and top Twitch categories fill remaining gaps.
