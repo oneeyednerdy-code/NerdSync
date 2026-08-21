@@ -6,6 +6,26 @@ function contentLabelsHtml(stream) {
   return `<div class="content-labels" aria-label="Twitch content classification">${labels.map(label => `<span class="content-label">${escapeHtml(label)}</span>`).join('')}</div>`;
 }
 
+function creatorMatchTagsHtml(stream) {
+  if (activeTab !== 'match') return '';
+  const selectedTags = new Set((filters.tags || []).map(tag => String(tag).trim().toLowerCase()).filter(Boolean));
+  const seen = new Set();
+  const tags = (stream.tags || [])
+    .map(tag => String(tag).trim())
+    .filter(tag => {
+      const key = tag.toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map(tag => ({ tag, matched:selectedTags.has(tag.toLowerCase()) }))
+    .sort((a,b) => Number(b.matched) - Number(a.matched));
+
+  if (!tags.length) return '<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Tags</span><span class="match-tags-empty">No Twitch tags listed</span></div>';
+
+  return `<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Tags</span>${tags.map(({ tag, matched }) => `<span class="match-tag${matched ? ' match-tag--matched' : ''}"${matched ? ` aria-label="${escapeHtml(tag)}, matches your selected tag"` : ''}>${escapeHtml(tag)}${matched ? '<span class="match-tag-check" aria-hidden="true">✓</span>' : ''}</span>`).join('')}</div>`;
+}
+
 function streamCardHtml(s) {
   const thumb = safeHttpsUrl(String(s.thumbnail_url || '').replace('{width}', '320').replace('{height}', '180'));
   const viewers = new Intl.NumberFormat().format(s.viewer_count);
@@ -35,6 +55,7 @@ function streamCardHtml(s) {
         <p class="stream-title">${escapeHtml(s.title)}</p>
         <p class="streamer-name">${escapeHtml(s.user_name)}</p>
         <p class="game-name">${escapeHtml(s.game_name || 'No category')}</p>
+        ${creatorMatchTagsHtml(s)}
         ${contentLabelsHtml(s)}
         ${viaTag}
         <p class="why-row">Why this: ${escapeHtml(why)}</p>

@@ -20,7 +20,7 @@ export async function onRequestGet(context) {
     const upstream = await fetch(`${UPSTREAM}${encodeURIComponent(channel)}`, {
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; NerdSync/0.16.3)',
+        'User-Agent': 'Mozilla/5.0 (compatible; NerdSync/0.16.4)',
       },
       cf: { cacheTtl: 300, cacheEverything: true },
     });

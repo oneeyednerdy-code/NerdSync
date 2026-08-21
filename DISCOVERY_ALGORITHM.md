@@ -1,6 +1,6 @@
 # NerdSync Discovery Graph
 
-Release: **Alpha-0.16.3**
+Release: **Alpha-0.16.4**
 
 ## Goal
 

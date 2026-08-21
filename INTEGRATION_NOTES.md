@@ -25,3 +25,8 @@ No client secret or direct IGDB credential is added.
 ## Alpha-0.16.3 button-control reliability
 
 NerdSync's discovery quick choices now use native buttons with synchronized `aria-pressed` state. This covers tag presets, audience presets, language, uptime, recent activity, content classifications, open-chat filtering, genre groups, game-category include/exclude mode, and Creator Match audience source/range. The past-VOD selector remains a native select because it is a dynamic list of broadcasts rather than a short quick-choice set.
+
+
+## Alpha-0.16.4 Creator Match tag cards
+
+Creator Match cards now display the live channel's Twitch tags. Tags that exactly match the user's included Twitch-tag filters are promoted to the front of the tag list and visually highlighted with a check mark. Matching is case-insensitive and uses the same exact-match rule as the discovery filter itself. No additional Twitch or TwitchTracker request is required because tags are already included in Twitch live-stream responses.

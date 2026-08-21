@@ -1,9 +1,12 @@
 # NerdSync
 
-Current release: **Alpha-0.16.3**
+Current release: **Alpha-0.16.4**
 
 
-## Alpha-0.16.3 Creator Match + Cloudflare runtime
+## Alpha-0.16.4 Creator Match + Cloudflare runtime
+
+- Shows each Creator Match channel's Twitch tags directly on the match card.
+- Highlights selected discovery tags with a check mark using case-insensitive exact matching, and orders matching tags before the creator's other tags.
 
 - Adds Wormhole-style on-demand TwitchTracker 30-day summaries to Creator Match Details.
 - Shows available average viewers, peak viewers, streamed hours, hours watched, follower gain, and TwitchTracker rank without using those third-party values to alter NerdSync's matching algorithm.
