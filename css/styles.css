@@ -471,6 +471,7 @@ code { font-family:"IBM Plex Mono",monospace; }
 .option-button-grid--two { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .option-button-grid--three { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .option-button { width:100%; min-height:44px; text-align:left; white-space:normal; }
+.option-button--inline { width:auto; min-height:32px; padding:.28rem .7rem; display:inline-flex; align-items:center; justify-content:center; }
 .option-button.active,
 .option-button[aria-pressed="true"] { background:linear-gradient(135deg,#7c3aed,#6d28d9); border-color:var(--violet-bright); color:#fff; }
 .content-label-filter-grid .option-button,
@@ -482,3 +483,147 @@ code { font-family:"IBM Plex Mono",monospace; }
   .option-button-grid--two,.option-button-grid--three { grid-template-columns:1fr; }
 }
 .option-button-grid--compact { grid-template-columns:repeat(auto-fit,minmax(105px,1fr)); }
+
+/* Alpha 0.16.5: Creator Match tags use a dedicated wrapped pill row so they cannot read like a run-on sentence. */
+.match-tags { display:block; margin-top:.68rem; }
+.match-tags-label { display:block; margin:0 0 .4rem; color:var(--text-dim); font-family:"IBM Plex Mono",monospace; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+.match-tags-list { display:flex; flex-wrap:wrap; align-items:center; gap:.42rem .48rem; }
+.match-tag { display:inline-flex; flex:0 0 auto; align-items:center; gap:.28rem; padding:.24rem .52rem; border:1px solid var(--border-strong, var(--border)); border-radius:999px; background:var(--panel-2); color:var(--text-dim); font-family:"IBM Plex Mono",monospace; font-size:.68rem; line-height:1.2; white-space:nowrap; }
+.match-tag--matched { border-color:var(--violet-bright); background:rgba(139,92,246,.24); color:var(--text); box-shadow:0 0 0 1px rgba(139,92,246,.12), 0 0 12px rgba(139,92,246,.16); font-weight:700; }
+.match-tag-check { color:var(--violet-bright); font-weight:900; }
+.match-tags-empty { color:var(--text-dim); font-size:.7rem; font-style:italic; }
+html[data-theme="light"] .match-tag--matched { background:rgba(109,40,217,.12); color:#3b176d; border-color:#6d28d9; box-shadow:none; }
+@media (forced-colors: active) { .match-tag--matched { border:2px solid Highlight; } .match-tag-check { color:Highlight; } }
+
+
+/* Alpha 0.16.6: home link and Following Twitch team treatment. */
+.brand-home-link { color:inherit; text-decoration:none; border-radius:8px; }
+.brand-home-link:hover .logo-sync,.brand-home-link:focus-visible .logo-sync { color:var(--violet-bright); }
+.brand-home-link:focus-visible { outline:2px solid var(--violet-bright); outline-offset:4px; }
+.twitch-team-line { display:flex; flex-wrap:wrap; align-items:baseline; gap:.28rem .38rem; margin:.55rem 0 0; padding:.45rem .55rem; border-left:3px solid var(--violet-bright); border-radius:0 6px 6px 0; background:rgba(124,58,237,.08); color:var(--text-dim); font-size:.74rem; line-height:1.4; }
+.twitch-team-line > span:first-child { font-family:"IBM Plex Mono",monospace; font-size:.66rem; letter-spacing:.03em; text-transform:uppercase; }
+.twitch-team-line strong { color:var(--text); font-size:.78rem; font-weight:800; }
+.guide-page { min-height:100vh; }
+.guide-shell { width:min(980px,calc(100% - 2rem)); margin:0 auto; padding:1.5rem 0 4rem; }
+.guide-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem; padding:1rem 1.1rem; border:1px solid var(--panel-line); border-radius:var(--radius); background:var(--panel); }
+.guide-header .brand-mini { color:var(--text); text-decoration:none; }
+.guide-hero,.guide-section { border:1px solid var(--panel-line); border-radius:var(--radius); background:var(--panel); }
+.guide-hero { padding:clamp(1.25rem,4vw,2rem); margin-bottom:1rem; }
+.guide-hero h1 { margin:.2rem 0 .65rem; font-size:clamp(1.8rem,5vw,2.7rem); }
+.guide-hero p { max-width:72ch; color:var(--text-dim); line-height:1.7; }
+.guide-eyebrow { color:var(--violet-bright); font-family:"IBM Plex Mono",monospace; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.guide-nav { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem; }
+.guide-nav a { min-height:40px; display:inline-flex; align-items:center; padding:.45rem .7rem; border:1px solid var(--control-border); border-radius:999px; color:var(--text); text-decoration:none; font-size:.78rem; }
+.guide-nav a:hover,.guide-nav a:focus-visible { border-color:var(--violet-bright); color:var(--violet-bright); }
+.guide-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.guide-section { padding:1.25rem; scroll-margin-top:1rem; }
+.guide-section h2 { margin:0 0 .6rem; font-size:1.15rem; }
+.guide-section h3 { margin:1rem 0 .35rem; font-size:.9rem; }
+.guide-section p,.guide-section li { color:var(--text-dim); line-height:1.65; }
+.guide-section ul { display:grid; gap:.35rem; padding-left:1.2rem; }
+.guide-section strong { color:var(--text); }
+.guide-wide { grid-column:1/-1; }
+.guide-footer { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:1.25rem; padding:1rem 0; color:var(--text-dim); font-size:.76rem; }
+.guide-footer a { color:var(--violet-bright); }
+@media (max-width:720px) { .guide-grid { grid-template-columns:1fr; } .guide-wide { grid-column:auto; } }
+
+/* Alpha 0.16.6 guide CSS hotfix: keep the Field Guide in the same visual system as the main NerdSync app. */
+.guide-page { min-height:100vh; }
+.guide-shell { width:100%; max-width:1180px; margin:0 auto; padding:1.5rem 1.25rem 5rem; }
+.guide-header {
+  position:sticky;
+  top:.75rem;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--space-4) var(--space-5);
+  flex-wrap:wrap;
+  margin-bottom:1.25rem;
+  padding:1rem 1.15rem;
+  border:1px solid var(--panel-line);
+  border-radius:var(--radius);
+  background:color-mix(in srgb,var(--panel) 88%,transparent);
+  backdrop-filter:blur(14px);
+  box-shadow:0 12px 28px -22px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.03);
+}
+.guide-header .brand-mini { color:var(--text); text-decoration:none; }
+.guide-header .btn-logout { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+.guide-hero,
+.guide-section {
+  border:1px solid var(--panel-line);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.guide-hero {
+  position:relative;
+  overflow:hidden;
+  padding:clamp(1.4rem,4vw,2.35rem);
+  margin-bottom:1rem;
+  box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.035);
+}
+.guide-hero::before {
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:3px;
+  background:linear-gradient(90deg,var(--violet-bright),var(--accent-deep),transparent 78%);
+}
+.guide-hero h1 { margin:.2rem 0 .7rem; max-width:18ch; font-size:clamp(1.9rem,5vw,2.85rem); line-height:1.05; letter-spacing:-.035em; }
+.guide-hero p { max-width:78ch; color:var(--text-dim); line-height:1.7; }
+.guide-eyebrow { margin-bottom:.35rem; color:var(--violet-bright); font-family:"IBM Plex Mono",monospace; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.guide-nav { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.2rem; padding-top:1.1rem; border-top:1px solid var(--panel-line); }
+.guide-nav a {
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:.55rem .8rem;
+  border:1px solid var(--control-border);
+  border-radius:8px;
+  background:var(--panel-raised);
+  color:var(--text-dim);
+  text-decoration:none;
+  font-family:"Space Grotesk",Inter,sans-serif;
+  font-size:.8rem;
+  font-weight:600;
+  transition:border-color .15s,color .15s,background-color .15s,transform .15s;
+}
+.guide-nav a:hover,
+.guide-nav a:focus-visible { border-color:var(--violet-bright); color:var(--text); background:rgba(124,58,237,.1); }
+.guide-nav a:hover { transform:translateY(-1px); }
+.guide-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
+.guide-section { padding:clamp(1.15rem,3vw,1.55rem); scroll-margin-top:6.75rem; }
+.guide-section h2 { margin:0 0 .85rem; padding-bottom:.65rem; border-bottom:1px solid var(--panel-line); font-size:1.2rem; line-height:1.2; }
+.guide-section h3 { margin:1.15rem 0 .35rem; color:var(--violet-bright); font-size:.9rem; line-height:1.3; }
+.guide-section p,
+.guide-section li { color:var(--text-dim); line-height:1.68; }
+.guide-section p + p { margin-top:.72rem; }
+.guide-section strong { color:var(--text); }
+.guide-section ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; margin-top:.25rem; padding:0; list-style:none; }
+.guide-section li { min-width:0; padding:.8rem .9rem; border:1px solid var(--panel-line); border-radius:8px; background:var(--panel-raised); }
+.guide-wide { grid-column:auto; }
+.guide-footer { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:1.25rem; padding:1rem .1rem 0; border-top:1px solid var(--panel-line); color:var(--text-dim); font-size:.76rem; }
+.guide-footer a { min-height:44px; display:inline-flex; align-items:center; color:var(--violet-bright); text-underline-offset:3px; }
+@media (max-width:720px) {
+  .guide-shell { padding:1rem .75rem 4rem; }
+  .guide-header { position:static; padding:.8rem .85rem; }
+  .guide-header .btn-logout { min-height:40px; padding:.5rem .72rem; }
+  .guide-hero { padding:1.25rem; }
+  .guide-hero h1 { font-size:clamp(1.75rem,9vw,2.35rem); }
+  .guide-nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .guide-nav a { width:100%; }
+  .guide-section { padding:1rem; scroll-margin-top:1rem; }
+  .guide-section ul { grid-template-columns:1fr; }
+}
+@media (max-width:430px) {
+  .guide-header { align-items:stretch; }
+  .guide-header .brand-mini { width:100%; }
+  .guide-header .btn-logout { width:100%; }
+  .guide-nav { grid-template-columns:1fr; }
+  .guide-footer { align-items:flex-start; flex-direction:column; }
+}
+@media (forced-colors: active) {
+  .guide-header,.guide-hero,.guide-section,.guide-section li,.guide-nav a { border:1px solid CanvasText; }
+}
