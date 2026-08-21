@@ -1,6 +1,6 @@
 # NerdSync Discovery Graph
 
-Release: **Alpha-0.16.0**
+Release: **Alpha-0.16.3**
 
 ## Goal
 
@@ -9,6 +9,8 @@ Recommend relevant live Twitch creators without turning NerdSync into another po
 ## Available signals
 
 Twitch provides the authenticated user's followed channels, their current or configured categories, live tags, language, stream status, and current viewer counts. Twitch does not provide third-party apps with watch history, time watched, followed games, historical peak viewers, or proof that a user enjoyed a channel.
+
+Alpha-0.16.3 can also request a TwitchTracker 30-day public channel summary when the user opens a Creator Match's Details. Those third-party values are display-only and do not affect Creator Match eligibility, audience-distance scoring, Discovery Fit, sorting, or recommendation learning.
 
 NerdSync therefore learns only from actions taken in NerdSync:
 

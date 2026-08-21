@@ -2,7 +2,7 @@
 
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.16.0';
+const APP_VERSION = 'Alpha-0.16.3';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -273,6 +273,37 @@ let loadGeneration = 0;
 let activeLoadController = null;
 const deepScanTabs = new Set();
 const cardDataById = new Map();
+
+// --- Choice button helpers ---
+function choiceButtons(container) {
+  return container ? [...container.querySelectorAll('button[data-value]')] : [];
+}
+function setChoicePressed(button, pressed) {
+  if (!button) return;
+  const active = Boolean(pressed);
+  button.classList.toggle('active', active);
+  button.setAttribute('aria-pressed', String(active));
+}
+function toggleChoicePressed(button) {
+  const next = button?.getAttribute('aria-pressed') !== 'true';
+  setChoicePressed(button, next);
+  return next;
+}
+function selectedChoiceValue(container, fallback = '') {
+  return choiceButtons(container).find(button => button.getAttribute('aria-pressed') === 'true')?.dataset.value ?? fallback;
+}
+function selectedChoiceValues(container) {
+  return choiceButtons(container).filter(button => button.getAttribute('aria-pressed') === 'true').map(button => button.dataset.value);
+}
+function setSingleChoice(container, value) {
+  let matched = false;
+  choiceButtons(container).forEach(button => {
+    const active = button.dataset.value === String(value);
+    matched ||= active;
+    setChoicePressed(button, active);
+  });
+  return matched;
+}
 
 // --- Config guard ---
 if (!CLIENT_ID || CLIENT_ID === 'YOUR_TWITCH_CLIENT_ID_HERE') {

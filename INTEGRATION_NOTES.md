@@ -21,3 +21,7 @@
 - Alpha-0.4.0 added locally learned category/tag preferences, explainable Discovery Fit scores, uptime, optional archived-VOD activity and open-chat checks, direct channel search, two-channel comparison, saved/hidden creator management, accessibility modes, and downloadable privacy-safe diagnostics.
 
 No client secret or direct IGDB credential is added.
+
+## Alpha-0.16.3 button-control reliability
+
+NerdSync's discovery quick choices now use native buttons with synchronized `aria-pressed` state. This covers tag presets, audience presets, language, uptime, recent activity, content classifications, open-chat filtering, genre groups, game-category include/exclude mode, and Creator Match audience source/range. The past-VOD selector remains a native select because it is a dynamic list of broadcasts rather than a short quick-choice set.

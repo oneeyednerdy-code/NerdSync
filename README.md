@@ -1,12 +1,27 @@
 # NerdSync
 
-Current release: **Alpha-0.16.0**
+Current release: **Alpha-0.16.3**
+
+
+## Alpha-0.16.3 Creator Match + Cloudflare runtime
+
+- Adds Wormhole-style on-demand TwitchTracker 30-day summaries to Creator Match Details.
+- Shows available average viewers, peak viewers, streamed hours, hours watched, follower gain, and TwitchTracker rank without using those third-party values to alter NerdSync's matching algorithm.
+- Sends only the public Twitch channel login through NerdSync's same-origin Cloudflare endpoint; Twitch OAuth tokens are never forwarded to TwitchTracker.
+- Keeps TwitchTracker supplemental: errors do not block Twitch API details, Creator Match results, clips, VODs, or schedules.
+- Adds the same Node/npm production workflow and Wrangler 4 deployment pattern now used by Wormhole.
+- Requires Node.js 20 or newer and pins Wrangler 4.125.0 plus esbuild 0.25.9 as development dependencies.
+- Keeps the readable modular source files, then builds a production `dist/` directory with minified, content-hashed JavaScript and CSS.
+- Preserves NerdSync's classic deferred-script dependency order by concatenating the source in that same order before production minification.
+- Keeps `config.js` outside the application bundle so the public Twitch Client ID remains easy to configure.
+- Supports `npm run build`, `npm run check`, `npm run preview`, and `npm run deploy`.
+- Cloudflare Pages can still host NerdSync by using `npm run build` and `dist`; Wrangler can also deploy the same `dist/` output as Workers Static Assets.
 
 ## Alpha-0.16.0 modular JavaScript architecture
 
 - Replaces the two broad application scripts with focused modules for foundation state, controls, local UI state, recommendations, creator tools, feed rendering, stream details, and session startup.
 - Keeps every JavaScript file below 25 KB and 425 lines in the unminified source release.
-- Preserves deferred dependency ordering so the static project remains deployable directly to Cloudflare Pages without a framework, package install, or build command.
+- Preserves deferred dependency ordering in source. Alpha-0.16.3 now turns that ordered source into a minified production bundle during `npm run build`.
 - Uses versioned asset URLs so Cloudflare and browsers can cache unchanged modules independently between releases.
 
 ## Alpha-0.15.0 discovery quality and performance
@@ -47,7 +62,7 @@ Current release: **Alpha-0.16.0**
 
 - Adds a themed Discord role codeword to every downloadable GHOST SIGNAL winning record.
 - Each ending has a different codeword and the record tells the winner where to post it to request the special role.
-- Codewords are an honor-system community reward, not secure proof; a static Cloudflare Pages app cannot keep a browser-delivered secret.
+- Codewords are an honor-system community reward, not secure proof; a browser-only static app cannot keep a browser-delivered secret.
 
 ## Alpha-0.12.0 supporter footer and signal records
 
@@ -56,14 +71,22 @@ Current release: **Alpha-0.16.0**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a static, personalized Twitch discovery app for finding relevant live creators at every audience stage. It runs as plain HTML, CSS, and JavaScript on Cloudflare Pages with no server, database, client secret, package installation, or build command.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.16.3 adds a small Cloudflare server-side endpoint used only to proxy optional TwitchTracker 30-day summaries for Creator Match details; the Twitch OAuth token is never forwarded.
 
-## Deploy on Cloudflare Pages
+## Build and deploy on Cloudflare
 
-1. Register an application in the [Twitch Developer Console](https://dev.twitch.tv/console).
-2. Add the exact production address as an OAuth redirect, such as `https://nerdsync.pages.dev/`.
-3. Put the public Twitch Client ID in `config.js`. Never add a Client Secret to this project.
-4. Upload the folder to Cloudflare Pages. Use no build command and use the folder containing `index.html` as the output directory.
+1. Install Node.js 20 or newer. Cloudflare recommends using a currently supported LTS Node release for Wrangler.
+2. Run `npm install`.
+3. Register an application in the [Twitch Developer Console](https://dev.twitch.tv/console).
+4. Add the exact production address as an OAuth redirect. This may be a `pages.dev`, `workers.dev`, or custom-domain URL depending on how NerdSync is deployed.
+5. Put the public Twitch Client ID in `config.js`. Never add a Client Secret to this project.
+6. Run `npm run check`. This rebuilds the production `dist/` directory.
+
+For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
+
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.16.3 includes `worker.js` so `/api/twitchtracker-summary` runs before static assets while every other request falls through to the `ASSETS` binding.
+
+For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` file in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 
 OAuth uses Twitch's browser implicit flow with a cryptographically random state check. The app requests only `user:read:follows`. Tokens remain in session storage.
 
@@ -95,7 +118,7 @@ See `GHOST_SIGNAL.md` for activation, endings, accessibility, persistence, and r
 
 ## Alpha-0.10.1 security hardening
 
-- Ports the applicable security protections from Wormhole while preserving NerdSync's static Cloudflare Pages architecture.
+- Ports the applicable security protections from Wormhole while preserving NerdSync's static browser-only architecture.
 - Verifies every Twitch session at startup and hourly, and revalidates an older session when the page becomes visible again.
 - Rejects tokens issued for a different Twitch Client ID, expired tokens, tokens without a user identity, and tokens missing NerdSync's single read-only `user:read:follows` scope.
 - Confirms the validated Twitch user ID matches the profile returned by Helix before opening the discovery interface.
@@ -147,7 +170,7 @@ See `DISCOVERY_ALGORITHM.md` for signals, weights, privacy boundaries, and futur
 - JavaScript is organized into core state/navigation, filters, Twitch API access, discovery logic, and rendering/session modules.
 - Deferred scripts download in parallel and execute in dependency order after the HTML is parsed.
 - Cloudflare Pages response headers cache versioned CSS and JavaScript assets while keeping `index.html` and `config.js` revalidated.
-- The static app still requires no build command, framework, package installation, server, or database.
+- The browser runtime still requires no framework, server, or database. Starting in Alpha-0.16.3, production deployment uses the Node/npm build pipeline documented above.
 
 The script order in `index.html` is intentional: foundation and UI state first; filters, Twitch access, and discovery next; recommendation, creator, rendering, and stream-detail features after that; controls and session startup last. Keep that dependency order when adding future releases unless the shared state is migrated to native ES modules.
 
@@ -215,6 +238,8 @@ Accessibility preferences remain browser-local and partitioned by the logged-in 
 - Users can select any creator stage, show all creators, or sort the resulting feed from low-to-high or high-to-low current viewers.
 - **Spotlight** provides a dedicated discovery panel for Established and Headliner creators while excluding channels already followed.
 - **Creator Match** finds live networking peers within ±50%, ±75%, or ±100% of the logged-in creator's current audience or a manually entered past peak.
+- Opening a Creator Match's **Details** loads an optional TwitchTracker 30-day summary through NerdSync's same-origin Cloudflare endpoint. When available, it shows 30-day average viewers, peak viewers, streamed hours, hours watched, follower gain, and TwitchTracker rank.
+- TwitchTracker requests are on demand and cached briefly. Only the public Twitch login is sent; the Twitch OAuth token is never sent to TwitchTracker.
 - A past VOD can be selected as context alongside an entered peak; the VOD play count is never misrepresented as a live peak.
 - Selected categories are prioritized, followed-channel interests are used as seeds, and top Twitch categories fill remaining gaps.
 - Followed channels and the logged-in creator are excluded from discovery feeds.
@@ -282,8 +307,12 @@ Scan Details reports categories, directory pages, candidates, eligible streams, 
 - Detailed checks cover the strongest 40 candidates per load to protect responsiveness and API limits.
 - Browser-local preferences do not synchronize across devices.
 
-True historical momentum and cross-device synchronization would require an optional Cloudflare Worker and database in a future Beta release.
+True historical momentum and cross-device synchronization would still require a database in a future Beta release. The Alpha-0.16.3 Cloudflare Worker/Pages Function is intentionally stateless and is used only for the TwitchTracker summary proxy.
 
 ## Version convention
 
 Versions use `Alpha-MAJOR.MINOR.PATCH` during alpha development. Increment PATCH for fixes, MINOR for backward-compatible feature releases, and MAJOR for substantial or breaking changes. Keep this README and the login badge synchronized.
+
+## Alpha-0.16.3 filter control update
+
+Quick-choice discovery controls now use native buttons instead of checkbox-label or clickable-list substitutes. Tags, audience presets, stream language, maximum uptime, recent activity, content classifications, game genres, category include/exclude mode, Open Chat Only, and Creator Match source/range choices synchronize their visual state and `aria-pressed` state with NerdSync's filter model.

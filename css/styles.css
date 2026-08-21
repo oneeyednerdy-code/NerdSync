@@ -291,6 +291,10 @@ html[data-theme="light"] .content-label { color:#7a3800; border-color:#a95000; b
 .modal-section { margin-top: 1.5rem; }
 .modal-section h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.75rem; }
 .modal-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+.modal-source-note { margin-top:0.65rem; color:var(--text-dim); font-size:0.78rem; line-height:1.45; }
+.tracker-stat { display:flex; flex-direction:column; gap:0.25rem; }
+.tracker-stat strong { font-size:1.05rem; color:var(--text); }
+
 .mini-card { background: var(--panel-2); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.15s; }
 .mini-card:not(.static):hover { transform: translateY(-2px); }
 .mini-card img { width: 100%; height: 80px; object-fit: cover; display: block; }
@@ -461,3 +465,20 @@ code { font-family:"IBM Plex Mono",monospace; }
   .stream-card,.feature-panel,.filter-panel,.global-result-controls { border:1px solid CanvasText; }
   .thumbnail { border-bottom:1px solid CanvasText; }
 }
+
+/* Alpha 0.16.3: native button treatment for all quick-choice discovery controls. */
+.option-button-grid { display:grid; gap:.55rem; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option-button-grid--two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.option-button-grid--three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.option-button { width:100%; min-height:44px; text-align:left; white-space:normal; }
+.option-button.active,
+.option-button[aria-pressed="true"] { background:linear-gradient(135deg,#7c3aed,#6d28d9); border-color:var(--violet-bright); color:#fff; }
+.content-label-filter-grid .option-button,
+.genre-grid .option-button { display:flex; align-items:center; justify-content:flex-start; }
+.category-suggestions > li { list-style:none; }
+.category-suggestion { width:100%; border:0; background:transparent; color:var(--text); text-align:left; font:inherit; }
+.category-suggestion:focus-visible { outline:2px solid var(--violet-bright); outline-offset:2px; }
+@media (max-width:720px) {
+  .option-button-grid--two,.option-button-grid--three { grid-template-columns:1fr; }
+}
+.option-button-grid--compact { grid-template-columns:repeat(auto-fit,minmax(105px,1fr)); }

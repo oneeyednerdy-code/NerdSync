@@ -8,21 +8,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.16.0">
-<link rel="stylesheet" href="css/secret-game.css?v=0.16.0">
+<link rel="stylesheet" href="css/styles.css?v=0.16.3">
+<link rel="stylesheet" href="css/secret-game.css?v=0.16.3">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.16.0" defer></script>
-<script src="js/ui-state.js?v=0.16.0" defer></script>
-<script src="js/filters.js?v=0.16.0" defer></script>
-<script src="js/twitch-api.js?v=0.16.0" defer></script>
-<script src="js/discovery.js?v=0.16.0" defer></script>
-<script src="js/recommendations.js?v=0.16.0" defer></script>
-<script src="js/creator-tools.js?v=0.16.0" defer></script>
-<script src="js/feed-rendering.js?v=0.16.0" defer></script>
-<script src="js/stream-details.js?v=0.16.0" defer></script>
-<script src="js/app-controls.js?v=0.16.0" defer></script>
-<script src="js/secret-game.js?v=0.16.0" defer></script>
-<script src="js/session.js?v=0.16.0" defer></script>
+<script src="js/app-foundation.js?v=0.16.3" defer></script>
+<script src="js/ui-state.js?v=0.16.3" defer></script>
+<script src="js/filters.js?v=0.16.3" defer></script>
+<script src="js/twitch-api.js?v=0.16.3" defer></script>
+<script src="js/discovery.js?v=0.16.3" defer></script>
+<script src="js/recommendations.js?v=0.16.3" defer></script>
+<script src="js/creator-tools.js?v=0.16.3" defer></script>
+<script src="js/feed-rendering.js?v=0.16.3" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.16.3" defer></script>
+<script src="js/stream-details.js?v=0.16.3" defer></script>
+<script src="js/app-controls.js?v=0.16.3" defer></script>
+<script src="js/secret-game.js?v=0.16.3" defer></script>
+<script src="js/session.js?v=0.16.3" defer></script>
 </head>
 <body>
 
@@ -37,9 +38,10 @@
     <p id="privacy-summary" class="privacy-lead">Before you connect Twitch, here is NerdSync's simple data promise.</p>
     <ul class="privacy-points">
       <li><strong>No selling.</strong> NerdSync will never sell your information or discovery activity.</li>
-      <li><strong>No sharing.</strong> Twitch data is gathered only to build your personal feed. NerdSync does not share it with anyone else, including advertisers or data brokers.</li>
+      <li><strong>No data brokering.</strong> NerdSync does not sell your Twitch data or send it to advertisers or data brokers. The only optional third-party lookup is the public channel-name request to TwitchTracker described below.</li>
       <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, and recommendations on this device.</li>
       <li><strong>No hidden database.</strong> Your Twitch token stays in session storage and your preferences remain in your browser.</li>
+      <li><strong>TwitchTracker is optional and on demand.</strong> When you open Details for a Creator Match, NerdSync sends only that public Twitch channel name through its Cloudflare endpoint to request a 30-day TwitchTracker summary. Your Twitch token is never sent to TwitchTracker.</li>
     </ul>
     <p class="privacy-note">Continuing allows this necessary browser storage. Clearing your browser's site data removes locally saved NerdSync information.</p>
     <button id="privacy-accept-btn" class="btn-twitch" type="button">I understand — continue to login</button>
@@ -52,7 +54,7 @@
       <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.16.0</span>
+      <span class="release-version">Alpha-0.16.3</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -163,12 +165,12 @@
       <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
     </div>
     <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
-    <p class="filter-hint">NerdSync never sells or shares your Twitch data. Your token stays in session storage and discovery preferences remain in this browser.</p>
+    <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage, discovery preferences remain in this browser, and TwitchTracker receives only a public channel name when you open Creator Match details.</p>
     <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
   </section>
 
   <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
-    <div class="feature-panel-head"><div><h2 id="creator-match-title">Find networking matches</h2><p class="filter-hint">Match live creators to your current audience or a past peak. Existing NerdSync filters refine the results.</p></div></div>
+    <div class="feature-panel-head"><div><h2 id="creator-match-title">Find networking matches</h2><p class="filter-hint">Match live creators to your current audience or a past peak. Existing NerdSync filters refine the results. Open a match's Details to load its optional 30-day TwitchTracker summary.</p></div></div>
     <aside id="secret-reward-profile" class="secret-reward-profile hidden" aria-labelledby="secret-reward-title">
       <img id="secret-reward-avatar" class="secret-reward-avatar" src="" alt="" />
       <div class="secret-reward-copy">
@@ -181,12 +183,20 @@
     </aside>
     <div class="settings-grid">
       <div class="filter-group">
-        <label for="match-source">Audience source</label>
-        <select id="match-source"><option value="live">My audience live now</option><option value="manual">Enter a past peak</option><option value="vod">Past VOD + entered peak</option></select>
+        <span class="filter-label">Audience source</span>
+        <div id="match-source" class="option-button-grid option-button-grid--three" role="group" aria-label="Audience source">
+          <button class="sort-btn option-button active" data-value="live" type="button" aria-pressed="true">My audience live now</button>
+          <button class="sort-btn option-button" data-value="manual" type="button" aria-pressed="false">Enter a past peak</button>
+          <button class="sort-btn option-button" data-value="vod" type="button" aria-pressed="false">Past VOD + entered peak</button>
+        </div>
       </div>
       <div class="filter-group">
-        <label for="match-tolerance">Match range</label>
-        <select id="match-tolerance"><option value="50">Within ±50%</option><option value="75">Within ±75%</option><option value="100">Within ±100%</option></select>
+        <span class="filter-label">Match range</span>
+        <div id="match-tolerance" class="option-button-grid option-button-grid--three" role="group" aria-label="Creator Match range">
+          <button class="sort-btn option-button active" data-value="50" type="button" aria-pressed="true">Within ±50%</button>
+          <button class="sort-btn option-button" data-value="75" type="button" aria-pressed="false">Within ±75%</button>
+          <button class="sort-btn option-button" data-value="100" type="button" aria-pressed="false">Within ±100%</button>
+        </div>
       </div>
       <div id="match-vod-group" class="filter-group hidden">
         <label for="match-vod">Past broadcast</label>
@@ -243,8 +253,19 @@
         <p class="filter-hint">Comma-separated. Streams with any matching tag are removed.</p>
       </div>
       <div class="filter-group">
-        <label for="language-filter">Stream language</label>
-        <select id="language-filter"><option value="">Any language</option><option value="en">English</option><option value="es">Spanish</option><option value="de">German</option><option value="fr">French</option><option value="pt">Portuguese</option><option value="ja">Japanese</option><option value="ko">Korean</option><option value="it">Italian</option><option value="ru">Russian</option></select>
+        <span class="filter-label">Stream language</span>
+        <div id="language-filter" class="option-button-grid option-button-grid--compact" role="group" aria-label="Stream language">
+          <button class="sort-btn option-button active" data-value="" type="button" aria-pressed="true">Any</button>
+          <button class="sort-btn option-button" data-value="en" type="button" aria-pressed="false">English</button>
+          <button class="sort-btn option-button" data-value="es" type="button" aria-pressed="false">Spanish</button>
+          <button class="sort-btn option-button" data-value="de" type="button" aria-pressed="false">German</button>
+          <button class="sort-btn option-button" data-value="fr" type="button" aria-pressed="false">French</button>
+          <button class="sort-btn option-button" data-value="pt" type="button" aria-pressed="false">Portuguese</button>
+          <button class="sort-btn option-button" data-value="ja" type="button" aria-pressed="false">Japanese</button>
+          <button class="sort-btn option-button" data-value="ko" type="button" aria-pressed="false">Korean</button>
+          <button class="sort-btn option-button" data-value="it" type="button" aria-pressed="false">Italian</button>
+          <button class="sort-btn option-button" data-value="ru" type="button" aria-pressed="false">Russian</button>
+        </div>
       </div>
       <div class="filter-group">
         <span class="filter-label">Audience size</span>
@@ -255,28 +276,40 @@
         <div class="preset-row" aria-label="Audience presets"><button class="sort-btn audience-preset" data-min="0" data-max="20" type="button">0–20</button><button class="sort-btn audience-preset" data-min="21" data-max="100" type="button">21–100</button><button class="sort-btn audience-preset" data-min="101" data-max="500" type="button">101–500</button><button class="sort-btn audience-preset" data-min="501" data-max="5000" type="button">501–5K</button><button class="sort-btn audience-preset" data-min="5001" data-max="" type="button">5K+</button><button class="sort-btn audience-preset" data-min="" data-max="" type="button">Any</button></div>
       </div>
       <div class="filter-group">
-        <label for="filter-max-uptime">Maximum stream uptime</label>
-        <select id="filter-max-uptime"><option value="">Any uptime</option><option value="2">2 hours</option><option value="4">4 hours</option><option value="8">8 hours</option><option value="12">12 hours</option><option value="24">24 hours</option></select>
+        <span class="filter-label">Maximum stream uptime</span>
+        <div id="filter-max-uptime" class="option-button-grid option-button-grid--compact" role="group" aria-label="Maximum stream uptime">
+          <button class="sort-btn option-button active" data-value="" type="button" aria-pressed="true">Any</button>
+          <button class="sort-btn option-button" data-value="2" type="button" aria-pressed="false">2 hours</button>
+          <button class="sort-btn option-button" data-value="4" type="button" aria-pressed="false">4 hours</button>
+          <button class="sort-btn option-button" data-value="8" type="button" aria-pressed="false">8 hours</button>
+          <button class="sort-btn option-button" data-value="12" type="button" aria-pressed="false">12 hours</button>
+          <button class="sort-btn option-button" data-value="24" type="button" aria-pressed="false">24 hours</button>
+        </div>
       </div>
       <div class="filter-group">
-        <label for="activity-filter">Recent creator activity</label>
-        <select id="activity-filter"><option value="">Do not check</option><option value="30">Archived VOD in last 30 days</option><option value="90">Archived VOD in last 90 days</option></select>
+        <span class="filter-label">Recent creator activity</span>
+        <div id="activity-filter" class="option-button-grid option-button-grid--three" role="group" aria-label="Recent creator activity">
+          <button class="sort-btn option-button active" data-value="" type="button" aria-pressed="true">Do not check</button>
+          <button class="sort-btn option-button" data-value="30" type="button" aria-pressed="false">VOD in last 30 days</button>
+          <button class="sort-btn option-button" data-value="90" type="button" aria-pressed="false">VOD in last 90 days</button>
+        </div>
         <p class="filter-hint">Checks recent archived VOD activity for up to the strongest 40 candidates and caches the result. Channels with VODs disabled may not qualify.</p>
       </div>
       <div class="filter-group">
-        <label class="global-control global-control--check"><input id="open-chat-only" type="checkbox" /> Open chat only</label>
+        <span class="filter-label">Chat access</span>
+        <button id="open-chat-only" class="sort-btn option-button" type="button" aria-pressed="false">Open chat only</button>
         <p class="filter-hint">Excludes follower-only, subscriber-only, and emote-only chats after checking the strongest candidates.</p>
       </div>
       <div class="filter-group">
         <span class="filter-label">Twitch content classification</span>
-        <div id="content-label-filters" class="content-label-filter-grid">
-          <label class="toggle"><input type="checkbox" value="DebatedSocialIssuesAndPolitics"><span class="toggle-box"></span><span class="toggle-text">Politics &amp; sensitive issues</span></label>
-          <label class="toggle"><input type="checkbox" value="DrugsIntoxication"><span class="toggle-box"></span><span class="toggle-text">Drugs / intoxication</span></label>
-          <label class="toggle"><input type="checkbox" value="Gambling"><span class="toggle-box"></span><span class="toggle-text">Gambling</span></label>
-          <label class="toggle"><input type="checkbox" value="MatureGame"><span class="toggle-box"></span><span class="toggle-text">Mature-rated game</span></label>
-          <label class="toggle"><input type="checkbox" value="ProfanityVulgarity"><span class="toggle-box"></span><span class="toggle-text">Profanity</span></label>
-          <label class="toggle"><input type="checkbox" value="SexualThemes"><span class="toggle-box"></span><span class="toggle-text">Sexual themes</span></label>
-          <label class="toggle"><input type="checkbox" value="ViolentGraphic"><span class="toggle-box"></span><span class="toggle-text">Graphic violence</span></label>
+        <div id="content-label-filters" class="content-label-filter-grid" role="group" aria-label="Twitch content classifications">
+          <button class="sort-btn option-button content-label-option" type="button" data-value="DebatedSocialIssuesAndPolitics" aria-pressed="false">Politics &amp; sensitive issues</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="DrugsIntoxication" aria-pressed="false">Drugs / intoxication</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="Gambling" aria-pressed="false">Gambling</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="MatureGame" aria-pressed="false">Mature-rated game</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="ProfanityVulgarity" aria-pressed="false">Profanity</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="SexualThemes" aria-pressed="false">Sexual themes</button>
+          <button class="sort-btn option-button content-label-option" type="button" data-value="ViolentGraphic" aria-pressed="false">Graphic violence</button>
         </div>
         <p class="filter-hint">Matches any selected official Twitch label. Labels are displayed separately from creator-entered tags.</p>
       </div>
@@ -291,21 +324,24 @@
       <div class="filter-disclosure-body">
       <div class="filter-group">
       <span class="filter-label">Game genre groups</span>
-      <div id="genre-filters" class="genre-grid">
-        <label class="toggle"><input type="checkbox" value="rpg"><span class="toggle-box"></span><span class="toggle-text">RPG</span></label>
-        <label class="toggle"><input type="checkbox" value="mmo"><span class="toggle-box"></span><span class="toggle-text">MMO</span></label>
-        <label class="toggle"><input type="checkbox" value="shooter"><span class="toggle-box"></span><span class="toggle-text">Shooter</span></label>
-        <label class="toggle"><input type="checkbox" value="strategy"><span class="toggle-box"></span><span class="toggle-text">Strategy</span></label>
-        <label class="toggle"><input type="checkbox" value="horror"><span class="toggle-box"></span><span class="toggle-text">Horror</span></label>
-        <label class="toggle"><input type="checkbox" value="survival"><span class="toggle-box"></span><span class="toggle-text">Survival</span></label>
-        <label class="toggle"><input type="checkbox" value="simulation"><span class="toggle-box"></span><span class="toggle-text">Simulation</span></label>
-        <label class="toggle"><input type="checkbox" value="adventure"><span class="toggle-box"></span><span class="toggle-text">Adventure</span></label>
+      <div id="genre-filters" class="genre-grid" role="group" aria-label="Game genre groups">
+        <button class="sort-btn option-button genre-option" type="button" data-value="rpg" aria-pressed="false">RPG</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="mmo" aria-pressed="false">MMO</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="shooter" aria-pressed="false">Shooter</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="strategy" aria-pressed="false">Strategy</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="horror" aria-pressed="false">Horror</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="survival" aria-pressed="false">Survival</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="simulation" aria-pressed="false">Simulation</button>
+        <button class="sort-btn option-button genre-option" type="button" data-value="adventure" aria-pressed="false">Adventure</button>
       </div>
       <p id="genre-hint" class="filter-hint">Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.</p>
     </div>
     <div class="filter-group">
       <label for="category-search-input">Game category</label>
-      <div class="filter-row-inline filter-row-inline--spaced"><div><select id="category-filter-mode" aria-label="Category filter mode"><option value="include">Include category</option><option value="exclude">Exclude category</option></select></div></div>
+      <div id="category-filter-mode" class="option-button-grid option-button-grid--two filter-row-inline--spaced" role="group" aria-label="Category filter mode">
+        <button class="sort-btn option-button active" data-value="include" type="button" aria-pressed="true">Include category</button>
+        <button class="sort-btn option-button" data-value="exclude" type="button" aria-pressed="false">Exclude category</button>
+      </div>
       <div class="category-search">
         <input id="category-search-input" type="text" placeholder="Search Twitch games and creative categories…" autocomplete="off" />
         <ul id="category-suggestions" class="category-suggestions hidden"></ul>
@@ -392,7 +428,7 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.16.0</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.16.3</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
         <span aria-hidden="true">·</span>
@@ -423,6 +459,11 @@
     <div class="modal-actions">
       <a id="modal-watch-btn" class="btn-twitch modal-watch-btn" href="#" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>
       <button id="modal-compare-btn" class="btn-logout" type="button">Add to comparison</button>
+    </div>
+    <div id="modal-tracker-section" class="modal-section hidden">
+      <h3>30-Day Channel Stats</h3>
+      <div id="modal-tracker" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading TwitchTracker…</p></div>
+      <p class="modal-source-note">Public channel summary from TwitchTracker. Requested only when you open Creator Match details; your Twitch login token is not sent.</p>
     </div>
     <div class="modal-section">
       <h3>Recent Broadcasts</h3>

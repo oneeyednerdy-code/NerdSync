@@ -278,15 +278,24 @@ document.querySelectorAll('[data-close-panel]').forEach(button => button.addEven
 document.getElementById('try-someone-btn').addEventListener('click', () => trySomeoneNew());
 document.getElementById('run-creator-match').addEventListener('click', () => {
   matchPeak = numOrNull(matchPeakEl.value);
-  matchTolerance = Number(matchToleranceEl.value);
-  matchSource = matchSourceEl.value;
+  matchTolerance = Number(selectedChoiceValue(matchToleranceEl, '50'));
+  matchSource = selectedChoiceValue(matchSourceEl, 'live');
   delete tabCache.match;
   loadStreams();
 });
-matchToleranceEl.addEventListener('change', () => { matchTolerance = Number(matchToleranceEl.value); updateMatchRangeSummary(); });
+matchToleranceEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !matchToleranceEl.contains(button)) return;
+  setSingleChoice(matchToleranceEl, button.dataset.value);
+  matchTolerance = Number(button.dataset.value);
+  updateMatchRangeSummary();
+});
 matchPeakEl.addEventListener('input', debounce(() => { matchPeak = numOrNull(matchPeakEl.value); updateMatchRangeSummary(); }, DEBOUNCE_MS));
-matchSourceEl.addEventListener('change', async () => {
-  matchSource = matchSourceEl.value;
+matchSourceEl.addEventListener('click', async event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !matchSourceEl.contains(button)) return;
+  setSingleChoice(matchSourceEl, button.dataset.value);
+  matchSource = button.dataset.value;
   matchVodGroup.classList.toggle('hidden', matchSource !== 'vod');
   matchPeakGroup.classList.toggle('hidden', matchSource === 'live');
   if (matchSource === 'vod' && !matchVodsLoaded) await loadMatchVods();

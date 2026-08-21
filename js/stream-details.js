@@ -42,7 +42,7 @@ function openStreamModal(s) {
   document.getElementById('main-content').inert = true;
   document.body.classList.add('modal-open');
   requestAnimationFrame(() => document.getElementById('modal-close').focus());
-  loadModalDetails(s.user_id);
+  loadModalDetails(s);
 }
 
 function closeStreamModal() {
@@ -95,32 +95,43 @@ document.addEventListener('keydown', e => {
   }
 });
 
-async function loadModalDetails(userId) {
+async function loadModalDetails(stream) {
+  const userId = stream.user_id;
   const videosEl = document.getElementById('modal-videos');
   const clipsEl = document.getElementById('modal-clips');
   const scheduleEl = document.getElementById('modal-schedule');
+  const trackerSectionEl = document.getElementById('modal-tracker-section');
+  const trackerEl = document.getElementById('modal-tracker');
+  const shouldLoadTracker = Number.isFinite(stream._matchDistance) && Boolean(stream.user_login);
   videosEl.innerHTML = '<p class="status-msg">Loading…</p>';
   clipsEl.innerHTML = '<p class="status-msg">Loading…</p>';
   scheduleEl.innerHTML = '<p class="status-msg">Loading…</p>';
+  trackerSectionEl.classList.toggle('hidden', !shouldLoadTracker);
+  if (shouldLoadTracker) trackerEl.innerHTML = '<p class="status-msg">Loading TwitchTracker…</p>';
+  else trackerEl.innerHTML = '';
 
   const cached = modalDetailCache[userId];
   let result;
-  if (cached && Date.now() - cached.timestamp < MODAL_CACHE_TTL_MS) {
+  if (cached && Date.now() - cached.timestamp < MODAL_CACHE_TTL_MS && (!shouldLoadTracker || cached.trackerSummary || cached.trackerUnavailable)) {
     result = cached;
   } else {
     const since = new Date(Date.now() - CLIPS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const [videosR, clipsR, scheduleR, userR] = await Promise.allSettled([
+    const requests = [
       fetchVideosForBroadcaster(userId, currentToken, 3),
       fetchClipsForBroadcaster(userId, currentToken, since, new Date().toISOString()),
       fetchScheduleForBroadcaster(userId, currentToken, 3),
       fetchUsersByIds([userId], currentToken)
-    ]);
+    ];
+    if (shouldLoadTracker) requests.push(getTwitchTrackerSummary(stream.user_login));
+    const [videosR, clipsR, scheduleR, userR, trackerR] = await Promise.allSettled(requests);
     result = {
       timestamp: Date.now(),
       videos: videosR.status === 'fulfilled' ? videosR.value.slice(0, 3) : [],
       clips: clipsR.status === 'fulfilled' ? [...clipsR.value].sort((a, b) => b.view_count - a.view_count).slice(0, 3) : [],
       schedule: scheduleR.status === 'fulfilled' ? scheduleR.value.slice(0, 3) : [],
-      user: userR.status === 'fulfilled' ? userR.value[0] : null
+      user: userR.status === 'fulfilled' ? userR.value[0] : null,
+      trackerSummary: shouldLoadTracker && trackerR?.status === 'fulfilled' ? trackerR.value : null,
+      trackerUnavailable: shouldLoadTracker && trackerR?.status === 'rejected'
     };
     modalDetailCache[userId] = result;
   }
@@ -128,6 +139,25 @@ async function loadModalDetails(userId) {
   if (result.user) {
     document.getElementById('modal-avatar').src = safeHttpsUrl(result.user.profile_image_url);
     document.getElementById('modal-avatar').alt = `${result.user.display_name}'s avatar`;
+  }
+
+  if (shouldLoadTracker) {
+    const tracker = result.trackerSummary;
+    if (tracker) {
+      const fmt = value => Number.isFinite(value) ? new Intl.NumberFormat().format(value) : 'Unavailable';
+      const streamedHours = Number.isFinite(tracker.minutesStreamed) ? Math.round((tracker.minutesStreamed / 60) * 10) / 10 : null;
+      const stats = [
+        [fmt(tracker.averageViewers), '30-day average viewers'],
+        [fmt(tracker.maxViewers), '30-day peak viewers'],
+        [streamedHours == null ? 'Unavailable' : `${new Intl.NumberFormat().format(streamedHours)}h`, 'streamed in 30 days'],
+        [fmt(tracker.hoursWatched), 'hours watched'],
+        [Number.isFinite(tracker.followersGained) ? `${tracker.followersGained >= 0 ? '+' : ''}${fmt(tracker.followersGained)}` : 'Unavailable', 'followers gained'],
+        [Number.isFinite(tracker.rank) ? `#${fmt(tracker.rank)}` : 'Unavailable', 'TwitchTracker rank']
+      ];
+      trackerEl.innerHTML = stats.map(([value, label]) => `<div class="mini-card static tracker-stat"><strong>${escapeHtml(value)}</strong><span class="mini-meta">${escapeHtml(label)}</span></div>`).join('');
+    } else {
+      trackerEl.innerHTML = '<p class="status-msg">TwitchTracker data is unavailable for this channel right now. Twitch details still work normally.</p>';
+    }
   }
 
   videosEl.innerHTML = result.videos.length

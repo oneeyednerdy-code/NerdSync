@@ -84,7 +84,7 @@ function updateMatchRangeSummary() {
     return;
   }
   const peak = matchSource === 'live' ? matchSourceStream?.viewer_count : numOrNull(matchPeakEl.value);
-  const range = matchAudienceRange(peak, Number(matchToleranceEl.value));
+  const range = matchAudienceRange(peak, Number(selectedChoiceValue(matchToleranceEl, '50')));
   const vodText = matchSource === 'vod' && matchVodEl.selectedIndex > 0 ? ` · ${matchVodEl.options[matchVodEl.selectedIndex].text}` : '';
   matchRangeSummary.textContent = range ? `Searching for ${range.min}–${range.max} current viewers around a ${peak}-viewer peak${vodText}.` : 'Enter the peak live viewer count you observed.';
 }
@@ -102,8 +102,8 @@ async function loadMatchVods() {
 
 async function loadCreatorMatches(options = {}) {
   const pageLimit = scanPageLimit(DISCOVER_STREAM_PAGES, options.deep);
-  matchSource = matchSourceEl.value;
-  matchTolerance = Number(matchToleranceEl.value);
+  matchSource = selectedChoiceValue(matchSourceEl, 'live');
+  matchTolerance = Number(selectedChoiceValue(matchToleranceEl, '50'));
   matchSourceStream = null;
   if (matchSource === 'live') {
     matchSourceStream = (await fetchStreamsByUserIds([currentUser.id], currentToken))[0] || null;

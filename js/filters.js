@@ -65,30 +65,56 @@ excludedTagsInput.addEventListener('input', debounce(() => {
   filters.excludedTags = parseTagInput(excludedTagsInput.value);
   filtersChanged();
 }, DEBOUNCE_MS));
-languageFilterEl.addEventListener('change', () => { filters.language = languageFilterEl.value; filtersChanged(); });
-maxUptimeEl.addEventListener('change', () => { filters.maxUptimeHours = numOrNull(maxUptimeEl.value); filtersChanged(); });
-activityFilterEl.addEventListener('change', () => {
-  filters.activityDays = numOrNull(activityFilterEl.value);
-  renderFilterState();
-  delete tabCache[activeTab];
-  loadStreams();
-});
-openChatOnlyEl.addEventListener('change', () => {
-  filters.openChatOnly = openChatOnlyEl.checked;
-  renderFilterState();
-  delete tabCache[activeTab];
-  loadStreams();
-});
-contentLabelFiltersEl.addEventListener('change', () => {
-  filters.contentLabels = [...contentLabelFiltersEl.querySelectorAll('input:checked')].map(input => input.value);
+languageFilterEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !languageFilterEl.contains(button)) return;
+  setSingleChoice(languageFilterEl, button.dataset.value);
+  filters.language = button.dataset.value;
   filtersChanged();
 });
+maxUptimeEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !maxUptimeEl.contains(button)) return;
+  setSingleChoice(maxUptimeEl, button.dataset.value);
+  filters.maxUptimeHours = numOrNull(button.dataset.value);
+  filtersChanged();
+});
+activityFilterEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !activityFilterEl.contains(button)) return;
+  setSingleChoice(activityFilterEl, button.dataset.value);
+  filters.activityDays = numOrNull(button.dataset.value);
+  renderFilterState();
+  delete tabCache[activeTab];
+  loadStreams();
+});
+openChatOnlyEl.addEventListener('click', () => {
+  filters.openChatOnly = toggleChoicePressed(openChatOnlyEl);
+  renderFilterState();
+  delete tabCache[activeTab];
+  loadStreams();
+});
+contentLabelFiltersEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !contentLabelFiltersEl.contains(button)) return;
+  toggleChoicePressed(button);
+  filters.contentLabels = selectedChoiceValues(contentLabelFiltersEl);
+  filtersChanged();
+});
+
+function syncAudiencePresetButtons() {
+  document.querySelectorAll('.audience-preset').forEach(button => {
+    const active = String(filters.minViewers ?? '') === button.dataset.min && String(filters.maxViewers ?? '') === button.dataset.max;
+    setChoicePressed(button, active);
+  });
+}
 
 document.querySelectorAll('.audience-preset').forEach(button => button.addEventListener('click', () => {
   minViewersInput.value = button.dataset.min;
   maxViewersInput.value = button.dataset.max;
   filters.minViewers = numOrNull(button.dataset.min);
   filters.maxViewers = numOrNull(button.dataset.max);
+  syncAudiencePresetButtons();
   filtersChanged();
 }));
 
@@ -109,11 +135,13 @@ function numOrNull(val) {
 
 minViewersInput.addEventListener('input', debounce(() => {
   filters.minViewers = numOrNull(minViewersInput.value);
+  syncAudiencePresetButtons();
   filtersChanged();
 }, DEBOUNCE_MS));
 
 maxViewersInput.addEventListener('input', debounce(() => {
   filters.maxViewers = numOrNull(maxViewersInput.value);
+  syncAudiencePresetButtons();
   filtersChanged();
 }, DEBOUNCE_MS));
 
@@ -130,8 +158,11 @@ function filtersChanged() {
 
 let genreResolveTimer = null;
 let genreResolveGeneration = 0;
-genreFiltersEl.addEventListener('change', () => {
-  filters.genres = [...genreFiltersEl.querySelectorAll('input:checked')].map(input => input.value);
+genreFiltersEl.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !genreFiltersEl.contains(button)) return;
+  toggleChoicePressed(button);
+  filters.genres = selectedChoiceValues(genreFiltersEl);
   renderFilterState();
   clearTimeout(genreResolveTimer);
   genreHint.textContent = filters.genres.length ? 'Resolving genre games against Twitch categories…' : 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
@@ -170,6 +201,12 @@ function normalizeCategoryName(value) {
   return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+categoryFilterMode.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button || !categoryFilterMode.contains(button)) return;
+  setSingleChoice(categoryFilterMode, button.dataset.value);
+});
+
 let categorySearchTimer = null;
 let categorySearchGeneration = 0;
 categorySearchInput.addEventListener('input', () => {
@@ -187,12 +224,11 @@ async function runCategorySearch(query) {
     if (generation !== categorySearchGeneration || categorySearchInput.value.trim() !== normalizedQuery) return;
     const selectedIds = new Set([...filters.categories, ...filters.excludedCategories].map(category => category.id));
     const available = results.filter(game => !selectedIds.has(game.id));
-    categorySuggestions.innerHTML = available.length ? available.map(game => `<li class="category-suggestion" tabindex="0" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}"><img src="${escapeHtml((game.box_art_url || '').replace('{width}','52').replace('{height}','72'))}" alt="" />${escapeHtml(game.name)}</li>`).join('') : '<li class="category-suggestion-empty">No other matches</li>';
+    categorySuggestions.innerHTML = available.length ? available.map(game => `<li><button class="category-suggestion" type="button" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}"><img src="${escapeHtml((game.box_art_url || '').replace('{width}','52').replace('{height}','72'))}" alt="" />${escapeHtml(game.name)}</button></li>`).join('') : '<li class="category-suggestion-empty">No other matches</li>';
     categorySuggestions.classList.remove('hidden');
-    categorySuggestions.querySelectorAll('[data-id]').forEach(item => {
-      const select = () => addCategory({ id:item.dataset.id, name:item.dataset.name, source:'manual' }, categoryFilterMode.value);
-      item.addEventListener('mousedown', event => { event.preventDefault(); select(); });
-      item.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
+    categorySuggestions.querySelectorAll('button[data-id]').forEach(button => {
+      button.addEventListener('mousedown', event => event.preventDefault());
+      button.addEventListener('click', () => addCategory({ id:button.dataset.id, name:button.dataset.name, source:'manual' }, selectedChoiceValue(categoryFilterMode, 'include')));
     });
   } catch (error) {
     console.error(error);
@@ -235,17 +271,22 @@ clearFiltersBtn.addEventListener('click', () => {
   filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:false };
   tagInput.value = '';
   excludedTagsInput.value = '';
-  languageFilterEl.value = '';
+  setSingleChoice(languageFilterEl, '');
   minViewersInput.value = '';
   maxViewersInput.value = '';
   followDaysInput.value = '';
-  maxUptimeEl.value = '';
-  activityFilterEl.value = '';
-  openChatOnlyEl.checked = false;
-  contentLabelFiltersEl.querySelectorAll('input').forEach(input => { input.checked = false; });
-  genreFiltersEl.querySelectorAll('input').forEach(input => { input.checked = false; });
+  setSingleChoice(maxUptimeEl, '');
+  setSingleChoice(activityFilterEl, '');
+  setChoicePressed(openChatOnlyEl, false);
+  choiceButtons(contentLabelFiltersEl).forEach(button => setChoicePressed(button, false));
+  choiceButtons(genreFiltersEl).forEach(button => setChoicePressed(button, false));
+  setSingleChoice(categoryFilterMode, 'include');
+  setSingleChoice(languageFilterEl, '');
+  setSingleChoice(maxUptimeEl, '');
+  setSingleChoice(activityFilterEl, '');
   categorySearchInput.value = '';
   syncPopularTagButtons();
+  syncAudiencePresetButtons();
   genreHint.textContent = 'Choose one or more groups. NerdSync resolves the same curated Wormhole game lists against Twitch categories.';
   renderSelectedCategories();
   categoryFiltersChanged();
@@ -288,13 +329,13 @@ function clearSingleFilter(key) {
   } else if (key.startsWith('contentLabel:')) {
     const id = key.slice(13);
     filters.contentLabels = filters.contentLabels.filter(label => label !== id);
-    const checkbox = [...contentLabelFiltersEl.querySelectorAll('input')].find(input => input.value === id);
-    if (checkbox) checkbox.checked = false;
-  } else if (key === 'language') { filters.language = ''; languageFilterEl.value = ''; }
+    const button = choiceButtons(contentLabelFiltersEl).find(item => item.dataset.value === id);
+    setChoicePressed(button, false);
+  } else if (key === 'language') { filters.language = ''; setSingleChoice(languageFilterEl, ''); }
   else if (key.startsWith('genre:')) {
     const id = key.slice(6);
-    const checkbox = [...genreFiltersEl.querySelectorAll('input')].find(input => input.value === id);
-    if (checkbox) checkbox.checked = false;
+    const button = choiceButtons(genreFiltersEl).find(item => item.dataset.value === id);
+    setChoicePressed(button, false);
     filters.genres = filters.genres.filter(genre => genre !== id);
     resolveSelectedGenres();
     return;
@@ -304,12 +345,12 @@ function clearSingleFilter(key) {
   } else if (key.startsWith('excludedCategory:')) {
     removeCategory(key.slice(17), 'exclude');
     return;
-  } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; }
-  else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; }
+  } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; syncAudiencePresetButtons(); }
+  else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; syncAudiencePresetButtons(); }
   else if (key === 'follow') { filters.minFollowDays = null; followDaysInput.value = ''; }
-  else if (key === 'uptime') { filters.maxUptimeHours = null; maxUptimeEl.value = ''; }
-  else if (key === 'activity') { filters.activityDays = null; activityFilterEl.value = ''; delete tabCache[activeTab]; loadStreams(); return; }
-  else if (key === 'openChat') { filters.openChatOnly = false; openChatOnlyEl.checked = false; delete tabCache[activeTab]; loadStreams(); return; }
+  else if (key === 'uptime') { filters.maxUptimeHours = null; setSingleChoice(maxUptimeEl, ''); }
+  else if (key === 'activity') { filters.activityDays = null; setSingleChoice(activityFilterEl, ''); delete tabCache[activeTab]; loadStreams(); return; }
+  else if (key === 'openChat') { filters.openChatOnly = false; setChoicePressed(openChatOnlyEl, false); delete tabCache[activeTab]; loadStreams(); return; }
   filtersChanged();
 }
 
@@ -340,3 +381,14 @@ function passesCommonFilters(s) {
   }
   return true;
 }
+
+// Keep every button's visual/accessible state aligned with the filter model on first load.
+syncPopularTagButtons();
+syncAudiencePresetButtons();
+setChoicePressed(openChatOnlyEl, filters.openChatOnly);
+choiceButtons(contentLabelFiltersEl).forEach(button => setChoicePressed(button, filters.contentLabels.includes(button.dataset.value)));
+choiceButtons(genreFiltersEl).forEach(button => setChoicePressed(button, filters.genres.includes(button.dataset.value)));
+setSingleChoice(categoryFilterMode, 'include');
+setSingleChoice(languageFilterEl, filters.language);
+setSingleChoice(maxUptimeEl, filters.maxUptimeHours == null ? '' : String(filters.maxUptimeHours));
+setSingleChoice(activityFilterEl, filters.activityDays == null ? '' : String(filters.activityDays));
