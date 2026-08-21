@@ -1,6 +1,8 @@
 # NerdSync Alpha-0.16.3 — Filter Button Reliability
 
 ## Fixed
+- Hotfix: restricted-chat exclusion is enabled by default.
+- Hotfix: renamed the control to “Exclude restricted chats” and reduced it to a compact inline button instead of a full-width control.
 - Converted game genre filters from checkbox-label controls to native buttons.
 - Converted Twitch content-classification filters to native toggle buttons.
 - Converted Creator Match audience source and tolerance choices to button groups.

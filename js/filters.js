@@ -268,7 +268,7 @@ function renderSelectedCategories() {
 clearFiltersBtn.addEventListener('click', () => {
   genreResolveGeneration += 1;
   clearTimeout(genreResolveTimer);
-  filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:false };
+  filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:true };
   tagInput.value = '';
   excludedTagsInput.value = '';
   setSingleChoice(languageFilterEl, '');
@@ -277,7 +277,7 @@ clearFiltersBtn.addEventListener('click', () => {
   followDaysInput.value = '';
   setSingleChoice(maxUptimeEl, '');
   setSingleChoice(activityFilterEl, '');
-  setChoicePressed(openChatOnlyEl, false);
+  setChoicePressed(openChatOnlyEl, true);
   choiceButtons(contentLabelFiltersEl).forEach(button => setChoicePressed(button, false));
   choiceButtons(genreFiltersEl).forEach(button => setChoicePressed(button, false));
   setSingleChoice(categoryFilterMode, 'include');

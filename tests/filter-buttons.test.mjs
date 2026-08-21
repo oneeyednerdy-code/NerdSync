@@ -18,13 +18,20 @@ test('quick-choice discovery controls use native buttons', () => {
   for (const value of ['DebatedSocialIssuesAndPolitics','DrugsIntoxication','Gambling','MatureGame','ProfanityVulgarity','SexualThemes','ViolentGraphic']) {
     assert.match(html, new RegExp(`<button[^>]+data-value="${value}"[^>]+aria-pressed="false"`));
   }
-  assert.match(html, /<button id="open-chat-only"[^>]+aria-pressed="false"/);
+  assert.match(html, /<button id="open-chat-only"[^>]+option-button--inline[^>]+active[^>]+aria-pressed="true"[^>]*>Exclude restricted chats<\/button>/);
   for (const id of ['language-filter','filter-max-uptime','activity-filter']) {
     const start = html.indexOf(`id="${id}"`);
     assert.ok(start >= 0, `${id} exists`);
     assert.match(html.slice(start, start + 2200), /<button/);
     assert.doesNotMatch(html, new RegExp(`<select id="${id}"`));
   }
+});
+
+test('restricted chat exclusion is enabled by default and resets to default-on', () => {
+  assert.match(foundation, /openChatOnly:true/);
+  assert.match(filters, /filters = \{[^;]+openChatOnly:true \};/s);
+  assert.match(filters, /setChoicePressed\(openChatOnlyEl, true\)/);
+  assert.match(styles, /\.option-button--inline \{[^}]*width:auto;[^}]*min-height:32px;/s);
 });
 
 test('Creator Match source and tolerance are button groups', () => {
