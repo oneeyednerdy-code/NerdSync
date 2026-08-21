@@ -21,9 +21,23 @@ function creatorMatchTagsHtml(stream) {
     .map(tag => ({ tag, matched:selectedTags.has(tag.toLowerCase()) }))
     .sort((a,b) => Number(b.matched) - Number(a.matched));
 
-  if (!tags.length) return '<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Tags</span><span class="match-tags-empty">No Twitch tags listed</span></div>';
+  if (!tags.length) return '<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Twitch tags</span><div class="match-tags-list"><span class="match-tags-empty">No Twitch tags listed</span></div></div>';
 
-  return `<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Tags</span>${tags.map(({ tag, matched }) => `<span class="match-tag${matched ? ' match-tag--matched' : ''}"${matched ? ` aria-label="${escapeHtml(tag)}, matches your selected tag"` : ''}>${escapeHtml(tag)}${matched ? '<span class="match-tag-check" aria-hidden="true">✓</span>' : ''}</span>`).join('')}</div>`;
+  return `<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Twitch tags</span><div class="match-tags-list">${tags.map(({ tag, matched }) => `<span class="match-tag${matched ? ' match-tag--matched' : ''}"${matched ? ` aria-label="${escapeHtml(tag)}, matches your selected tag"` : ''}>${escapeHtml(tag)}${matched ? '<span class="match-tag-check" aria-hidden="true">✓</span>' : ''}</span>`).join('')}</div></div>`;
+}
+
+function prioritizeFollowingTeamMembers(items) {
+  return [...items].sort((a,b) => Number(Boolean(b._twitchTeams?.length)) - Number(Boolean(a._twitchTeams?.length)));
+}
+
+function followingTeamHtml(stream) {
+  if (activeTab !== 'following' || !followingTeamsFirst) return '';
+  const teams = Array.isArray(stream._twitchTeams) ? stream._twitchTeams : [];
+  if (!teams.length) return '';
+  const names = [...new Set(teams.map(team => String(team.displayName || team.name || '').trim()).filter(Boolean))];
+  if (!names.length) return '';
+  const label = names.length === 1 ? 'Twitch Team' : 'Twitch Teams';
+  return `<p class="twitch-team-line"><span>${label}</span> ${names.map(name => `<strong>${escapeHtml(name)}</strong>`).join('<span aria-hidden="true"> · </span>')}</p>`;
 }
 
 function streamCardHtml(s) {
@@ -55,6 +69,7 @@ function streamCardHtml(s) {
         <p class="stream-title">${escapeHtml(s.title)}</p>
         <p class="streamer-name">${escapeHtml(s.user_name)}</p>
         <p class="game-name">${escapeHtml(s.game_name || 'No category')}</p>
+        ${followingTeamHtml(s)}
         ${creatorMatchTagsHtml(s)}
         ${contentLabelsHtml(s)}
         ${viaTag}
@@ -202,6 +217,9 @@ function renderGrid() {
     if (activeTab === 'discover' && creatorStage === 'balanced' && viewCountSort === 'default') items = mixCreatorStages(items);
     if (activeTab === 'discover' && viewCountSort === 'default') items = blendDiscoveryModes(items);
     items = diversifyItems(items, diversityLimit);
+    if (activeTab === 'following' && followingTeamsFirst) {
+      items = prioritizeFollowingTeamMembers(items);
+    }
   }
 
   const totalItems = items.length;
@@ -273,6 +291,7 @@ async function loadStreams() {
     let loaded = await TABS[tabId].load({ deep:deepScanTabs.has(tabId) });
     loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
     loaded = await enrichCandidateSignals(loaded, tabId);
+    if (tabId === 'following' && followingTeamsFirst) loaded = await enrichFollowingTeams(loaded, currentToken);
     tabCache[tabId] = { data: loaded, timestamp: Date.now() };
     if (tabId !== activeTab || generation !== loadGeneration) return;
     allStreams = loaded;

@@ -52,6 +52,9 @@ logoutBtn.addEventListener('click', () => {
   currentUser = null;
   followedLiveCache = null;
   followedChannelsCache = null;
+  channelTeamsCache.clear();
+  followingTeamsFirst = false;
+  followingTeamsFirstEl.checked = false;
   tabCache = {};
   modalDetailCache = {};
   comparisonDetailCache = {};
@@ -101,6 +104,7 @@ function setActiveTab(tabId, { updateRoute = true } = {}) {
   });
   discoverFeedControl.classList.toggle('hidden', destination !== 'discover');
   followingFeedControl.classList.toggle('hidden', destination !== 'following');
+  followingTeamControl.classList.toggle('hidden', tabId !== 'following');
   if (DISCOVER_TABS.has(tabId)) discoverFeedMode.value = tabId;
   if (FOLLOWING_TABS.has(tabId)) followingFeedMode.value = tabId;
   contextToolbar.classList.toggle('hidden', cfg.isSaved === true);
@@ -149,6 +153,33 @@ function initializeTabControls() {
   });
   discoverFeedMode.addEventListener('change', () => setActiveTab(discoverFeedMode.value));
   followingFeedMode.addEventListener('change', () => setActiveTab(followingFeedMode.value));
+  brandHomeLink?.addEventListener('click', event => {
+    event.preventDefault();
+    setActiveTab('discover');
+    window.scrollTo({ top:0, behavior:accessibilitySettings.reduceMotion ? 'auto' : 'smooth' });
+  });
+  followingTeamsFirstEl.addEventListener('change', async () => {
+    followingTeamsFirst = followingTeamsFirstEl.checked;
+    currentPage = 1;
+    if (activeTab !== 'following') return;
+    if (!followingTeamsFirst) { renderGrid(); return; }
+    if (allStreams.every(stream => Array.isArray(stream._twitchTeams))) { renderGrid(); return; }
+    const generation = loadGeneration;
+    followingTeamsFirstEl.disabled = true;
+    setStatus('Checking Twitch team memberships…');
+    try {
+      const enriched = await enrichFollowingTeams(allStreams, currentToken);
+      if (activeTab !== 'following' || generation !== loadGeneration || !followingTeamsFirst) return;
+      allStreams = enriched;
+      if (tabCache.following) tabCache.following = { ...tabCache.following, data:enriched, timestamp:Date.now() };
+      renderGrid();
+    } catch (error) {
+      console.error(error);
+      setStatus('Could not check Twitch team memberships. Your Following list still works normally.', true);
+    } finally {
+      followingTeamsFirstEl.disabled = false;
+    }
+  });
   window.addEventListener('popstate', () => setActiveTab(tabFromRoute(), { updateRoute:false }));
 }
 
@@ -158,6 +189,7 @@ refreshBtn.addEventListener('click', () => {
   delete tabCache[activeTab];
   followedLiveCache = null;
   followedChannelsCache = null;
+  if (activeTab === 'following') channelTeamsCache.clear();
   refreshBtn.classList.add('spinning');
   setTimeout(() => refreshBtn.classList.remove('spinning'), 600);
   loadStreams();

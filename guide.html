@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="NerdSync Field Guide: a plain-language guide to Discover, Following, Creator Match, Saved, filters, settings, and creator cards." />
+  <title>NerdSync Field Guide</title>
+  <link rel="stylesheet" href="css/styles.css?v=0.16.6" />
+</head>
+<body class="guide-page">
+  <main class="guide-shell">
+    <header class="guide-header">
+      <a class="brand-mini brand-home-link" href="index.html#discover" aria-label="Return to NerdSync Discovery"><img class="brand-brain brand-brain--compact" src="assets/nerdsync-brain-circuit.svg" alt="" /><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></a>
+      <a class="btn-logout" href="index.html#discover">Back to NerdSync</a>
+    </header>
+
+    <section class="guide-hero">
+      <p class="guide-eyebrow">NERDSYNC FIELD GUIDE</p>
+      <h1>What every section does</h1>
+      <p>NerdSync is built around a few different jobs: discovering creators you do not already follow, seeing who you follow live, finding creators near your own audience size, and keeping track of people you want to revisit. This guide explains the controls without making you decode the interface first.</p>
+      <nav class="guide-nav" aria-label="Field guide sections">
+        <a href="#discover">Discover</a><a href="#following">Following</a><a href="#match">Creator Match</a><a href="#saved">Saved</a><a href="#filters">Filters</a><a href="#cards">Creator cards</a><a href="#settings">Settings</a><a href="#privacy">Data & privacy</a>
+      </nav>
+    </section>
+
+    <div class="guide-grid">
+      <section id="discover" class="guide-section">
+        <h2>Discover</h2>
+        <p>This is the main discovery feed for creators you do not already follow.</p>
+        <h3>For You</h3><p>A balanced recommendation feed using your selected filters, categories seen among channels you follow, and optional NerdSync personalization.</p>
+        <h3>Hidden Gems</h3><p>Focuses on smaller live channels, including very small viewer-count lanes that can be buried deeper in Twitch directories.</p>
+        <h3>Emerging</h3><p>Looks for newer accounts and growing creators. It also includes a newer-Affiliate section.</p>
+        <h3>Established</h3><p>Looks at larger live creators while still respecting your discovery filters.</p>
+        <h3>Scan deeper</h3><p>The first scan is intentionally shallow for speed. Scan deeper asks NerdSync to look farther into the selected Twitch categories.</p>
+      </section>
+
+      <section id="following" class="guide-section">
+        <h2>Following</h2>
+        <p><strong>Live</strong> shows channels you already follow that are currently streaming. <strong>Clips</strong> shows recent clips from a limited number of followed channels.</p>
+        <h3>Twitch teams first</h3><p>This option is off until you choose it. When enabled on Following Live, NerdSync checks the Twitch teams each live followed creator belongs to. Team-affiliated creators are moved to the top of the list and their team name is shown in bold on the card. This uses Twitch's Channel Teams API and does not require another OAuth permission.</p>
+        <p>Turning the option off returns the list to its normal order and stops showing the team labels.</p>
+      </section>
+
+      <section id="match" class="guide-section">
+        <h2>Creator Match</h2>
+        <p>Creator Match is for finding potential peers, raid targets, or collaborators around an audience size you choose.</p>
+        <p>You can base the range on your current live viewers or a past broadcast peak, then choose how wide the match range should be. Normal NerdSync filters still apply.</p>
+        <p>Match cards also show Twitch tags. Tags matching the tags you entered are highlighted with a check mark. Opening Details can load supplemental TwitchTracker 30-day summary data when available.</p>
+      </section>
+
+      <section id="saved" class="guide-section">
+        <h2>Saved</h2>
+        <p>Saved is your local shortlist. Saving a creator does not follow them on Twitch and does not send them a notification.</p>
+        <p>This section also exposes your private NerdSync discovery profile and controls for resetting locally learned recommendation information.</p>
+      </section>
+
+      <section id="filters" class="guide-section guide-wide">
+        <h2>Discovery filters</h2>
+        <ul>
+          <li><strong>Twitch tags:</strong> require at least one of the exact tags you selected or entered. Matching is case-insensitive.</li>
+          <li><strong>Exclude tags:</strong> removes streams carrying any excluded tag.</li>
+          <li><strong>Language:</strong> limits results to a selected Twitch stream language.</li>
+          <li><strong>Audience size:</strong> sets minimum and maximum current live viewers.</li>
+          <li><strong>Maximum uptime:</strong> removes streams that have already been live longer than your selected limit.</li>
+          <li><strong>Recent creator activity:</strong> requires evidence of a recent archived broadcast. Creators with VODs disabled may not pass this check.</li>
+          <li><strong>Exclude restricted chats:</strong> on by default. It removes follower-only, subscriber-only, and emote-only chats after checking the strongest candidates.</li>
+          <li><strong>Twitch classifications:</strong> selected classifications are requirements, not exclusions.</li>
+          <li><strong>Game genres:</strong> curated genre buttons resolve into real Twitch game categories.</li>
+          <li><strong>Game category:</strong> include or exclude specific Twitch categories by name.</li>
+        </ul>
+        <p>Filters narrow who qualifies. The feed decides what kind of creator NerdSync is looking for. Sort changes the order after creators qualify.</p>
+      </section>
+
+      <section id="cards" class="guide-section">
+        <h2>Creator cards</h2>
+        <p><strong>Details</strong> opens more Twitch information without immediately sending you away from NerdSync. <strong>Save</strong> adds the creator to your local shortlist.</p>
+        <p><strong>More like this</strong> and <strong>Less like this</strong> teach optional local personalization. <strong>Follow category</strong> teaches NerdSync that a game/category matters to you. <strong>Hide 30d</strong> temporarily suppresses a creator; <strong>Never show</strong> suppresses them until restored. <strong>Compare</strong> adds them to the two-creator comparison tool.</p>
+      </section>
+
+      <section id="settings" class="guide-section">
+        <h2>Settings</h2>
+        <p>Settings includes accessibility controls plus Discovery defaults such as creator stage, Partner exclusion, category variety, personalization, and hiding recently seen creators.</p>
+        <p>Personalization is local and optional. Explicit filters continue working even when personalization is disabled.</p>
+      </section>
+
+      <section id="privacy" class="guide-section guide-wide">
+        <h2>Data and privacy</h2>
+        <p>NerdSync uses your Twitch login and the permissions listed at login to read the data needed for its tools. Recommendation history, saved creators, and preferences are designed to stay in your browser storage.</p>
+        <p>Twitch team lookups use the public broadcaster ID for live channels you follow and only run when you enable <strong>Twitch teams first</strong>. TwitchTracker lookups use a creator's public Twitch login name through NerdSync's same-origin proxy; your Twitch OAuth token is not sent to TwitchTracker.</p>
+      </section>
+    </div>
+
+    <footer class="guide-footer">
+      <span>NerdSync · Nerdspace Labs - Twitch Tools by OneEyedNerdy · Alpha-0.16.6</span>
+      <a href="index.html#discover">Return to Discovery</a>
+    </footer>
+  </main>
+</body>
+</html>

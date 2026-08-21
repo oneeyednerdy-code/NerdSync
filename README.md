@@ -1,9 +1,9 @@
 # NerdSync
 
-Current release: **Alpha-0.16.4**
+Current release: **Alpha-0.16.6**
 
 
-## Alpha-0.16.4 Creator Match + Cloudflare runtime
+## Alpha-0.16.6 Creator Match + Cloudflare runtime
 
 - Shows each Creator Match channel's Twitch tags directly on the match card.
 - Highlights selected discovery tags with a check mark using case-insensitive exact matching, and orders matching tags before the creator's other tags.
@@ -319,3 +319,8 @@ Versions use `Alpha-MAJOR.MINOR.PATCH` during alpha development. Increment PATCH
 ## Alpha-0.16.3 filter control update
 
 Quick-choice discovery controls now use native buttons instead of checkbox-label or clickable-list substitutes. Tags, audience presets, stream language, maximum uptime, recent activity, content classifications, game genres, category include/exclude mode, Open Chat Only, and Creator Match source/range choices synchronize their visual state and `aria-pressed` state with NerdSync's filter model.
+
+
+## Alpha-0.16.6 additions
+
+Following Live includes an optional **Twitch teams first** control that checks Twitch team memberships for live followed creators, labels their teams, and prioritizes team-affiliated channels. The footer also links to the **NerdSync Field Guide**, a plain-language guide to the main sections and filters.

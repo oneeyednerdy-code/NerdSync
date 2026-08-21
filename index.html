@@ -8,22 +8,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.16.4">
-<link rel="stylesheet" href="css/secret-game.css?v=0.16.4">
+<link rel="stylesheet" href="css/styles.css?v=0.16.6">
+<link rel="stylesheet" href="css/secret-game.css?v=0.16.6">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.16.4" defer></script>
-<script src="js/ui-state.js?v=0.16.4" defer></script>
-<script src="js/filters.js?v=0.16.4" defer></script>
-<script src="js/twitch-api.js?v=0.16.4" defer></script>
-<script src="js/discovery.js?v=0.16.4" defer></script>
-<script src="js/recommendations.js?v=0.16.4" defer></script>
-<script src="js/creator-tools.js?v=0.16.4" defer></script>
-<script src="js/feed-rendering.js?v=0.16.4" defer></script>
-<script src="js/twitchtracker-summary.js?v=0.16.4" defer></script>
-<script src="js/stream-details.js?v=0.16.4" defer></script>
-<script src="js/app-controls.js?v=0.16.4" defer></script>
-<script src="js/secret-game.js?v=0.16.4" defer></script>
-<script src="js/session.js?v=0.16.4" defer></script>
+<script src="js/app-foundation.js?v=0.16.6" defer></script>
+<script src="js/ui-state.js?v=0.16.6" defer></script>
+<script src="js/filters.js?v=0.16.6" defer></script>
+<script src="js/twitch-api.js?v=0.16.6" defer></script>
+<script src="js/discovery.js?v=0.16.6" defer></script>
+<script src="js/recommendations.js?v=0.16.6" defer></script>
+<script src="js/creator-tools.js?v=0.16.6" defer></script>
+<script src="js/feed-rendering.js?v=0.16.6" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.16.6" defer></script>
+<script src="js/stream-details.js?v=0.16.6" defer></script>
+<script src="js/app-controls.js?v=0.16.6" defer></script>
+<script src="js/secret-game.js?v=0.16.6" defer></script>
+<script src="js/session.js?v=0.16.6" defer></script>
 </head>
 <body>
 
@@ -54,7 +54,7 @@
       <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.16.4</span>
+      <span class="release-version">Alpha-0.16.6</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -63,13 +63,15 @@
   <footer class="login-footer" aria-label="Project links">
     <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support this project on Ko-fi <span aria-hidden="true">↗</span></a>
     <span aria-hidden="true">·</span>
+    <a href="guide.html">NerdSync Field Guide</a>
+    <span aria-hidden="true">·</span>
     <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
   </footer>
 </div>
 
 <div id="discovery-view" class="discovery-container hidden">
   <div class="top-bar">
-    <div class="brand-mini"><img class="brand-brain brand-brain--compact" src="assets/nerdsync-brain-circuit.svg" alt="" /><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></div>
+    <a class="brand-mini brand-home-link" href="#discover" aria-label="NerdSync home — Discovery"><img class="brand-brain brand-brain--compact" src="assets/nerdsync-brain-circuit.svg" alt="" /><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></a>
     <div class="user-profile">
       <img id="user-avatar" class="user-avatar" src="" alt="" />
       <span id="welcome-msg"></span>
@@ -98,6 +100,10 @@
     </label>
     <label id="following-feed-control" class="global-control hidden" for="following-feed-mode">Following feed
       <select id="following-feed-mode"><option value="following">Live</option><option value="clips">Clips</option></select>
+    </label>
+    <label id="following-team-control" class="global-control global-control--check hidden" for="following-teams-first" title="Checks Twitch team membership for live channels you follow only when enabled.">
+      <input id="following-teams-first" type="checkbox" />
+      <span>Twitch teams first</span>
     </label>
     <label class="global-control" for="view-count-sort">Sort
       <select id="view-count-sort"><option value="default">Recommended</option><option value="asc">Low to high</option><option value="desc">High to low</option></select>
@@ -428,9 +434,11 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.16.4</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.16.6</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
+        <span aria-hidden="true">·</span>
+        <a href="guide.html">NerdSync Field Guide</a>
         <span aria-hidden="true">·</span>
         <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
       </p>

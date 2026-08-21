@@ -153,6 +153,52 @@ async function fetchFollowedChannels(userId, token) {
   return channels;
 }
 
+async function fetchChannelTeams(broadcasterId, token) {
+  if (!broadcasterId) return [];
+  const params = new URLSearchParams({ broadcaster_id:String(broadcasterId) });
+  const res = await apiFetch(`https://api.twitch.tv/helix/teams/channel?${params}`, { headers:authHeaders(token) });
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error('Failed to load Twitch teams');
+  const payload = await res.json();
+  return Array.isArray(payload.data) ? payload.data : [];
+}
+
+async function getChannelTeams(broadcasterId, token) {
+  const key = String(broadcasterId || '');
+  if (!key) return [];
+  const cached = channelTeamsCache.get(key);
+  if (cached && Date.now() - cached.timestamp < TEAM_CACHE_TTL_MS) return cached.data;
+  const data = await fetchChannelTeams(key, token);
+  channelTeamsCache.set(key, { data, timestamp:Date.now() });
+  return data;
+}
+
+async function enrichFollowingTeams(streams, token) {
+  if (!Array.isArray(streams) || !streams.length) return [];
+  const enriched = streams.map(stream => ({ ...stream }));
+  let nextIndex = 0;
+  const workerCount = Math.min(TEAM_LOOKUP_CONCURRENCY, enriched.length);
+  const workers = Array.from({ length:workerCount }, async () => {
+    while (nextIndex < enriched.length) {
+      const index = nextIndex++;
+      const stream = enriched[index];
+      try {
+        const teams = await getChannelTeams(stream.user_id, token);
+        enriched[index] = { ...stream, _twitchTeams:teams.map(team => ({
+          id:String(team.id || ''),
+          name:String(team.team_name || ''),
+          displayName:String(team.team_display_name || team.team_name || 'Twitch Team')
+        })).filter(team => team.id || team.name || team.displayName) };
+      } catch (error) {
+        console.warn(`Could not load Twitch teams for ${stream.user_login || stream.user_id}`, error);
+        enriched[index] = { ...stream, _twitchTeams:[] };
+      }
+    }
+  });
+  await Promise.all(workers);
+  return enriched;
+}
+
 async function fetchTopGames(token, first) {
   const res = await apiFetch(`https://api.twitch.tv/helix/games/top?first=${first}`, { headers: authHeaders(token) });
   if (!res.ok) return [];

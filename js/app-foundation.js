@@ -2,7 +2,7 @@
 
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.16.4';
+const APP_VERSION = 'Alpha-0.16.6';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -51,6 +51,8 @@ const PAGE_SIZE = 12;
 const DEBOUNCE_MS = 300;
 const SIGNAL_ENRICH_LIMIT = 40;
 const SIGNAL_CACHE_TTL_MS = 30 * 60 * 1000;
+const TEAM_CACHE_TTL_MS = 15 * 60 * 1000;
+const TEAM_LOOKUP_CONCURRENCY = 6;
 const INITIAL_SCAN_PAGES = 2;
 
 const GENRE_PRESETS = [
@@ -79,6 +81,7 @@ const privacyView = document.getElementById('privacy-view');
 const privacyAcceptBtn = document.getElementById('privacy-accept-btn');
 const privacyReviewBtn = document.getElementById('privacy-review-btn');
 const discoveryView = document.getElementById('discovery-view');
+const brandHomeLink = document.querySelector('.brand-home-link');
 const loginBtn = document.getElementById('twitch-login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const configWarning = document.getElementById('config-warning');
@@ -106,6 +109,8 @@ const discoverFeedControl = document.getElementById('discover-feed-control');
 const discoverFeedMode = document.getElementById('discover-feed-mode');
 const followingFeedControl = document.getElementById('following-feed-control');
 const followingFeedMode = document.getElementById('following-feed-mode');
+const followingTeamControl = document.getElementById('following-team-control');
+const followingTeamsFirstEl = document.getElementById('following-teams-first');
 const contextToolbar = document.getElementById('context-toolbar');
 const resultsArea = document.getElementById('results-area');
 const featureActions = document.querySelector('.discovery-container > .feature-actions');
@@ -163,7 +168,7 @@ function buildTabs() {
   return {
   following: {
     label: 'Following Live',
-    explainer: 'Channels you follow that are live right now.',
+    explainer: 'Channels you follow that are live right now. Turn on Twitch teams first to check team memberships, label team-affiliated creators, and place them at the top of the live list.',
     empty: "None of the channels you follow are live right now. Try Discover to see what's trending.",
     load: loadFollowing,
     hasCommonFilters: true
@@ -237,6 +242,7 @@ let currentPage = 1;
 let allStreams = [];
 let followedLiveCache = null;
 let followedChannelsCache = null;
+let channelTeamsCache = new Map();
 let tabCache = {};
 let modalDetailCache = {};
 let clipSort = 'views';
@@ -244,6 +250,7 @@ let risingSort = 'potential';
 let risingStatusFilter = 'all';
 let newAffiliateSort = 'fit';
 let viewCountSort = 'default';
+let followingTeamsFirst = false;
 let creatorStage = 'balanced';
 let matchSource = 'live';
 let matchTolerance = 50;

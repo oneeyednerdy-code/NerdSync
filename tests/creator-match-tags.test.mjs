@@ -43,6 +43,17 @@ test('Creator Match cards explain when Twitch returns no tags', () => {
   assert.match(context.renderTags({ tags:[] }), /No Twitch tags listed/);
 });
 
+
+test('Creator Match tags render as individually spaced pills beneath their own label', () => {
+  const context = { activeTab:'match', filters:{ tags:['Cozy'] }, escapeHtml };
+  vm.runInNewContext(`${helperSource()}\nglobalThis.renderTags = creatorMatchTagsHtml;`, context);
+  const html = context.renderTags({ tags:['Cozy','English','RPG'] });
+  assert.match(html, /<span class="match-tags-label">Twitch tags<\/span><div class="match-tags-list">/);
+  assert.equal((html.match(/class="match-tag/g) || []).length >= 3, true);
+  assert.match(styles, /\.match-tags-list \{[^}]*display:flex;[^}]*flex-wrap:wrap;[^}]*gap:/s);
+  assert.match(styles, /\.match-tag \{[^}]*white-space:nowrap;/s);
+});
+
 test('matched tag CSS has a distinct visual treatment', () => {
   assert.match(styles, /\.match-tag--matched \{[^}]*border-color:var\(--violet-bright\);[^}]*background:rgba\(139,92,246,.24\)/s);
   assert.match(styles, /@media \(forced-colors: active\)[\s\S]*\.match-tag--matched/);

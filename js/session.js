@@ -66,6 +66,7 @@ function endExpiredSession() {
   currentUser = null;
   followedLiveCache = null;
   followedChannelsCache = null;
+  channelTeamsCache.clear();
   tabCache = {};
   modalDetailCache = {};
   knownCreators.clear();

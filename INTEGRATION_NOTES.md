@@ -30,3 +30,8 @@ NerdSync's discovery quick choices now use native buttons with synchronized `ari
 ## Alpha-0.16.4 Creator Match tag cards
 
 Creator Match cards now display the live channel's Twitch tags. Tags that exactly match the user's included Twitch-tag filters are promoted to the front of the tag list and visually highlighted with a check mark. Matching is case-insensitive and uses the same exact-match rule as the discovery filter itself. No additional Twitch or TwitchTracker request is required because tags are already included in Twitch live-stream responses.
+
+
+## Alpha-0.16.6 Creator Match tag layout hotfix
+
+Creator Match tags now render beneath a dedicated **Twitch tags** label inside a wrapping pill row. Each tag is visually separated, stays intact as a single pill, and matching tags retain the highlighted check treatment.
