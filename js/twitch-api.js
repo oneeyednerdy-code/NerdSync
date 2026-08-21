@@ -7,9 +7,21 @@ function getAccessTokenFromUrl() {
 }
 
 async function validateToken(token) {
-  const res = await fetch('https://id.twitch.tv/oauth2/validate', { headers: { Authorization: `OAuth ${token}` } });
+  if (!token || typeof token !== 'string') return null;
+  const res = await fetch('https://id.twitch.tv/oauth2/validate', {
+    headers: { Authorization: `OAuth ${token}` },
+    cache: 'no-store',
+    credentials: 'omit',
+    referrerPolicy: 'no-referrer'
+  });
   if (!res.ok) return null;
-  return res.json();
+  const validation = await res.json();
+  const scopes = Array.isArray(validation.scopes) ? validation.scopes : [];
+  const validClient = validation.client_id === CLIENT_ID;
+  const validIdentity = typeof validation.user_id === 'string' && validation.user_id.length > 0;
+  const validExpiry = Number(validation.expires_in) > 0;
+  const hasRequiredScopes = scopes.length === REQUIRED_SCOPES.length && REQUIRED_SCOPES.every(scope => scopes.includes(scope));
+  return validClient && validIdentity && validExpiry && hasRequiredScopes ? validation : null;
 }
 
 function authHeaders(token) {
@@ -20,14 +32,36 @@ async function apiFetch(url, options = {}, retry = true) {
   diagnostics.requests += 1;
   const started = performance.now();
   const parsed = new URL(url);
+  if (parsed.origin !== 'https://api.twitch.tv' || !parsed.pathname.startsWith('/helix/')) {
+    throw new Error('UNTRUSTED_API_TARGET');
+  }
+  const method = String(options.method || 'GET').toUpperCase();
+  if (method !== 'GET') throw new Error('READ_ONLY_API_REQUIRED');
   const safeTarget = `${parsed.pathname}${[...parsed.searchParams.keys()].length ? `?${[...new Set(parsed.searchParams.keys())].join('&')}` : ''}`;
   let res;
+  const controller = new AbortController();
+  const scanSignal = activeLoadController?.signal || null;
+  const cancelForAbandonedScan = () => controller.abort();
+  if (scanSignal?.aborted) throw new DOMException('Scan cancelled', 'AbortError');
+  scanSignal?.addEventListener('abort', cancelForAbandonedScan, { once:true });
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
-    res = await fetch(url, options);
+    res = await fetch(url, {
+      ...options,
+      method,
+      signal: controller.signal,
+      cache: 'no-store',
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer'
+    });
   } catch (error) {
-    diagnosticEvents.push({ time:new Date().toISOString(), target:safeTarget, status:'network-error', ms:Math.round(performance.now()-started) });
+    const status = error?.name === 'AbortError' ? (scanSignal?.aborted ? 'cancelled' : 'timeout') : 'network-error';
+    diagnosticEvents.push({ time:new Date().toISOString(), target:safeTarget, status, ms:Math.round(performance.now()-started) });
     diagnosticEvents = diagnosticEvents.slice(-100);
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    scanSignal?.removeEventListener('abort', cancelForAbandonedScan);
   }
   diagnosticEvents.push({ time:new Date().toISOString(), target:safeTarget, status:res.status, ms:Math.round(performance.now()-started) });
   diagnosticEvents = diagnosticEvents.slice(-100);
@@ -37,6 +71,7 @@ async function apiFetch(url, options = {}, retry = true) {
     const resetAt = Number(res.headers.get('Ratelimit-Reset') || 0) * 1000;
     const waitMs = Math.max(500, Math.min(5000, resetAt - Date.now()));
     await new Promise(resolve => setTimeout(resolve, waitMs));
+    if (scanSignal?.aborted) throw new DOMException('Scan cancelled', 'AbortError');
     return apiFetch(url, options, false);
   }
   if (res.status === 401) throw new Error('SESSION_EXPIRED');
@@ -44,7 +79,7 @@ async function apiFetch(url, options = {}, retry = true) {
 }
 
 function renderDiagnostics() {
-  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.signalsChecked || 0} detailed checks · ${diagnostics.failures} partial failures · ${diagnostics.requests} API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}. <button id="download-diagnostics-btn" class="btn-logout" style="margin-left:.5rem" type="button">Download error log</button>`;
+  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.signalsChecked || 0} detailed checks · ${diagnostics.failures} partial failures · ${diagnostics.requests} API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}. <button id="download-diagnostics-btn" class="btn-logout diagnostics-download" type="button">Download error log</button>`;
   document.getElementById('download-diagnostics-btn')?.addEventListener('click', downloadDiagnostics);
 }
 
@@ -65,7 +100,7 @@ function downloadDiagnostics() {
     `NerdSync ${APP_VERSION} diagnostic report`,
     `Generated: ${new Date().toISOString()}`,
     `Active panel: ${activeTab}`,
-    `Browser: ${navigator.userAgent}`,
+    'Browser details: omitted for privacy',
     `Summary: ${JSON.stringify(diagnostics)}`,
     `Filter summary: ${JSON.stringify(safeFilters)}`,
     '',

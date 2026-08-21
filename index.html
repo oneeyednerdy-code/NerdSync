@@ -8,13 +8,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.10.0">
+<link rel="stylesheet" href="css/styles.css?v=0.16.0">
+<link rel="stylesheet" href="css/secret-game.css?v=0.16.0">
 <script src="config.js" defer></script>
-<script src="js/app-core.js?v=0.10.0" defer></script>
-<script src="js/filters.js?v=0.10.0" defer></script>
-<script src="js/twitch-api.js?v=0.10.0" defer></script>
-<script src="js/discovery.js?v=0.10.0" defer></script>
-<script src="js/ui-session.js?v=0.10.0" defer></script>
+<script src="js/app-foundation.js?v=0.16.0" defer></script>
+<script src="js/ui-state.js?v=0.16.0" defer></script>
+<script src="js/filters.js?v=0.16.0" defer></script>
+<script src="js/twitch-api.js?v=0.16.0" defer></script>
+<script src="js/discovery.js?v=0.16.0" defer></script>
+<script src="js/recommendations.js?v=0.16.0" defer></script>
+<script src="js/creator-tools.js?v=0.16.0" defer></script>
+<script src="js/feed-rendering.js?v=0.16.0" defer></script>
+<script src="js/stream-details.js?v=0.16.0" defer></script>
+<script src="js/app-controls.js?v=0.16.0" defer></script>
+<script src="js/secret-game.js?v=0.16.0" defer></script>
+<script src="js/session.js?v=0.16.0" defer></script>
 </head>
 <body>
 
@@ -23,7 +31,7 @@
 
 <div id="privacy-view" role="dialog" aria-modal="true" aria-labelledby="privacy-title" aria-describedby="privacy-summary">
   <section class="login-card privacy-card">
-    <div class="login-orbit-mark" aria-hidden="true"><span></span></div>
+    <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
     <p class="privacy-eyebrow">Privacy &amp; cookies</p>
     <h1 id="privacy-title">Your data stays yours.</h1>
     <p id="privacy-summary" class="privacy-lead">Before you connect Twitch, here is NerdSync's simple data promise.</p>
@@ -41,23 +49,28 @@
 <div id="login-view" class="hidden">
   <div class="login-card">
     <div class="brand-header">
-      <div class="login-orbit-mark" aria-hidden="true"><span></span></div>
+      <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.10.0</span>
+      <span class="release-version">Alpha-0.16.0</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
     <button id="privacy-review-btn" class="privacy-review-btn" type="button">Review the NerdSync data promise</button>
   </div>
+  <footer class="login-footer" aria-label="Project links">
+    <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support this project on Ko-fi <span aria-hidden="true">↗</span></a>
+    <span aria-hidden="true">·</span>
+    <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
+  </footer>
 </div>
 
 <div id="discovery-view" class="discovery-container hidden">
   <div class="top-bar">
-    <div class="brand-mini"><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></div>
+    <div class="brand-mini"><img class="brand-brain brand-brain--compact" src="assets/nerdsync-brain-circuit.svg" alt="" /><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></div>
     <div class="user-profile">
       <img id="user-avatar" class="user-avatar" src="" alt="" />
-      <span id="welcome-msg" style="color: var(--text-dim);"></span>
+      <span id="welcome-msg"></span>
       <button id="accessibility-toggle" class="btn-logout" type="button" aria-controls="accessibility-panel" aria-expanded="false">Settings</button>
     </div>
   </div>
@@ -93,7 +106,7 @@
   </div>
 
   <div class="feature-actions" aria-label="Discovery tools">
-    <button id="try-someone-btn" class="btn-twitch" style="width:auto" type="button">Try Someone New</button>
+    <button id="try-someone-btn" class="btn-twitch btn-auto" type="button">Try Someone New</button>
   </div>
 
   <section id="channel-tools-panel" class="feature-panel hidden" aria-labelledby="channel-tools-title">
@@ -103,19 +116,22 @@
       <button class="btn-logout" type="submit">Search Twitch</button>
     </form>
     <div id="channel-search-results" class="tool-results" aria-live="polite"></div>
-    <div class="feature-panel-head" style="margin-top:1rem"><h2>Comparison <span id="compare-count">0/2</span></h2><button id="clear-compare-btn" class="btn-logout" type="button">Clear</button></div>
+    <div class="feature-panel-head feature-panel-head--spaced"><h2>Comparison <span id="compare-count">0/2</span></h2><button id="clear-compare-btn" class="btn-logout" type="button">Clear</button></div>
     <div id="comparison-grid" class="compare-grid"></div>
   </section>
 
   <section id="saved-panel" class="feature-panel hidden" aria-labelledby="saved-panel-title" tabindex="-1">
     <div class="feature-panel-head"><h2 id="saved-panel-title">Saved creators</h2></div>
-    <div class="feature-actions"><button id="clear-seen-btn" class="btn-logout" type="button">Clear seen history</button><button id="restore-dismissed-btn" class="btn-logout" type="button">Restore dismissed</button><button id="reset-recommendations-btn" class="btn-logout" type="button">Reset recommendations</button></div>
-    <section class="recommendation-profile" aria-labelledby="recommendation-profile-title">
-      <h3 id="recommendation-profile-title">Your private discovery profile</h3>
-      <p class="filter-hint">Built only from choices made in NerdSync and saved in this browser. Twitch does not provide NerdSync with your watch history.</p>
-      <div id="recommendation-profile-summary" class="signal-row" aria-live="polite"></div>
-    </section>
     <div id="saved-list" class="tool-results"></div>
+    <details class="saved-management">
+      <summary>Data and recommendation controls</summary>
+      <section class="recommendation-profile" aria-labelledby="recommendation-profile-title">
+        <h3 id="recommendation-profile-title">Your private discovery profile</h3>
+        <p class="filter-hint">Built only from choices made in NerdSync and saved in this browser. Twitch does not provide NerdSync with your watch history.</p>
+        <div id="recommendation-profile-summary" class="signal-row" aria-live="polite"></div>
+      </section>
+      <div class="feature-actions"><button id="clear-seen-btn" class="btn-logout" type="button">Clear seen history</button><button id="restore-dismissed-btn" class="btn-logout" type="button">Restore dismissed</button><button id="reset-recommendations-btn" class="btn-logout" type="button">Reset recommendations</button></div>
+    </details>
   </section>
 
   <section id="accessibility-panel" class="feature-panel hidden" aria-labelledby="accessibility-title">
@@ -146,13 +162,23 @@
       <label class="global-control global-control--check"><input id="a11y-high-contrast" type="checkbox" /> Higher contrast</label>
       <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
     </div>
-    <div class="feature-actions" style="margin-top:1rem"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
+    <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
     <p class="filter-hint">NerdSync never sells or shares your Twitch data. Your token stays in session storage and discovery preferences remain in this browser.</p>
     <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
   </section>
 
   <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
     <div class="feature-panel-head"><div><h2 id="creator-match-title">Find networking matches</h2><p class="filter-hint">Match live creators to your current audience or a past peak. Existing NerdSync filters refine the results.</p></div></div>
+    <aside id="secret-reward-profile" class="secret-reward-profile hidden" aria-labelledby="secret-reward-title">
+      <img id="secret-reward-avatar" class="secret-reward-avatar" src="" alt="" />
+      <div class="secret-reward-copy">
+        <p class="secret-reward-kicker">GHOST SIGNAL // CLEARED</p>
+        <h3 id="secret-reward-title">Golden Match Signal</h3>
+        <p id="secret-reward-summary"></p>
+        <p class="secret-reward-note">This achievement and gold border are stored locally for your Twitch account on this device.</p>
+      </div>
+      <button id="secret-game-replay" class="btn-logout" type="button">Replay signal</button>
+    </aside>
     <div class="settings-grid">
       <div class="filter-group">
         <label for="match-source">Audience source</label>
@@ -172,16 +198,17 @@
         <input id="match-peak" type="number" min="1" inputmode="numeric" placeholder="e.g. 20" />
       </div>
     </div>
-    <div class="feature-actions"><button id="run-creator-match" class="btn-twitch" style="width:auto" type="button">Find Creator Matches</button><span id="match-range-summary" class="empty-compact" aria-live="polite"></span></div>
+    <div class="feature-actions"><button id="run-creator-match" class="btn-twitch btn-auto" type="button">Find Creator Matches</button><span id="match-range-summary" class="empty-compact" aria-live="polite"></span></div>
   </section>
 
   <section id="filter-panel" class="filter-panel hidden" aria-labelledby="filter-panel-title">
     <div class="filter-panel-header">
-      <div><div class="filter-section-title" style="margin:0 0 .25rem">Discovery controls</div><h2 id="filter-panel-title" class="filter-panel-title">Filters</h2></div>
+      <div><div class="filter-section-title filter-section-title--compact">Discovery controls</div><h2 id="filter-panel-title" class="filter-panel-title">Filters</h2></div>
       <button id="filter-panel-close" class="btn-logout" type="button">Close filters</button>
     </div>
-    <h3 class="filter-section-title">Content</h3>
-    <div class="filter-layout">
+    <details class="filter-section-disclosure" open>
+      <summary>Essentials, audience and content</summary>
+      <div class="filter-layout">
       <div class="filter-group">
         <label for="filter-tag">Twitch tags</label>
         <input id="filter-tag" type="text" placeholder="e.g. GenAIOptedOut, speedrun, cozy" autocomplete="off" />
@@ -200,7 +227,7 @@
           <button class="sort-btn tag-preset" data-tag="Disabled" type="button">Disabled</button>
           <button class="sort-btn tag-preset" data-tag="Neurodivergent" type="button">Neurodivergent</button>
         </div>
-        <p class="filter-hint" style="margin-top:.85rem">Adult-oriented creator tags</p>
+        <p class="filter-hint filter-hint--section">Adult-oriented creator tags</p>
         <div class="preset-row" aria-label="Adult-oriented Twitch tags">
           <button class="sort-btn tag-preset" data-tag="MDNI" type="button">MDNI</button>
           <button class="sort-btn tag-preset" data-tag="18Plus" type="button">18+</button>
@@ -257,9 +284,12 @@
         <label for="filter-follow-days">Followed for at least</label>
         <input id="filter-follow-days" type="number" min="0" placeholder="Days" />
       </div>
-    </div>
-    <h3 class="filter-section-title">Advanced discovery</h3>
-    <div class="filter-group">
+      </div>
+    </details>
+    <details class="filter-section-disclosure">
+      <summary>Games and categories</summary>
+      <div class="filter-disclosure-body">
+      <div class="filter-group">
       <span class="filter-label">Game genre groups</span>
       <div id="genre-filters" class="genre-grid">
         <label class="toggle"><input type="checkbox" value="rpg"><span class="toggle-box"></span><span class="toggle-text">RPG</span></label>
@@ -275,14 +305,16 @@
     </div>
     <div class="filter-group">
       <label for="category-search-input">Game category</label>
-      <div class="filter-row-inline" style="margin-bottom:.55rem"><div><select id="category-filter-mode" aria-label="Category filter mode"><option value="include">Include category</option><option value="exclude">Exclude category</option></select></div></div>
+      <div class="filter-row-inline filter-row-inline--spaced"><div><select id="category-filter-mode" aria-label="Category filter mode"><option value="include">Include category</option><option value="exclude">Exclude category</option></select></div></div>
       <div class="category-search">
         <input id="category-search-input" type="text" placeholder="Search Twitch games and creative categories…" autocomplete="off" />
         <ul id="category-suggestions" class="category-suggestions hidden"></ul>
       </div>
       <p class="filter-hint">Searches Twitch's IGDB-backed category database. Add multiple categories; results may match any selected category.</p>
       <div id="selected-categories" class="chip-row"></div>
-    </div>
+      </div>
+      </div>
+    </details>
     <div class="active-filter-summary">
       <div class="active-filter-heading"><span id="active-filter-count">0 active filters</span><button id="clear-filters-btn" class="btn-logout" type="button">Clear all</button></div>
       <div id="active-filter-chips" class="active-filter-chips" aria-live="polite"></div>
@@ -296,7 +328,7 @@
     <strong class="section-control-title">Standard Emerging Live</strong>
     <button id="rising-sort-viewers" class="sort-btn active" type="button">Best rising score</button>
     <button id="rising-sort-uptime" class="sort-btn" type="button">Newest accounts</button>
-    <select id="rising-status-filter" class="search-input" style="min-width:170px;">
+    <select id="rising-status-filter" class="search-input rising-status-filter">
       <option value="all">All statuses</option>
       <option value="none">Non-affiliate</option>
       <option value="affiliate">Affiliate</option>
@@ -304,8 +336,8 @@
     </select>
   </div>
 
-  <div id="new-affiliate-controls-row" class="clip-sort-row hidden" role="group" aria-label="Sort new affiliates">
-    <strong class="section-control-title">New Affiliates</strong>
+  <div id="new-affiliate-controls-row" class="clip-sort-row hidden" role="group" aria-label="Sort Affiliates on newer accounts">
+    <strong class="section-control-title">Affiliates on Newer Accounts</strong>
     <button id="new-affiliate-sort-fit" class="sort-btn active" type="button">Best discovery fit</button>
     <button id="new-affiliate-sort-newest" class="sort-btn" type="button">Newest accounts</button>
   </div>
@@ -317,10 +349,58 @@
 
   <p id="tab-explainer" class="tab-explainer hidden"></p>
   <div id="status-area" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="scan-deeper-row" class="scan-deeper-row hidden">
+    <button id="scan-deeper-btn" class="btn-logout" type="button">Scan deeper in these categories</button>
+    <p id="scan-depth-status">Quick scan checks the first two directory pages.</p>
+  </div>
   <p id="results-summary" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
   <div id="stream-grid" class="stream-grid" aria-label="Twitch discovery results"></div>
   <div id="pagination-controls" class="pagination-controls"></div>
   </div>
+  <footer class="app-footer" aria-labelledby="support-title">
+    <div class="footer-support-intro">
+      <p class="footer-eyebrow">NERDSPACE LABS</p>
+      <h2 id="support-title">Support NerdSync &amp; Wormhole</h2>
+      <p>Nerdspace Labs is the home of NerdSync, Wormhole, and future creator tools. Community support helps keep the tools free while funding hosting, development, testing, security, storage, and monitoring.</p>
+      <a class="footer-support-cta" href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <details class="footer-support-details">
+      <summary>View supporter tiers and benefits</summary>
+      <div class="footer-tier-grid" aria-label="Monthly supporter tiers">
+        <div class="footer-tier"><strong>$5</strong><span>Launchpad Supporter</span></div>
+        <div class="footer-tier"><strong>$10</strong><span>Orbital Scout</span></div>
+        <div class="footer-tier"><strong>$25</strong><span>Lunar Navigator</span></div>
+        <div class="footer-tier"><strong>$50</strong><span>Nebula Engineer</span></div>
+        <div class="footer-tier"><strong>$100</strong><span>Supernova Patron</span></div>
+      </div>
+      <div class="footer-benefits">
+        <div>
+          <h3>Supporter benefits</h3>
+          <ul>
+            <li>Supporter role and contributor access in Discord</li>
+            <li>Optional recognition in NerdSync and Wormhole</li>
+            <li>Priority Discord support</li>
+            <li>Early previews of features and tool updates</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Our promise</h3>
+          <p>One-time contributions are welcome. Support is always optional and never changes discovery ranking, recommendations, or access. We publish monthly transparency updates about how project funds are used. Support does not guarantee a feature, permanent access, or creator growth.</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="footer-utility">
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.16.0</p>
+      <p class="footer-project-credit">
+        <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
+        <span aria-hidden="true">·</span>
+        <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
+      </p>
+      <button id="secret-game-trigger" class="footer-secret-link" type="button">Secret Find</button>
+    </div>
+  </footer>
 </div>
 </main>
 
@@ -340,8 +420,10 @@
       <span id="modal-live-badge" class="live-badge hidden">Live</span>
     </div>
     <div id="modal-tags" class="modal-tags"></div>
-    <a id="modal-watch-btn" class="btn-twitch modal-watch-btn" href="#" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>
-    <button id="modal-compare-btn" class="btn-logout" type="button">Add to comparison</button>
+    <div class="modal-actions">
+      <a id="modal-watch-btn" class="btn-twitch modal-watch-btn" href="#" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>
+      <button id="modal-compare-btn" class="btn-logout" type="button">Add to comparison</button>
+    </div>
     <div class="modal-section">
       <h3>Recent Broadcasts</h3>
       <div id="modal-videos" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
@@ -355,6 +437,26 @@
       <div id="modal-schedule" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
   </div>
+</div>
+
+<div id="secret-game-modal" class="secret-game-overlay hidden" aria-hidden="true">
+  <section class="secret-game-panel" role="dialog" aria-modal="true" aria-labelledby="secret-game-title" aria-describedby="secret-game-copy" tabindex="-1">
+    <button id="secret-game-close" class="secret-game-close" type="button" aria-label="Close Ghost Signal">&times;</button>
+    <div class="secret-game-header">
+      <span class="secret-game-system">NERDSYNC BLACK CHANNEL // 09</span>
+      <h2 id="secret-game-title">GHOST SIGNAL</h2>
+      <p class="secret-game-subtitle">An original cyber-noir transmission</p>
+    </div>
+    <div class="secret-game-terminal">
+      <p id="secret-game-location" class="secret-game-location"></p>
+      <div id="secret-game-copy" class="secret-game-copy" aria-live="polite"></div>
+      <div id="secret-game-choices" class="secret-game-choices"></div>
+    </div>
+    <div class="secret-game-footer">
+      <span id="secret-game-progress">0/3 endings recovered</span>
+      <button id="secret-game-restart" class="secret-game-text-button" type="button">Restart run</button>
+    </div>
+  </section>
 </div>
 
 </body>

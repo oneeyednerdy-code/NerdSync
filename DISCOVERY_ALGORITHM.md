@@ -1,6 +1,6 @@
 # NerdSync Discovery Graph
 
-Release: **Alpha-0.9.0**
+Release: **Alpha-0.16.0**
 
 ## Goal
 
@@ -12,7 +12,6 @@ Twitch provides the authenticated user's followed channels, their current or con
 
 NerdSync therefore learns only from actions taken in NerdSync:
 
-- opening creator details;
 - choosing Watch on Twitch;
 - saving a creator;
 - choosing More Like This or Less Like This;
@@ -21,6 +20,11 @@ NerdSync therefore learns only from actions taken in NerdSync:
 - selecting categories, tags, language, creator stages, audience ranges, and content labels.
 
 An outbound Twitch click is an interest signal, not a claim about viewing duration.
+Opening a detail panel is recorded only to reduce repetition; it does not teach the interest profile.
+
+Category discovery begins with two directory pages for a faster first result. Panels that support broader scanning expose a **Scan Deeper** control. Switching panels cancels the abandoned scan.
+
+Hidden Gems uses three current-audience lanes—1–5, 6–20, and 21–75 viewers—and rotates between them so the smallest eligible channels are not displaced by channels near the middle of the range.
 
 ## Candidate generation
 

@@ -1,6 +1,60 @@
 # NerdSync
 
-Current release: **Alpha-0.10.0**
+Current release: **Alpha-0.16.0**
+
+## Alpha-0.16.0 modular JavaScript architecture
+
+- Replaces the two broad application scripts with focused modules for foundation state, controls, local UI state, recommendations, creator tools, feed rendering, stream details, and session startup.
+- Keeps every JavaScript file below 25 KB and 425 lines in the unminified source release.
+- Preserves deferred dependency ordering so the static project remains deployable directly to Cloudflare Pages without a framework, package install, or build command.
+- Uses versioned asset URLs so Cloudflare and browsers can cache unchanged modules independently between releases.
+
+## Alpha-0.15.0 discovery quality and performance
+
+- Hidden Gems now rotates candidates across 1–5, 6–20, and 21–75 current-viewer lanes instead of centering its score near 25 viewers.
+- Discovery panels begin with a fast two-page category scan. **Scan Deeper** expands the active panel to its full directory-page limit only when requested.
+- Moving to another panel cancels the abandoned scan instead of allowing stale Twitch requests to keep running.
+- **New Affiliates** is renamed **Affiliates on Newer Accounts** because Twitch exposes current Affiliate status and account creation date, not the date Affiliate was earned.
+- Opening Details no longer teaches the recommendation profile. Watch, Save, More Like This, Less Like This, Hide, and Never Show carry clearer intentional weights.
+- Preferred audience size now uses the median of recent positive samples rather than an average that could be distorted by a few large channels.
+
+## Alpha-0.14.1 shared project footer
+
+- Adds Wormhole's Ko-fi support destination and **Project by OneEyedNerdy** credit to the NerdSync login screen.
+- Adds the same project credit and links to the signed-in footer shown beneath Discover, Following, Creator Match, and Saved.
+- Keeps external links accessible, touch friendly, and isolated with `noopener noreferrer`.
+
+## Alpha-0.14.0 human story
+
+- Rewrites GHOST SIGNAL as a human story about Vesper, 312 people trapped beneath Ward Nine, and a city being asked to remember people it was told were dead.
+- Removes creators, streaming, discovery rankings, and platform commentary from the narrative.
+- Removes the `.txt` download completely. Winning endings display only the reward, run profile, and cryptic final directive on screen.
+- Resets local game progress for the new story while preserving the three endings and Golden Match Signal reward.
+
+## Alpha-0.13.0 human conspiracy story
+
+- Rewrites GHOST SIGNAL as an entirely human cyber-noir conspiracy involving missing pirate broadcaster Vesper, Helix Media’s visibility blacklist, and an underground creator relay.
+- Removes the sentient system, synthetic-consciousness plot, predictive core, and human-machine ending.
+- Preserves three meaningful endings, downloadable winning records, the cryptic final directive, and the Golden Match Signal reward.
+- Starts the rewritten story with a fresh local progress record so endings from the earlier narrative are not counted automatically.
+
+## Alpha-0.12.2 final directive
+
+- Removes Discord role claims and ending codewords from GHOST SIGNAL.
+- Winning records now close with a single cryptic final directive and retain no reward-claim mechanism.
+
+## Alpha-0.12.1 Discord winner codewords
+
+- Adds a themed Discord role codeword to every downloadable GHOST SIGNAL winning record.
+- Each ending has a different codeword and the record tells the winner where to post it to request the special role.
+- Codewords are an honor-system community reward, not secure proof; a static Cloudflare Pages app cannot keep a browser-delivered secret.
+
+## Alpha-0.12.0 supporter footer and signal records
+
+- Adds a Wormhole-aligned Nerdspace Labs sponsorship footer with the same five Ko-fi tiers, shared benefits, one-time support, transparency, and independence promises.
+- Keeps support separate from discovery ranking, recommendations, and free access.
+- Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
+- Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
 NerdSync is a static, personalized Twitch discovery app for finding relevant live creators at every audience stage. It runs as plain HTML, CSS, and JavaScript on Cloudflare Pages with no server, database, client secret, package installation, or build command.
 
@@ -12,6 +66,45 @@ NerdSync is a static, personalized Twitch discovery app for finding relevant liv
 4. Upload the folder to Cloudflare Pages. Use no build command and use the folder containing `index.html` as the output directory.
 
 OAuth uses Twitch's browser implicit flow with a cryptographically random state check. The app requests only `user:read:follows`. Tokens remain in session storage.
+
+## Alpha-0.11.1 Secret Find entry
+
+- GHOST SIGNAL now opens exclusively from the **Secret Find** link in the signed-in NerdSync footer.
+- Removes the repeated-logo, typed-word, and keyboard-combination activation methods.
+- The footer entry remains keyboard operable, screen-reader accessible, touch friendly, and visually understated.
+
+## Alpha-0.11.0 GHOST SIGNAL
+
+- Adds an original hidden cyber-noir branching story with three endings: Open Signal, Golden Ghost, and Human Frequency.
+- The game is entered through the accessible Secret Find footer link.
+- Game choices are keyboard operable; the dialog contains focus, closes with Escape, supports reduced motion and forced colors, and returns focus when dismissed.
+- Ending progress is stored locally per signed-in Twitch account. Replaying can recover all three endings.
+- Recovering any ending unlocks a gold-bordered Golden Match Signal profile card inside Creator Match.
+- The achievement is deliberately described as local. Other users cannot see it unless NerdSync later adds an opt-in shared profile backend.
+
+See `GHOST_SIGNAL.md` for activation, endings, accessibility, persistence, and reward boundaries.
+
+## Alpha-0.10.2 visual alignment and spacing
+
+- Replaces the orbital mark with NerdSync's single-color purple brain-and-circuit SVG across the privacy screen, login screen, and compact app header.
+- Introduces a consistent spacing scale for panels, toolbars, control groups, cards, chips, action areas, search tools, comparisons, diagnostics, and dialogs.
+- Separates grouped controls with clearer padding and prevents headings from inheriting unwanted margins inside panel headers.
+- Replaces horizontally scrolling mobile action rows with wrapping, evenly spaced layouts so controls never depend on cramped side-by-side placement.
+- Adds dedicated modal action layout, roomier mobile cards, safer narrow-phone navigation padding, and better separation between result actions.
+- Removes one-off inline presentation styles. The Cloudflare Content Security Policy no longer needs `style-src 'unsafe-inline'`.
+
+## Alpha-0.10.1 security hardening
+
+- Ports the applicable security protections from Wormhole while preserving NerdSync's static Cloudflare Pages architecture.
+- Verifies every Twitch session at startup and hourly, and revalidates an older session when the page becomes visible again.
+- Rejects tokens issued for a different Twitch Client ID, expired tokens, tokens without a user identity, and tokens missing NerdSync's single read-only `user:read:follows` scope.
+- Confirms the validated Twitch user ID matches the profile returned by Helix before opening the discovery interface.
+- OAuth state values are single-use, cryptographically random, and expire after ten minutes. OAuth fragments are removed from browser history immediately after return.
+- All Helix requests are restricted to HTTPS, the official Twitch API origin, the `/helix/` path, and the read-only GET method. Requests omit credentials and referrers, bypass browser caches, and time out after 15 seconds.
+- Dynamic Twitch links are limited to HTTPS Twitch destinations, and API-provided image URLs must use HTTPS before they are rendered.
+- Diagnostic downloads omit browser-identifying details, tokens, query values, and response bodies.
+- Cloudflare response headers add a restrictive Content Security Policy, clickjacking protection, MIME sniffing protection, referrer isolation, permissions restrictions, HTTPS enforcement, and no-store rules for HTML and public configuration.
+- This release adds no Twitch Client Secret, database, tracking service, advertising system, or write permission.
 
 ## Alpha-0.10.0 simplified navigation
 
@@ -56,7 +149,7 @@ See `DISCOVERY_ALGORITHM.md` for signals, weights, privacy boundaries, and futur
 - Cloudflare Pages response headers cache versioned CSS and JavaScript assets while keeping `index.html` and `config.js` revalidated.
 - The static app still requires no build command, framework, package installation, server, or database.
 
-The script order in `index.html` is intentional: `app-core.js`, `filters.js`, `twitch-api.js`, `discovery.js`, then `ui-session.js`. Keep that order when adding future releases unless the shared state is migrated to native ES modules.
+The script order in `index.html` is intentional: foundation and UI state first; filters, Twitch access, and discovery next; recommendation, creator, rendering, and stream-detail features after that; controls and session startup last. Keep that dependency order when adding future releases unless the shared state is migrated to native ES modules.
 
 ## Alpha-0.7.4 content labels and adult-oriented tags
 

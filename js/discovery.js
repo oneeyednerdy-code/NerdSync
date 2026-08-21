@@ -1,5 +1,32 @@
 'use strict';
 
+function scanPageLimit(maxPages, deep = false) {
+  return deep ? maxPages : Math.min(INITIAL_SCAN_PAGES, maxPages);
+}
+
+function mixHiddenGemAudienceBuckets(streams, limit) {
+  const lanes = [
+    { min:1, max:5, label:'1–5 viewer lane' },
+    { min:6, max:20, label:'6–20 viewer lane' },
+    { min:21, max:SMALL_STREAM_VIEWER_CEILING, label:`21–${SMALL_STREAM_VIEWER_CEILING} viewer lane` }
+  ].map(lane => ({ ...lane, items:streams
+    .filter(stream => stream.viewer_count >= lane.min && stream.viewer_count <= lane.max)
+    .sort((a,b) => a.viewer_count - b.viewer_count || a.user_name.localeCompare(b.user_name)) }));
+  const mixed = [];
+  while (mixed.length < limit) {
+    let added = false;
+    lanes.forEach(lane => {
+      const stream = lane.items.shift();
+      if (stream && mixed.length < limit) {
+        mixed.push({ ...stream, _gemAudienceLane:lane.label });
+        added = true;
+      }
+    });
+    if (!added) break;
+  }
+  return mixed;
+}
+
 // --- Tab data builders ---
 async function loadFollowing() {
   const [live, channels] = await Promise.all([getFollowedLive(), getFollowedChannels()]);
@@ -7,7 +34,8 @@ async function loadFollowing() {
   return live.map(s => ({ ...s, _followedAt: followedAtById.get(s.user_id) }));
 }
 
-async function loadDiscover() {
+async function loadDiscover(options = {}) {
+  const pageLimit = scanPageLimit(DISCOVER_STREAM_PAGES, options.deep);
   const [followedLive, followedChannels, topGames] = await Promise.all([getFollowedLive(), getFollowedChannels(), fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_DISCOVER)]);
   const followedChannelInfo = await fetchChannelsByIds(followedChannels.slice(0, 200).map(channel => channel.broadcaster_id), currentToken).catch(() => []);
   buildFollowedInterestProfile(followedLive, followedChannelInfo);
@@ -30,7 +58,7 @@ async function loadDiscover() {
   diagnostics.categories = games.length;
   if (!games.length) return [];
   const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchDiscoveryStreamsForGame(game.id, currentToken, { excludedIds });
+    const streams = await fetchDiscoveryStreamsForGame(game.id, currentToken, { excludedIds, maxPages:pageLimit });
     return streams.map(stream => ({ ...stream, _via:game.name, _why:`${game.reason} · ${CREATOR_STAGES[creatorStageKey(stream.viewer_count)].label} · ${stream.viewer_count} live viewers` }));
   }));
   diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
@@ -72,7 +100,8 @@ async function loadMatchVods() {
   }
 }
 
-async function loadCreatorMatches() {
+async function loadCreatorMatches(options = {}) {
+  const pageLimit = scanPageLimit(DISCOVER_STREAM_PAGES, options.deep);
   matchSource = matchSourceEl.value;
   matchTolerance = Number(matchToleranceEl.value);
   matchSourceStream = null;
@@ -101,7 +130,7 @@ async function loadCreatorMatches() {
   const games = [...categoryMap.values()];
   diagnostics.categories = games.length;
   const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, DISCOVER_STREAM_PAGES);
+    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, pageLimit);
     return streams
       .filter(stream => stream.user_id !== currentUser.id && stream.viewer_count >= range.min && stream.viewer_count <= range.max)
       .map(stream => {
@@ -122,7 +151,8 @@ async function loadCreatorMatches() {
   return [...merged.values()].sort((a,b) => a._matchDistance - b._matchDistance);
 }
 
-async function loadSpotlight() {
+async function loadSpotlight(options = {}) {
+  const pageLimit = scanPageLimit(3, options.deep);
   const [followedLive, followedChannels, topGames] = await Promise.all([getFollowedLive(), getFollowedChannels(), fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_DISCOVER)]);
   const excludedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
   excludedIds.add(currentUser.id);
@@ -140,7 +170,7 @@ async function loadSpotlight() {
   const games = [...categoryMap.values()];
   diagnostics.categories = games.length;
   const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, 3);
+    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, pageLimit);
     return streams
       .filter(stream => !excludedIds.has(stream.user_id) && stream.viewer_count >= CREATOR_STAGES.established.min)
       .slice(0, STREAMS_PER_CATEGORY_DISCOVER)
@@ -161,7 +191,8 @@ async function loadSpotlight() {
   return [...merged.values()];
 }
 
-async function loadHiddenGems() {
+async function loadHiddenGems(options = {}) {
+  const pageLimit = scanPageLimit(GEMS_STREAM_PAGES, options.deep);
   const [seeds, followedChannels] = await Promise.all([getFollowedLive(), getFollowedChannels()]);
   const followedIds = new Set(followedChannels.map(channel => channel.broadcaster_id));
   followedIds.add(currentUser.id);
@@ -192,13 +223,10 @@ async function loadHiddenGems() {
   if (categorySeen.size === 0) return [];
 
   const perCategory = await Promise.allSettled([...categorySeen.entries()].map(async ([gameId, gameName]) => {
-    const streams = await fetchStreamsByGameIdPages(gameId, currentToken, GEMS_STREAM_PAGES);
-    return streams
-      .filter(s => !followedIds.has(s.user_id) && s.viewer_count >= 1 && s.viewer_count <= SMALL_STREAM_VIEWER_CEILING)
-      .map(s => ({ ...s, _gemScore:Math.max(0, 100 - Math.abs(s.viewer_count - 25) * 2) }))
-      .sort((a, b) => b._gemScore - a._gemScore || b.viewer_count - a.viewer_count)
-      .slice(0, GEMS_PER_CATEGORY)
-      .map(s => ({ ...s, _via: gameName, _why:`Deep in ${gameName} · ${s.viewer_count} live viewers` }));
+    const streams = await fetchStreamsByGameIdPages(gameId, currentToken, pageLimit);
+    const eligible = streams.filter(s => !followedIds.has(s.user_id) && s.viewer_count >= 1 && s.viewer_count <= SMALL_STREAM_VIEWER_CEILING);
+    return mixHiddenGemAudienceBuckets(eligible, GEMS_PER_CATEGORY)
+      .map(s => ({ ...s, _via:gameName, _why:`${s._gemAudienceLane} · deep in ${gameName} · ${s.viewer_count} live viewers` }));
   }));
 
   diagnostics.categories = categorySeen.size;
@@ -210,7 +238,8 @@ async function loadHiddenGems() {
   return [...merged.values()];
 }
 
-async function loadEmergingHub() {
+async function loadEmergingHub(options = {}) {
+  const pageLimit = scanPageLimit(NEW_AFFILIATE_STREAM_PAGES, options.deep);
   const [topGames, followedChannels] = await Promise.all([fetchTopGames(currentToken, MAX_TOP_CATEGORIES_FOR_RISING), getFollowedChannels()]);
   const gameMap = new Map();
   filters.categories.slice(0, MAX_TOP_CATEGORIES_FOR_RISING).forEach(category => gameMap.set(category.id, category));
@@ -225,7 +254,7 @@ async function loadEmergingHub() {
   if (!games.length) return [];
 
   const perCategory = await Promise.allSettled(games.map(async game => {
-    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, NEW_AFFILIATE_STREAM_PAGES);
+    const streams = await fetchStreamsByGameIdPages(game.id, currentToken, pageLimit);
     return streams.filter(stream => !excludedIds.has(stream.user_id)).map(stream => ({ ...stream, _sourceCategory:game.name }));
   }));
   diagnostics.failures += perCategory.filter(result => result.status === 'rejected').length;
