@@ -281,8 +281,11 @@ function updateScanDeeperControl(tabId, loading = false) {
   const deep = deepScanTabs.has(tabId);
   const show = supports && (!deep || loading);
   scanDeeperRow.classList.toggle('hidden', !show);
-  scanDeeperBtn.disabled = loading;
-  scanDeeperBtn.textContent = loading ? (deep ? 'Scanning deeper…' : 'Loading initial scan…') : 'Scan deeper in these categories';
+  if (loading) setButtonLoading(scanDeeperBtn, true, deep ? 'Scanning deeper…' : 'Loading initial scan…');
+  else {
+    setButtonLoading(scanDeeperBtn, false);
+    scanDeeperBtn.textContent = 'Scan deeper in these categories';
+  }
 }
 
 async function loadStreams() {
@@ -307,14 +310,14 @@ async function loadStreams() {
   streamGrid.innerHTML = '';
   streamGrid.setAttribute('aria-busy', 'true');
   paginationControls.innerHTML = '';
-  setStatus('Loading streams…');
+  setLoadingStatus('Loading streams…');
   updateScanDeeperControl(tabId, true);
   diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
   renderDiagnostics();
   try {
-    setStatus('Finding live Twitch candidates…');
+    setLoadingStatus('Finding live Twitch candidates…');
     let loaded = await TABS[tabId].load({ deep:deepScanTabs.has(tabId) });
-    setStatus('Applying account, chat, activity, and filter context…');
+    setLoadingStatus('Applying account, chat, activity, and filter context…');
     loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
     loaded = await enrichCandidateSignals(loaded, tabId);
     const historicalFiltering = filters.audienceBasis === 'typical' || filters.trackerActivityHours != null || Boolean(filters.trackerGrowth) || (tabId === 'match' && matchAudienceBasis === 'typical');
@@ -323,7 +326,7 @@ async function loadStreams() {
       streamGrid.setAttribute('aria-busy', 'false');
       renderGrid();
     }
-    if ((historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(tabId)) || tabId === 'match' || historicalFiltering) setStatus('Live results ready · adding 30-day historical context…');
+    if ((historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(tabId)) || tabId === 'match' || historicalFiltering) setLoadingStatus('Live results ready · adding 30-day historical context…');
     loaded = await enrichDiscoveryWithTwitchTracker(loaded, tabId, { signal:controller.signal });
     if (tabId === 'following' && followingTeamsFirst) loaded = await enrichFollowingTeams(loaded, currentToken);
     tabCache[tabId] = { data: loaded, timestamp: Date.now() };

@@ -1,6 +1,6 @@
 # NerdSync Discovery Graph
 
-Release: **Alpha-0.18.0**
+Release: **Alpha-0.18.1**
 
 ## Goal
 
@@ -10,7 +10,7 @@ Recommend relevant live Twitch creators without turning NerdSync into another po
 
 Twitch provides the authenticated user's followed channels, their current or configured categories, live tags, language, stream status, and current viewer counts. Twitch does not provide third-party apps with watch history, time watched, followed games, historical peak viewers, or proof that a user enjoyed a channel.
 
-Alpha-0.18.0 can enrich a limited set of strong Discovery candidates with TwitchTracker 30-day public channel summaries and a limited set of category summaries. Twitch remains authoritative for who is live, current viewer count, tags, language, category, and archived VOD metadata. TwitchTracker supplies historical context such as typical audience, follower growth, recent activity, and category averages. Creator Match 2.0 can use either current live candidate audiences or 30-day typical audiences when explicitly selected; its own audience suggestion is always editable.
+Alpha-0.18.1 can enrich a limited set of strong Discovery candidates with TwitchTracker 30-day public channel summaries and a limited set of category summaries. Twitch remains authoritative for who is live, current viewer count, tags, language, category, and archived VOD metadata. TwitchTracker supplies historical context such as typical audience, follower growth, recent activity, and category averages. Creator Match 2.0 can use either current live candidate audiences or 30-day typical audiences when explicitly selected; its own audience suggestion is always editable.
 
 NerdSync therefore learns only from actions taken in NerdSync:
 

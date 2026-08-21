@@ -14,7 +14,9 @@ savedList.addEventListener('click', event => {
 async function runChannelSearch() {
   const query = channelSearchInput.value.trim();
   if (query.length < 2) { channelSearchResults.innerHTML = '<p class="empty-compact">Enter at least two characters.</p>'; return; }
-  channelSearchResults.innerHTML = '<p class="empty-compact">Searching Twitch…</p>';
+  const submitButton = document.querySelector('#channel-search-form button[type="submit"]');
+  setButtonLoading(submitButton, true, 'Searching…');
+  channelSearchResults.innerHTML = loadingMessageHtml('Searching Twitch…', true);
   try {
     const channels = await searchTwitchChannels(query, currentToken);
     const ids = channels.map(channel => channel.id);
@@ -39,6 +41,8 @@ async function runChannelSearch() {
   } catch (error) {
     console.error(error);
     channelSearchResults.innerHTML = '<p class="empty-compact">Channel search failed. Check Scan details and try again.</p>';
+  } finally {
+    setButtonLoading(submitButton, false);
   }
 }
 
@@ -88,10 +92,12 @@ async function renderComparison() {
   const generation = ++comparisonGeneration;
   document.getElementById('compare-count').textContent = `${compareIds.length}/4`;
   if (!compareIds.length) { comparisonGrid.innerHTML = '<p class="empty-compact">Choose up to four creators from search results, saved creators, or discovery cards.</p>'; return; }
-  comparisonGrid.innerHTML = '<p class="empty-compact">Loading comparison…</p>';
+  comparisonGrid.setAttribute('aria-busy', 'true');
+  comparisonGrid.innerHTML = loadingMessageHtml('Loading comparison…', true);
   const bases = compareIds.map(id => knownCreators.get(id) || (historyFor(id).snapshot ? streamFromSnapshot(historyFor(id).snapshot) : null)).filter(Boolean);
   const details = await Promise.all(bases.map(fetchComparisonDetail));
   if (generation !== comparisonGeneration) return;
+  comparisonGrid.setAttribute('aria-busy', 'false');
   comparisonGrid.innerHTML = details.map(creator => {
     const score = discoveryScore(creator);
     const status = creator.type === 'live' ? `${new Intl.NumberFormat().format(creator.viewer_count)} viewers` : 'Offline';

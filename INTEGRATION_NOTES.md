@@ -1,4 +1,12 @@
-# Alpha-0.18.0 Creator Match 2.0 + no-D1 toolkit integration
+# Alpha-0.18.1 Loading feedback + text-only branding
+
+- `js/ui-state.js` provides the shared loading spinner/status/button helpers used across async UI flows.
+- Discovery, Historical Discovery, Creator Match context/VOD loading, channel search, comparisons, Details sections, retries, Scan Deeper, and Twitch login now expose contextual loading feedback.
+- Major asynchronous regions use `aria-busy`; reduced-motion modes disable spinner rotation and retain a static dotted activity indicator.
+- The old `assets/nerdsync-brain-circuit.svg` brand mark is removed. Primary NerdSync surfaces use only the existing Nerd/Sync text treatment.
+- No D1 or persistent server-side user storage is introduced.
+
+# Alpha-0.18.1 Creator Match 2.0 + no-D1 toolkit integration
 
 - Adds `js/local-workflows.js` after TwitchTracker helpers and before details/controls. It stores named filter presets, Creator Match history/shortlists, and export/bookmark workflow state only in browser `localStorage` partitioned by Twitch user ID.
 - Creator Match 2.0 adds Live, 30D Typical, Last Stream, Past Broadcast, and Custom audience sources. The number used for matching remains editable.

@@ -1,13 +1,50 @@
 'use strict';
 
 // --- Rendering ---
-function setStatus(message, isError) {
+function setStatus(message, isError = false, isLoading = false) {
   statusArea.innerHTML = '';
   if (!message) return;
   const paragraph = document.createElement('p');
-  paragraph.className = `status-msg${isError ? ' error' : ''}`;
-  paragraph.textContent = message;
+  paragraph.className = `status-msg${isError ? ' error' : ''}${isLoading ? ' loading' : ''}`;
+  if (isLoading) {
+    const spinner = document.createElement('span');
+    spinner.className = 'loading-spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    paragraph.appendChild(spinner);
+  }
+  const text = document.createElement('span');
+  text.textContent = message;
+  paragraph.appendChild(text);
   statusArea.appendChild(paragraph);
+}
+
+function setLoadingStatus(message) { setStatus(message, false, true); }
+
+function loadingMessageHtml(message, compact = false) {
+  return `<p class="status-msg loading${compact ? ' compact' : ''}"><span class="loading-spinner" aria-hidden="true"></span><span>${escapeHtml(message)}</span></p>`;
+}
+
+function loadingPanelHtml(message) {
+  return `<span class="loading-inline"><span class="loading-spinner" aria-hidden="true"></span><span>${escapeHtml(message)}</span></span>`;
+}
+
+function setButtonLoading(button, loading, loadingLabel = '') {
+  if (!button) return;
+  if (loading) {
+    if (!button.dataset.loadingIdleLabel) button.dataset.loadingIdleLabel = button.textContent.trim();
+    button.classList.add('is-loading');
+    button.setAttribute('aria-busy', 'true');
+    button.disabled = true;
+    if (loadingLabel) button.textContent = loadingLabel;
+    return;
+  }
+  button.classList.remove('is-loading');
+  button.removeAttribute('aria-busy');
+  button.disabled = false;
+  if (button.dataset.loadingIdleLabel) {
+    button.textContent = button.dataset.loadingIdleLabel;
+    delete button.dataset.loadingIdleLabel;
+  }
 }
 
 function escapeHtml(str) {

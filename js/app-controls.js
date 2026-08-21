@@ -23,6 +23,7 @@ privacyAcceptBtn.addEventListener('click', async () => {
 privacyReviewBtn.addEventListener('click', showPrivacyNotice);
 
 loginBtn.addEventListener('click', () => {
+  setButtonLoading(loginBtn, true, 'Opening Twitch…');
   const stateBytes = new Uint8Array(24);
   crypto.getRandomValues(stateBytes);
   const state = [...stateBytes].map(value => value.toString(16).padStart(2, '0')).join('');
@@ -158,7 +159,7 @@ function initializeTabControls() {
     if (allStreams.every(stream => Array.isArray(stream._twitchTeams))) { renderGrid(); return; }
     const generation = loadGeneration;
     followingTeamsFirstEl.disabled = true;
-    setStatus('Checking Twitch team memberships…');
+    setLoadingStatus('Checking Twitch team memberships…');
     try {
       const enriched = await enrichFollowingTeams(allStreams, currentToken);
       if (activeTab !== 'following' || generation !== loadGeneration || !followingTeamsFirst) return;
@@ -192,8 +193,7 @@ scanDeeperBtn.addEventListener('click', () => {
   deepScanTabs.add(activeTab);
   delete tabCache[activeTab];
   currentPage = 1;
-  scanDeeperBtn.disabled = true;
-  scanDeeperBtn.textContent = 'Scanning deeper…';
+  setButtonLoading(scanDeeperBtn, true, 'Scanning deeper…');
   loadStreams();
 });
 
@@ -356,7 +356,14 @@ document.querySelectorAll('[data-close-panel]').forEach(button => button.addEven
   if (panelReturnFocus?.isConnected) panelReturnFocus.focus();
 }));
 document.getElementById('try-someone-btn').addEventListener('click', () => trySomeoneNew());
-document.getElementById('retry-historical-btn')?.addEventListener('click', () => { twitchTrackerFailureCache.clear(); delete tabCache[activeTab]; setStatus('Retrying 30-day historical context…'); loadStreams(); });
+document.getElementById('retry-historical-btn')?.addEventListener('click', async event => {
+  const button = event.currentTarget;
+  twitchTrackerFailureCache.clear();
+  delete tabCache[activeTab];
+  setButtonLoading(button, true, 'Retrying 30D…');
+  setLoadingStatus('Retrying 30-day historical context…');
+  try { await loadStreams(); } finally { setButtonLoading(button, false); }
+});
 document.getElementById('run-creator-match').addEventListener('click', () => {
   matchPeak = numOrNull(matchPeakEl.value);
   matchTolerance = Number(selectedChoiceValue(matchToleranceEl, '50'));

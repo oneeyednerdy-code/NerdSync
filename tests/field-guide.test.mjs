@@ -31,3 +31,13 @@ test('production build emits guide.html using the hashed main stylesheet', () =>
   assert.match(build, /readFile\(path\.join\(root, 'guide\.html'\)/);
   assert.match(build, /writeFile\(path\.join\(dist, 'guide\.html'\), guideHtml\)/);
 });
+
+
+test('text-only NerdSync branding removes the brain image asset from all primary surfaces', async () => {
+  const css = await readFile(new URL('../css/styles.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /nerdsync-brain-circuit|brand-brain/);
+  assert.doesNotMatch(guide, /nerdsync-brain-circuit|brand-brain/);
+  assert.doesNotMatch(css, /brand-brain/);
+  assert.match(html, /brand-wordmark brand-wordmark--hero/);
+  assert.match(html, /brand-mini brand-home-link/);
+});

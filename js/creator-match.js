@@ -76,6 +76,7 @@ function renderCreatorMatchOwnContext() {
 
 async function loadMatchVods(force = false) {
   if (matchVodsLoaded && !force) return matchVods;
+  matchVodEl.setAttribute('aria-busy', 'true');
   matchVodEl.innerHTML = '<option value="">Loading past broadcasts…</option>';
   try {
     matchVods = await fetchVideosForBroadcaster(currentUser.id, currentToken, 20);
@@ -86,9 +87,11 @@ async function loadMatchVods(force = false) {
       return `<option value="${escapeHtml(video.id)}">${escapeHtml(date)} · ${escapeHtml(title)}${duration ? ` · ${escapeHtml(duration)}` : ''}</option>`;
     }).join('');
     matchVodsLoaded = true;
+    matchVodEl.setAttribute('aria-busy', 'false');
     renderCreatorMatchOwnContext();
     return matchVods;
   } catch (error) {
+    matchVodEl.setAttribute('aria-busy', 'false');
     matchVodEl.innerHTML = '<option value="">Past broadcasts unavailable</option>';
     return [];
   }
@@ -96,7 +99,7 @@ async function loadMatchVods(force = false) {
 
 async function ensureCreatorMatchOwnContext({ force = false } = {}) {
   const context = document.getElementById('match-own-context');
-  if (context) context.innerHTML = '<span>Loading Twitch live, VOD, and 30-day context…</span>';
+  if (context) { context.setAttribute('aria-busy', 'true'); context.innerHTML = loadingPanelHtml('Loading Twitch live, VOD, and 30-day context…'); }
   const [liveResult, trackerResult, vodResult] = await Promise.allSettled([
     fetchStreamsByUserIds([currentUser.id], currentToken),
     getTwitchTrackerSummary(currentUser.login || currentUser.display_name, { force }),
@@ -106,6 +109,7 @@ async function ensureCreatorMatchOwnContext({ force = false } = {}) {
   matchOwnTrackerSummary = trackerResult.status === 'fulfilled' ? trackerResult.value : null;
   if (vodResult.status === 'fulfilled') matchVods = vodResult.value || matchVods;
   renderCreatorMatchOwnContext();
+  if (context) context.setAttribute('aria-busy', 'false');
   return { live:matchSourceStream, tracker:matchOwnTrackerSummary, vods:matchVods };
 }
 

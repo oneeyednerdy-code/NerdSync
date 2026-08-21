@@ -1,6 +1,6 @@
 # NerdSync security model
 
-NerdSync Alpha-0.18.0 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy public TwitchTracker channel and category summaries for Historical Discovery and Creator Match 2.0. It intentionally has no D1 binding, cloud user profile, or background stream tracker.
+NerdSync Alpha-0.18.1 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy public TwitchTracker channel and category summaries for Historical Discovery and Creator Match 2.0. It intentionally has no D1 binding, cloud user profile, or background stream tracker.
 
 ## Authentication boundaries
 

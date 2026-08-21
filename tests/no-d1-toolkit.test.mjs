@@ -26,10 +26,10 @@ function sliceBetween(source, startText, endText) {
   return source.slice(start, end);
 }
 
-test('Alpha-0.18.0 is visible and Creator Match is explicitly no-D1', () => {
-  assert.match(foundation, /APP_VERSION\s*=\s*'Alpha-0\.18\.0'/);
-  assert.match(html, /Alpha-0\.18\.0/);
-  assert.match(guide, /Alpha-0\.18\.0/);
+test('Alpha-0.18.x is visible and Creator Match is explicitly no-D1', () => {
+  assert.match(foundation, /APP_VERSION\s*=\s*'Alpha-0\.18\.1'/);
+  assert.match(html, /Alpha-0\.18\.1/);
+  assert.match(guide, /Alpha-0\.18\.1/);
   assert.match(html, /Creator Match 2\.0/);
   assert.match(html, /Nothing here requires D1 or permanent server storage/);
 });
@@ -151,7 +151,7 @@ test('Creator Match and Discovery context remain separate modules under the modu
   for (const name of modules) {
     const source = await readFile(new URL(`../js/${name}`, import.meta.url), 'utf8');
     assert.ok(Buffer.byteLength(source, 'utf8') < 25000, `${name} stays below 25 KB`);
-    assert.match(html, new RegExp(`js/${name.replace('.', '\\.')}\\?v=0\\.18\\.0`));
+    assert.match(html, new RegExp(`js/${name.replace('.', '\\.')}\\?v=0\\.18\\.1`));
   }
 });
 

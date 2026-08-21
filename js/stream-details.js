@@ -20,7 +20,7 @@ streamGrid.addEventListener('click', async e => {
     if (action.dataset.action === 'shortlist') { toggleMatchShortlist(item); renderGrid(); return; }
     if (action.dataset.action === 'bookmark') { cycleCreatorBookmark(item); renderGrid(); return; }
     if (action.dataset.action === 'retry-tracker') {
-      action.disabled = true; action.textContent = 'Retrying…';
+      setButtonLoading(action, true, 'Retrying…');
       try {
         const summary = await getTwitchTrackerSummary(item.user_login, { force:true });
         if (summary) {
@@ -132,11 +132,12 @@ async function loadModalDetails(stream) {
   const trackerEl = document.getElementById('modal-tracker');
   const shouldLoadTracker = Boolean(stream.user_login) && (activeTab === 'match' || (historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(activeTab)));
   const shouldLoadTrackerCategory = shouldLoadTracker && /^\d+$/.test(String(stream.game_id || ''));
-  videosEl.innerHTML = '<p class="status-msg">Loading…</p>';
-  clipsEl.innerHTML = '<p class="status-msg">Loading…</p>';
-  scheduleEl.innerHTML = '<p class="status-msg">Loading…</p>';
+  videosEl.setAttribute('aria-busy', 'true'); clipsEl.setAttribute('aria-busy', 'true'); scheduleEl.setAttribute('aria-busy', 'true');
+  videosEl.innerHTML = loadingMessageHtml('Loading recent broadcasts…');
+  clipsEl.innerHTML = loadingMessageHtml('Loading recent clips…');
+  scheduleEl.innerHTML = loadingMessageHtml('Loading schedule…');
   trackerSectionEl.classList.toggle('hidden', !shouldLoadTracker);
-  if (shouldLoadTracker) trackerEl.innerHTML = '<p class="status-msg">Loading TwitchTracker…</p>';
+  if (shouldLoadTracker) { trackerEl.setAttribute('aria-busy', 'true'); trackerEl.innerHTML = loadingMessageHtml('Loading TwitchTracker context…'); }
   else trackerEl.innerHTML = '';
 
   const cached = modalDetailCache[userId];
@@ -204,6 +205,11 @@ async function loadModalDetails(stream) {
       trackerEl.innerHTML = '<p class="status-msg">TwitchTracker data is unavailable for this channel right now. Twitch details still work normally.</p>';
     }
   }
+
+  videosEl.setAttribute('aria-busy', 'false');
+  clipsEl.setAttribute('aria-busy', 'false');
+  scheduleEl.setAttribute('aria-busy', 'false');
+  trackerEl.setAttribute('aria-busy', 'false');
 
   videosEl.innerHTML = result.videos.length
     ? result.videos.map(v => `<a class="mini-card" href="${escapeHtml(safeTwitchUrl(v.url))}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(safeHttpsUrl(String(v.thumbnail_url || '').replace('%{width}', '160').replace('%{height}', '90')))}" alt="" loading="lazy" decoding="async" /><span class="mini-title">${escapeHtml(v.title)}</span><span class="mini-meta">${formatRelativeTime(v.created_at)}</span></a>`).join('')

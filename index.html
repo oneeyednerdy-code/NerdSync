@@ -8,26 +8,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.18.0">
-<link rel="stylesheet" href="css/secret-game.css?v=0.18.0">
+<link rel="stylesheet" href="css/styles.css?v=0.18.1">
+<link rel="stylesheet" href="css/secret-game.css?v=0.18.1">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.18.0" defer></script>
-<script src="js/diagnostics.js?v=0.18.0" defer></script>
-<script src="js/ui-state.js?v=0.18.0" defer></script>
-<script src="js/filters.js?v=0.18.0" defer></script>
-<script src="js/twitch-api.js?v=0.18.0" defer></script>
-<script src="js/discovery.js?v=0.18.0" defer></script>
-<script src="js/creator-match.js?v=0.18.0" defer></script>
-<script src="js/recommendations.js?v=0.18.0" defer></script>
-<script src="js/creator-tools.js?v=0.18.0" defer></script>
-<script src="js/discovery-context.js?v=0.18.0" defer></script>
-<script src="js/feed-rendering.js?v=0.18.0" defer></script>
-<script src="js/twitchtracker-summary.js?v=0.18.0" defer></script>
-<script src="js/local-workflows.js?v=0.18.0" defer></script>
-<script src="js/stream-details.js?v=0.18.0" defer></script>
-<script src="js/app-controls.js?v=0.18.0" defer></script>
-<script src="js/secret-game.js?v=0.18.0" defer></script>
-<script src="js/session.js?v=0.18.0" defer></script>
+<script src="js/app-foundation.js?v=0.18.1" defer></script>
+<script src="js/diagnostics.js?v=0.18.1" defer></script>
+<script src="js/ui-state.js?v=0.18.1" defer></script>
+<script src="js/filters.js?v=0.18.1" defer></script>
+<script src="js/twitch-api.js?v=0.18.1" defer></script>
+<script src="js/discovery.js?v=0.18.1" defer></script>
+<script src="js/creator-match.js?v=0.18.1" defer></script>
+<script src="js/recommendations.js?v=0.18.1" defer></script>
+<script src="js/creator-tools.js?v=0.18.1" defer></script>
+<script src="js/discovery-context.js?v=0.18.1" defer></script>
+<script src="js/feed-rendering.js?v=0.18.1" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.18.1" defer></script>
+<script src="js/local-workflows.js?v=0.18.1" defer></script>
+<script src="js/stream-details.js?v=0.18.1" defer></script>
+<script src="js/app-controls.js?v=0.18.1" defer></script>
+<script src="js/secret-game.js?v=0.18.1" defer></script>
+<script src="js/session.js?v=0.18.1" defer></script>
 </head>
 <body>
 
@@ -36,7 +36,7 @@
 
 <div id="privacy-view" role="dialog" aria-modal="true" aria-labelledby="privacy-title" aria-describedby="privacy-summary">
   <section class="login-card privacy-card">
-    <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
+    <div class="brand-wordmark brand-wordmark--hero" role="img" aria-label="NerdSync"><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></div>
     <p class="privacy-eyebrow">Privacy &amp; cookies</p>
     <h1 id="privacy-title">Your data stays yours.</h1>
     <p id="privacy-summary" class="privacy-lead">Before you connect Twitch, here is NerdSync's simple data promise.</p>
@@ -56,10 +56,9 @@
 <div id="login-view" class="hidden">
   <div class="login-card">
     <div class="brand-header">
-      <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
-      <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
+      <h1 class="brand-wordmark brand-wordmark--hero"><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.18.0</span>
+      <span class="release-version">Alpha-0.18.1</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch" type="button">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -78,7 +77,7 @@
 
 <div id="discovery-view" class="discovery-container hidden">
   <div class="top-bar">
-    <a class="brand-mini brand-home-link" href="#discover" aria-label="NerdSync home — Discovery"><img class="brand-brain brand-brain--compact" src="assets/nerdsync-brain-circuit.svg" alt="" /><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></a>
+    <a class="brand-mini brand-home-link" href="#discover" aria-label="NerdSync home — Discovery"><span><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></span></a>
     <div class="user-profile">
       <img id="user-avatar" class="user-avatar" src="" alt="" />
       <span id="welcome-msg"></span>
@@ -502,7 +501,7 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.18.0</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.18.1</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
         <span aria-hidden="true">·</span>

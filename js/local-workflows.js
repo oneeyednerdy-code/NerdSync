@@ -1,6 +1,6 @@
 'use strict';
 
-// Alpha-0.18.0 local-only workflow tools. These intentionally use browser storage only.
+// Alpha-0.18.1 local-only workflow tools. These intentionally use browser storage only.
 const LOCAL_WORKFLOW_VERSION = 1;
 const LOCAL_WORKFLOW_KEY = 'nerdsync_local_workflows_v1';
 let localWorkflowData = { version:LOCAL_WORKFLOW_VERSION, filterPresets:[], matchHistory:[], matchShortlist:[] };
