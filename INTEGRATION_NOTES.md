@@ -1,3 +1,13 @@
+# Alpha-0.17.1 Historical Discovery integration
+
+- Discovery enrichment runs after Twitch candidate generation, broadcaster-type enrichment, and any required chat/activity detail checks.
+- Automatic TwitchTracker work is bounded to 20 strong creator candidates and 6 category IDs per Discovery load.
+- Channel and category requests run concurrently through same-origin Cloudflare endpoints with no Twitch OAuth forwarding.
+- Public TwitchTracker summaries are cached for six hours in-browser and at Cloudflare's edge; unavailable lookups are suppressed for one hour in the browser session.
+- Twitch remains authoritative for live status and current viewers. Historical summaries add context and bounded ranking adjustments only.
+- Historical Discovery can be disabled in Settings; Creator Match TwitchTracker details remain on-demand.
+- Alpha-0.17.1 renames the affiliate/newer-account lane to Newer Affiliates and adds a bounded 0–100 signal: up to 55 points from account recency, 20 from 30-day activity, and 25 from follower-growth efficiency. Current Affiliate status is a required eligibility gate, not a guessed date.
+
 # Wormhole filter integration
 
 - Comma-separated Twitch tags use case-insensitive exact, match-any behavior.
@@ -9,8 +19,8 @@
 - Selected categories seed For You, Spotlight, Hidden Gems, and Emerging Live scans instead of only filtering an already-fetched list.
 - Alpha-0.5.0 removes the small-stream ceiling from For You, adds five current-live-audience stages, a deliberately balanced default feed, broader audience presets, a dedicated Spotlight panel, and Creator Match networking bands based on current live viewers or a manually entered past peak.
 - Alpha-0.6.0 adds Light, Dark, and System themes; three interface sizes; theme-aware high contrast; automatic and manual reduced motion; stronger keyboard, focus, screen-reader, zoom/reflow, forced-colors, and touch-target support.
-- Alpha-0.7.0 adds a New Affiliates feed using verified Affiliate broadcaster status plus an account age under 365 days, without imposing a viewer ceiling or claiming access to Affiliate-earned dates.
-- Alpha-0.7.1 combines Standard Emerging Live and New Affiliates into one stacked Emerging Live hub, with independent sorting, shared filters, shared API scanning, and duplicate suppression between sections.
+- Alpha-0.7.0 added the original New Affiliates feed using verified Affiliate broadcaster status plus an account age under 365 days, without imposing a viewer ceiling or claiming access to Affiliate-earned dates.
+- Alpha-0.7.1 combines Standard Emerging Live and the affiliate/newer-account lane into one stacked Emerging Live hub, with independent sorting, shared filters, shared API scanning, and duplicate suppression between sections.
 - Alpha-0.7.2 aligns NerdSync with Wormhole's shared black/violet design system, typography, panel depth, control styling, and glow treatment while preserving accessible contrast and NerdSync identity.
 - Alpha-0.7.3 adds a first-use privacy and necessary-storage notice before Twitch login, with a locally remembered acknowledgement and an explicit no-sale, no-advertiser-sharing data promise.
 - Alpha-0.7.4 adds Wormhole-style Twitch Content Classification Labels to live discovery and match cards, filters by official labels, and adds adult-oriented creator tags to the suggested-tag controls.

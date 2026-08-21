@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="NerdSync Field Guide: a plain-language guide to Discover, Following, Creator Match, Saved, filters, settings, and creator cards." />
   <title>NerdSync Field Guide</title>
-  <link rel="stylesheet" href="css/styles.css?v=0.16.6-guide-hotfix-1" />
+  <link rel="stylesheet" href="css/styles.css?v=0.17.1" />
 </head>
 <body class="guide-page">
   <main class="guide-shell">
@@ -28,8 +28,8 @@
         <h2>Discover</h2>
         <p>This is the main discovery feed for creators you do not already follow.</p>
         <h3>For You</h3><p>A balanced recommendation feed using your selected filters, categories seen among channels you follow, and optional NerdSync personalization.</p>
-        <h3>Hidden Gems</h3><p>Focuses on smaller live channels, including very small viewer-count lanes that can be buried deeper in Twitch directories.</p>
-        <h3>Emerging</h3><p>Looks for newer accounts and growing creators. It also includes a newer-Affiliate section.</p>
+        <h3>Hidden Gems</h3><p>Focuses on smaller live channels, including very small viewer-count lanes that can be buried deeper in Twitch directories. When Historical Discovery is enabled, NerdSync can add 30-day activity and growth context and label strong signals such as Rising gem, Steady gem, Hot right now, or Quiet right now.</p>
+        <h3>Emerging</h3><p>Looks for newer accounts and growing creators. It also includes a Newer Affiliates section. NerdSync does not claim to know the date Affiliate status was earned. Instead, it uses the creator's current Affiliate status and Twitch account age, then optionally strengthens the signal with TwitchTracker 30-day activity and follower-growth context.</p>
         <h3>Established</h3><p>Looks at larger live creators while still respecting your discovery filters.</p>
         <h3>Scan deeper</h3><p>The first scan is intentionally shallow for speed. Scan deeper asks NerdSync to look farther into the selected Twitch categories.</p>
       </section>
@@ -45,7 +45,7 @@
         <h2>Creator Match</h2>
         <p>Creator Match is for finding potential peers, raid targets, or collaborators around an audience size you choose.</p>
         <p>You can base the range on your current live viewers or a past broadcast peak, then choose how wide the match range should be. Normal NerdSync filters still apply.</p>
-        <p>Match cards also show Twitch tags. Tags matching the tags you entered are highlighted with a check mark. Opening Details can load supplemental TwitchTracker 30-day summary data when available.</p>
+        <p>Match cards also show Twitch tags. Tags matching the tags you entered are highlighted with a check mark. Opening Details can load supplemental TwitchTracker 30-day summary data when available. Creator Match remains on-demand even if Historical Discovery is turned off.</p>
       </section>
 
       <section id="saved" class="guide-section">
@@ -73,25 +73,25 @@
 
       <section id="cards" class="guide-section">
         <h2>Creator cards</h2>
-        <p><strong>Details</strong> opens more Twitch information without immediately sending you away from NerdSync. <strong>Save</strong> adds the creator to your local shortlist.</p>
+        <p><strong>Details</strong> opens more Twitch information without immediately sending you away from NerdSync. <strong>Save</strong> adds the creator to your local shortlist.</p><h3>30-day context</h3><p>Discovery cards may show Live now, 30d avg, 30d growth, and 30d active. These values come from TwitchTracker and are kept separate from Twitch's current live viewer count. Category context can also show the category's 30-day average viewers and average live channels when available.</p>
         <p><strong>More like this</strong> and <strong>Less like this</strong> teach optional local personalization. <strong>Follow category</strong> teaches NerdSync that a game/category matters to you. <strong>Hide 30d</strong> temporarily suppresses a creator; <strong>Never show</strong> suppresses them until restored. <strong>Compare</strong> adds them to the two-creator comparison tool.</p>
       </section>
 
       <section id="settings" class="guide-section">
         <h2>Settings</h2>
-        <p>Settings includes accessibility controls plus Discovery defaults such as creator stage, Partner exclusion, category variety, personalization, and hiding recently seen creators.</p>
+        <p>Settings includes accessibility controls plus Discovery defaults such as creator stage, Partner exclusion, category variety, personalization, Historical Discovery context, and hiding recently seen creators.</p><h3>Historical Discovery context</h3><p>This is on by default and can be turned off. When enabled, NerdSync enriches only a limited set of strong Discovery candidates with TwitchTracker 30-day channel summaries and a limited number of category summaries. The historical layer can improve audience-fit and Emerging/Hidden Gems context, while Twitch still remains the source for who is live and the current live viewer count.</p>
         <p>Personalization is local and optional. Explicit filters continue working even when personalization is disabled.</p>
       </section>
 
       <section id="privacy" class="guide-section guide-wide">
         <h2>Data and privacy</h2>
         <p>NerdSync uses your Twitch login and the permissions listed at login to read the data needed for its tools. Recommendation history, saved creators, and preferences are designed to stay in your browser storage.</p>
-        <p>Twitch team lookups use the public broadcaster ID for live channels you follow and only run when you enable <strong>Twitch teams first</strong>. TwitchTracker lookups use a creator's public Twitch login name through NerdSync's same-origin proxy; your Twitch OAuth token is not sent to TwitchTracker.</p>
+        <p>Twitch team lookups use the public broadcaster ID for live channels you follow and only run when you enable <strong>Twitch teams first</strong>. When Historical Discovery is enabled, NerdSync sends only public Twitch channel logins and category IDs for a limited set of strong candidates through its same-origin Cloudflare proxy to TwitchTracker. Public summaries are cached for six hours to reduce repeated third-party requests. Your Twitch OAuth token is never sent to TwitchTracker.</p>
       </section>
     </div>
 
     <footer class="guide-footer">
-      <span>NerdSync · Nerdspace Labs - Twitch Tools by OneEyedNerdy · Alpha-0.16.6</span>
+      <span>NerdSync · Nerdspace Labs - Twitch Tools by OneEyedNerdy · Alpha-0.17.1</span>
       <a href="index.html#discover">Return to Discovery</a>
     </footer>
   </main>

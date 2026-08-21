@@ -40,6 +40,50 @@ function followingTeamHtml(stream) {
   return `<p class="twitch-team-line"><span>${label}</span> ${names.map(name => `<strong>${escapeHtml(name)}</strong>`).join('<span aria-hidden="true"> · </span>')}</p>`;
 }
 
+
+function newerAffiliateContextHtml(stream) {
+  if (activeTab !== 'rising' || stream._emergingSection !== 'newAffiliate') return '';
+  const label = stream._newAffiliateLabel || 'Newer Affiliate';
+  const ageDays = Number.isFinite(stream._newAffiliateAgeDays) ? Math.round(stream._newAffiliateAgeDays) : null;
+  const ageLabel = ageDays == null ? 'newer Twitch account' : ageDays < 60 ? `${ageDays}d-old Twitch account` : `${Math.max(1, Math.round(ageDays / 30))}mo-old Twitch account`;
+  const score = Number.isFinite(stream._newAffiliateScore) ? `<span>${stream._newAffiliateScore}/100 signal</span>` : '';
+  return `<div class="newer-affiliate-context" aria-label="Newer Affiliate context"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(ageLabel)} · current Affiliate status</span>${score}</div>`;
+}
+
+function formatTrackerCompact(value) {
+  if (!Number.isFinite(value)) return null;
+  return new Intl.NumberFormat(undefined, { notation:'compact', maximumFractionDigits:1 }).format(value);
+}
+
+function historicalDiscoveryContextHtml(stream) {
+  const tracker = stream._trackerSummary;
+  if (!tracker) return '';
+  const signals = stream._trackerSignals || deriveTwitchTrackerSignals(tracker, stream.viewer_count, { mode:activeTab });
+  const streamedHours = Number.isFinite(signals?.streamedHours) ? Math.round(signals.streamedHours * 10) / 10 : null;
+  const growth = Number.isFinite(tracker.followersGained) ? `${tracker.followersGained >= 0 ? '+' : ''}${formatTrackerCompact(tracker.followersGained)}` : null;
+  const stats = [
+    [formatTrackerCompact(stream.viewer_count), 'Live now'],
+    [formatTrackerCompact(tracker.averageViewers), '30d avg'],
+    [growth, '30d growth'],
+    [streamedHours == null ? null : `${formatTrackerCompact(streamedHours)}h`, '30d active']
+  ].filter(([value]) => value != null);
+  const contextLabel = signals?.gemLabel || signals?.liveContext || (signals?.growing ? 'Growing this month' : '');
+  const percentage = Number.isFinite(signals?.percentVsAverage)
+    ? `${signals.percentVsAverage >= 0 ? '+' : ''}${signals.percentVsAverage}% vs typical`
+    : '';
+  const category = stream._trackerCategorySummary;
+  const categoryBits = category ? [
+    Number.isFinite(category.averageViewers) ? `${formatTrackerCompact(category.averageViewers)} avg viewers` : null,
+    Number.isFinite(category.averageChannels) ? `${formatTrackerCompact(category.averageChannels)} avg channels` : null
+  ].filter(Boolean) : [];
+  return `<section class="historical-context" aria-label="30-day TwitchTracker discovery context">
+    <div class="historical-context-head"><span>30-day context · TwitchTracker</span>${contextLabel ? `<strong class="historical-context-badge">${escapeHtml(contextLabel)}</strong>` : ''}</div>
+    <div class="historical-stat-grid">${stats.map(([value, label]) => `<span class="historical-stat"><strong>${escapeHtml(value)}</strong><small>${escapeHtml(label)}</small></span>`).join('')}</div>
+    ${percentage ? `<p class="historical-context-note">${escapeHtml(percentage)}</p>` : ''}
+    ${categoryBits.length ? `<p class="historical-category-note"><strong>${escapeHtml(stream.game_name || 'Category')}:</strong> ${escapeHtml(categoryBits.join(' · '))} over 30 days</p>` : ''}
+  </section>`;
+}
+
 function streamCardHtml(s) {
   const thumb = safeHttpsUrl(String(s.thumbnail_url || '').replace('{width}', '320').replace('{height}', '180'));
   const viewers = new Intl.NumberFormat().format(s.viewer_count);
@@ -72,6 +116,8 @@ function streamCardHtml(s) {
         ${followingTeamHtml(s)}
         ${creatorMatchTagsHtml(s)}
         ${contentLabelsHtml(s)}
+        ${newerAffiliateContextHtml(s)}
+        ${historicalDiscoveryContextHtml(s)}
         ${viaTag}
         <p class="why-row">Why this: ${escapeHtml(why)}</p>
         <span class="stage-badge">${escapeHtml(stage.label)} · current live audience</span>
@@ -126,7 +172,7 @@ function renderEmergingSections(items, cfg) {
       : list;
   if (viewCountSort === 'default') {
     standard.sort((a,b) => risingSort === 'potential' ? (b._risingScore || 0) - (a._risingScore || 0) : new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt));
-    newAffiliates.sort((a,b) => newAffiliateSort === 'newest' ? new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt) : (b._discoveryScore || 0) - (a._discoveryScore || 0) || a.viewer_count - b.viewer_count);
+    newAffiliates.sort((a,b) => newAffiliateSort === 'newest' ? new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt) : (b._newAffiliateScore || b._discoveryScore || 0) - (a._newAffiliateScore || a._discoveryScore || 0) || a.viewer_count - b.viewer_count);
   } else {
     standard = applyViewSort(standard);
     newAffiliates = applyViewSort(newAffiliates);
@@ -149,7 +195,7 @@ function renderEmergingSections(items, cfg) {
   }
 
   setStatus('');
-  resultsSummary.textContent = `${standard.length} Standard Emerging Live results and ${newAffiliates.length} Affiliates on Newer Accounts results. Showing page ${currentPage} of ${totalPages}.`;
+  resultsSummary.textContent = `${standard.length} Standard Emerging Live results and ${newAffiliates.length} Newer Affiliate results. Showing page ${currentPage} of ${totalPages}.`;
   cardDataById.clear();
   [...standardPage, ...affiliatePage].forEach(item => { cardDataById.set(item.user_id, item); rememberCreator(item); });
   const cards = list => list.length ? list.map(streamCardHtml).join('') : '<p class="empty-compact">No results for this section on this page.</p>';
@@ -159,7 +205,7 @@ function renderEmergingSections(items, cfg) {
       <div class="stream-grid-section">${cards(standardPage)}</div>
     </section>
     <section class="feed-section" aria-labelledby="new-affiliates-heading">
-      <div class="feed-section-head"><h2 id="new-affiliates-heading">Affiliates on Newer Accounts</h2><p>${newAffiliates.length} matches · currently an Affiliate · Twitch account under 365 days · Affiliate-earned date is not available.</p></div>
+      <div class="feed-section-head"><h2 id="new-affiliates-heading">Newer Affiliates</h2><p>${newAffiliates.length} matches · current Twitch Affiliate status on accounts under 365 days · account age is known, but the Affiliate-earned date is not. Historical context can strengthen the signal with 30-day activity and growth.</p></div>
       <div class="stream-grid-section">${cards(affiliatePage)}</div>
     </section>`;
   [...standardPage, ...affiliatePage].forEach(item => {
@@ -291,6 +337,8 @@ async function loadStreams() {
     let loaded = await TABS[tabId].load({ deep:deepScanTabs.has(tabId) });
     loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
     loaded = await enrichCandidateSignals(loaded, tabId);
+    if (historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(tabId)) setStatus('Adding 30-day historical context…');
+    loaded = await enrichDiscoveryWithTwitchTracker(loaded, tabId, { signal:controller.signal });
     if (tabId === 'following' && followingTeamsFirst) loaded = await enrichFollowingTeams(loaded, currentToken);
     tabCache[tabId] = { data: loaded, timestamp: Date.now() };
     if (tabId !== activeTab || generation !== loadGeneration) return;

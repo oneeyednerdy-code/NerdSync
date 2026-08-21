@@ -51,7 +51,7 @@ test('requests TwitchTracker through NerdSync same-origin endpoint', async () =>
   assert.equal(result.averageViewers, 22);
 });
 
-test('caches repeat summary requests for five minutes', async () => {
+test('caches repeat summary requests across the six-hour discovery window', async () => {
   const client = await loadClient();
   let calls = 0;
   const fetchImpl = async () => {

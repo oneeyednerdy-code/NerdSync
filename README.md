@@ -1,6 +1,29 @@
 # NerdSync
 
-Current release: **Alpha-0.16.6**
+Current release: **Alpha-0.17.1**
+
+## Alpha-0.17.1 Newer Affiliate signals
+
+- Emerging now labels the current-Affiliate/newer-account lane as **Newer Affiliates** instead of implying NerdSync knows an Affiliate-earned date.
+- Eligibility still requires current Twitch Affiliate status and a Twitch account under 365 days old.
+- Historical Discovery can strengthen the Newer Affiliate signal using 30-day streamed hours and follower-growth efficiency from TwitchTracker.
+- Cards show the account-age context, current Affiliate status, and a bounded 0–100 Newer Affiliate signal.
+- The signal never claims an exact Affiliate date; Twitch does not expose that date through the data NerdSync uses.
+
+
+## Alpha-0.17.0 Historical Discovery
+
+- Adds an optional **Historical Discovery context** setting, enabled by default and stored with the user's local NerdSync preferences.
+- After Twitch builds and filters a Discovery candidate pool, NerdSync enriches at most **20 strong creator candidates** with TwitchTracker 30-day channel summaries and at most **6 category IDs** with TwitchTracker category summaries.
+- Shows **Live now**, **30d avg**, **30d growth**, and **30d active** directly on enriched Discovery cards while keeping Twitch's live viewer count visually and logically separate from historical data.
+- Adds context labels such as **Hot right now**, **Quiet right now**, **Near typical**, **Rising gem**, and **Steady gem** when the underlying numbers support them.
+- Uses the 30-day average as the preferred audience-size reference when calculating personalized audience fit, reducing the effect of a single unusually high or low live moment.
+- Adds bounded historical activity/growth bonuses to Discovery Fit and Emerging scores without directly rewarding high TwitchTracker rank or simply having a larger average audience.
+- Adds category context using TwitchTracker's documented 30-day category endpoint when available, including average category viewers and average live channels.
+- Expands Details so Discovery cards can show full 30-day channel/category context; Creator Match continues to load TwitchTracker on demand.
+- Extends the Cloudflare Worker/Pages Functions boundary with `/api/twitchtracker-category-summary`. Twitch OAuth is never forwarded to either TwitchTracker endpoint.
+- Increases browser and Cloudflare edge caching for public TwitchTracker summaries to **six hours**, with a one-hour negative cache for unavailable lookups, to reduce repeated third-party requests.
+- Bumps the privacy acknowledgement version because automatic limited TwitchTracker enrichment is a material network-behavior change.
 
 
 ## Alpha-0.16.6 Creator Match + Cloudflare runtime
@@ -32,7 +55,7 @@ Current release: **Alpha-0.16.6**
 - Hidden Gems now rotates candidates across 1–5, 6–20, and 21–75 current-viewer lanes instead of centering its score near 25 viewers.
 - Discovery panels begin with a fast two-page category scan. **Scan Deeper** expands the active panel to its full directory-page limit only when requested.
 - Moving to another panel cancels the abandoned scan instead of allowing stale Twitch requests to keep running.
-- **New Affiliates** is renamed **Affiliates on Newer Accounts** because Twitch exposes current Affiliate status and account creation date, not the date Affiliate was earned.
+- The earlier New Affiliates label was clarified because Twitch exposes current Affiliate status and account creation date, not the date Affiliate was earned. Alpha-0.17.1 now calls this lane **Newer Affiliates** and can add optional historical activity/growth context.
 - Opening Details no longer teaches the recommendation profile. Watch, Save, More Like This, Less Like This, Hide, and Never Show carry clearer intentional weights.
 - Preferred audience size now uses the median of recent positive samples rather than an average that could be distorted by a few large channels.
 
@@ -74,7 +97,7 @@ Current release: **Alpha-0.16.6**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.16.3 adds a small Cloudflare server-side endpoint used only to proxy optional TwitchTracker 30-day summaries for Creator Match details; the Twitch OAuth token is never forwarded.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.1 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
 
 ## Build and deploy on Cloudflare
 
@@ -87,9 +110,9 @@ NerdSync is a personalized Twitch discovery app for finding relevant live creato
 
 For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
 
-For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.16.3 includes `worker.js` so `/api/twitchtracker-summary` runs before static assets while every other request falls through to the `ASSETS` binding.
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.1 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
 
-For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` file in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
+For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` and `functions/api/twitchtracker-category-summary.js` files in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 
 OAuth uses Twitch's browser implicit flow with a cryptographically random state check. The app requests only `user:read:follows`. Tokens remain in session storage.
 
@@ -207,12 +230,12 @@ The script order in `index.html` is intentional: foundation and UI state first; 
 
 - **Emerging Live** now contains two stacked discovery sections with separate sort controls and shared NerdSync filters.
 - **Standard Emerging Live** appears first and shows channels with 3–500 current viewers and accounts under two years old.
-- **New Affiliates** appears underneath and shows currently live channels whose Twitch `broadcaster_type` is Affiliate and whose account was created less than 365 days ago.
-- New Affiliates has no built-in viewer ceiling; global viewer controls remain available when the user wants one.
+- **Newer Affiliates** appears underneath and shows currently live channels whose Twitch `broadcaster_type` is Affiliate and whose account was created less than 365 days ago.
+- Newer Affiliates has no built-in viewer ceiling; global viewer controls remain available when the user wants one.
 - Followed channels and the logged-in creator are excluded so the section remains discovery-oriented.
 - Selected categories are prioritized, top Twitch categories fill remaining scan slots, and category diversity is retained.
-- Sort by Discovery Fit, newest account, or the global low-to-high/high-to-low viewer controls.
-- Creators eligible for New Affiliates are shown only in that section, preventing duplicate cards across both sections.
+- Sort Newer Affiliates by the bounded Newer Affiliate signal, newest account, or the global low-to-high/high-to-low viewer controls.
+- Creators eligible for Newer Affiliates are shown only in that section, preventing duplicate cards across both sections.
 - Twitch does not expose the date a channel earned Affiliate. This section verifies Affiliate status and account age, but never claims the creator became an Affiliate within the last year.
 
 ## Alpha-0.6.0 accessibility and appearance
@@ -305,7 +328,7 @@ Scan Details reports categories, directory pages, candidates, eligible streams, 
 - Twitch reports a VOD's total recorded-video plays but does not expose that broadcast's peak concurrent viewers. Creator Match therefore requires a manually entered past peak unless the logged-in channel is currently live.
 - Emerging Live is an explainable proxy based on account age, live audience, and broadcaster status—not measured follower or viewer growth.
 - Emerging Live currently samples 3–500 live viewers and accounts up to two years old. Its score favors newer accounts, an audience near 75 viewers, and non-Partner status.
-- New Affiliates uses account creation date, not Affiliate-earned date, because Twitch does not expose Affiliate history through Helix.
+- Newer Affiliates uses current Affiliate status and account creation date, not an Affiliate-earned date. When Historical Discovery data is available, recent activity and follower-growth efficiency can strengthen the signal.
 - Activity checking relies on archived VODs. A channel that disables VODs may appear inactive.
 - Detailed checks cover the strongest 40 candidates per load to protect responsiveness and API limits.
 - Browser-local preferences do not synchronize across devices.

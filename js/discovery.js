@@ -286,7 +286,8 @@ async function loadEmergingHub(options = {}) {
     .filter(item => item.type === 'affiliate' && item.ageDays >= 0 && item.ageDays < NEW_AFFILIATE_ACCOUNT_DAYS)
     .map(({ stream, user, ageDays }) => {
       const ageLabel = ageDays < 60 ? `${Math.round(ageDays)}d account` : `${Math.max(1, Math.round(ageDays / 30))}mo account`;
-      return { ...stream, _emergingSection:'newAffiliate', _broadcasterType:'affiliate', _accountCreatedAt:user.created_at, _profileImage:user.profile_image_url || '', _newAffiliateAgeDays:ageDays, _via:`Affiliate · ${ageLabel}`, _why:`Verified Twitch Affiliate · account created ${Math.round(ageDays)} days ago · ${stream.viewer_count} live viewers` };
+      const baseSignalScore = Math.max(0, Math.min(55, Math.round((1 - ageDays / NEW_AFFILIATE_ACCOUNT_DAYS) * 55)));
+      return { ...stream, _emergingSection:'newAffiliate', _broadcasterType:'affiliate', _accountCreatedAt:user.created_at, _profileImage:user.profile_image_url || '', _newAffiliateAgeDays:ageDays, _newAffiliateScore:baseSignalScore, _newAffiliateLabel:'Newer Affiliate', _via:`Newer Affiliate · ${ageLabel}`, _why:`Current Twitch Affiliate · account created ${Math.round(ageDays)} days ago · affiliate-earned date unavailable` };
     });
   const newAffiliateIds = new Set(newAffiliates.map(stream => stream.user_id));
   const standard = enriched
@@ -400,7 +401,8 @@ async function loadNewAffiliates() {
     .map(({ stream, user }) => {
       const ageDays = Math.max(0, (Date.now() - new Date(user.created_at).getTime()) / 86400000);
       const ageLabel = ageDays < 60 ? `${Math.round(ageDays)}d account` : `${Math.max(1, Math.round(ageDays / 30))}mo account`;
-      return { ...stream, _broadcasterType:'affiliate', _accountCreatedAt:user.created_at, _profileImage:user.profile_image_url || '', _newAffiliateAgeDays:ageDays, _via:`Affiliate · ${ageLabel}`, _why:`Verified Twitch Affiliate · account created ${Math.round(ageDays)} days ago · ${stream.viewer_count} live viewers` };
+      const baseSignalScore = Math.max(0, Math.min(55, Math.round((1 - ageDays / NEW_AFFILIATE_ACCOUNT_DAYS) * 55)));
+      return { ...stream, _emergingSection:'newAffiliate', _broadcasterType:'affiliate', _accountCreatedAt:user.created_at, _profileImage:user.profile_image_url || '', _newAffiliateAgeDays:ageDays, _newAffiliateScore:baseSignalScore, _newAffiliateLabel:'Newer Affiliate', _via:`Newer Affiliate · ${ageLabel}`, _why:`Current Twitch Affiliate · account created ${Math.round(ageDays)} days ago · affiliate-earned date unavailable` };
     });
   diagnostics.eligible += eligible.length;
   return eligible;

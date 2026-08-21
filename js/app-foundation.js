@@ -2,7 +2,7 @@
 
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.16.6';
+const APP_VERSION = 'Alpha-0.17.1';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -13,7 +13,7 @@ const TOKEN_VALIDATION_INTERVAL_MS = 60 * 60 * 1000;
 const HISTORY_KEY = 'nerdsync_discovery_history_v1';
 const PREFERENCES_KEY = 'nerdsync_preferences_v2';
 const ACCESSIBILITY_KEY = 'nerdsync_accessibility_v1';
-const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v1';
+const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v2';
 
 // Tuning knobs — kept small to stay well under Twitch's Helix rate limits.
 const MAX_FOLLOW_PAGES = 10;
@@ -104,6 +104,7 @@ const excludePartnersEl = document.getElementById('exclude-partners');
 const diversityLimitEl = document.getElementById('diversity-limit');
 const personalizationModeEl = document.getElementById('personalization-mode');
 const hideSeenEl = document.getElementById('hide-seen');
+const historicalDiscoveryEl = document.getElementById('historical-discovery');
 const primaryNav = document.getElementById('primary-nav');
 const discoverFeedControl = document.getElementById('discover-feed-control');
 const discoverFeedMode = document.getElementById('discover-feed-mode');
@@ -175,7 +176,7 @@ function buildTabs() {
   },
   gems: {
     label: 'Hidden Gems',
-    explainer: `Channels with 1–${SMALL_STREAM_VIEWER_CEILING} viewers found deeper in categories you select or your followed channels are playing. Sparse category lists are supplemented so this view stays useful.`,
+    explainer: `Channels with 1–${SMALL_STREAM_VIEWER_CEILING} current viewers found deeper in relevant categories. With Historical Discovery enabled, strong candidates can also show 30-day typical audience, growth, and activity context without changing the small-channel eligibility lanes.`,
     empty: 'No eligible small channels were found in the scanned categories right now. Try another category, clear restrictive filters, or refresh later.',
     load: loadHiddenGems,
     hasCommonFilters: true,
@@ -183,8 +184,8 @@ function buildTabs() {
   },
   rising: {
     label: 'Emerging',
-    explainer: 'Emerging Live contains two discovery feeds: Standard Emerging Live appears first, followed by Affiliates on Newer Accounts. Both use the same NerdSync filters and sampled categories, but keep their own eligibility rules and sorting controls.',
-    empty: 'No eligible Emerging Live channels or Affiliates on Newer Accounts were found in the sampled categories right now. Try Scan Deeper, refresh later, or use For You.',
+    explainer: 'Emerging Live contains Standard Emerging Live and Newer Affiliates. For Newer Affiliates, NerdSync uses current Affiliate status plus Twitch account age; when Historical Discovery is enabled, 30-day activity and follower-growth can strengthen that signal. Twitch does not provide the date Affiliate status was earned.',
+    empty: 'No eligible Emerging Live channels or Newer Affiliates were found in the sampled categories right now. Try Scan Deeper, refresh later, or use For You.',
     load: loadEmergingHub,
     hasCommonFilters: true,
     isRising: true,
@@ -202,7 +203,7 @@ function buildTabs() {
   },
   spotlight: {
     label: 'Established',
-    explainer: 'Established and larger live creators, selected through your categories, followed-channel interests, tags, language, and learned preferences. Spotlight starts at 501 current viewers and does not replace smaller creators in For You.',
+    explainer: "Established and larger live creators selected through your categories, followed-channel interests, tags, language, and learned preferences. Historical Discovery can show how the current stream compares with the creator's 30-day typical audience.",
     empty: 'No established or larger live creators matched the current categories and filters.',
     load: loadSpotlight,
     hasCommonFilters: true,
@@ -218,7 +219,7 @@ function buildTabs() {
   },
   discover: {
     label: 'For You',
-    explainer: 'A personalized, balanced feed across every creator stage. Selected categories and followed-channel interests come first, then top Twitch categories fill gaps. Smaller creators retain dedicated space without imposing an audience ceiling.',
+    explainer: 'A personalized, balanced feed across every creator stage. Twitch supplies who is live now; when Historical Discovery is enabled, a limited set of strong candidates also receives 30-day TwitchTracker context for typical audience, growth, activity, and category conditions.',
     empty: 'No live channels were found in the selected discovery categories right now.',
     load: loadDiscover,
     hasCommonFilters: true,
@@ -260,12 +261,13 @@ let matchVodsLoaded = false;
 let excludePartners = false;
 let diversityLimit = 3;
 let personalizationEnabled = true;
+let historicalDiscoveryEnabled = true;
 let followedInterestProfile = { categories:new Map(), tags:new Map() };
 let hideSeen = false;
 let filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:true };
 let diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
 let discoveryHistory = {};
-let preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true };
+let preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true, historicalDiscoveryEnabled:true };
 let accessibilitySettings = { theme:'system', textSize:'normal', largeCards:false, highContrast:false, reduceMotion:false };
 let panelReturnFocus = null;
 let modalReturnFocus = null;

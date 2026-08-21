@@ -1,5 +1,5 @@
-const CHANNEL_RE = /^[a-z0-9_]{1,25}$/;
-const UPSTREAM = 'https://twitchtracker.com/api/channels/summary/';
+const GAME_RE = /^\d{1,24}$/;
+const UPSTREAM = 'https://twitchtracker.com/api/games/summary/';
 const CACHE_SECONDS = 6 * 60 * 60;
 
 function json(body, status = 200, extraHeaders = {}) {
@@ -14,11 +14,11 @@ function json(body, status = 200, extraHeaders = {}) {
 }
 
 export async function onRequestGet(context) {
-  const channel = new URL(context.request.url).searchParams.get('channel')?.trim().toLowerCase() || '';
-  if (!CHANNEL_RE.test(channel)) return json({ error: 'Invalid Twitch channel login.' }, 400);
+  const game = new URL(context.request.url).searchParams.get('game')?.trim() || '';
+  if (!GAME_RE.test(game)) return json({ error: 'Invalid Twitch category ID.' }, 400);
 
   try {
-    const upstream = await fetch(`${UPSTREAM}${encodeURIComponent(channel)}`, {
+    const upstream = await fetch(`${UPSTREAM}${encodeURIComponent(game)}`, {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; NerdSync/0.17.1)',
@@ -27,7 +27,7 @@ export async function onRequestGet(context) {
     });
     if (!upstream.ok) {
       return json(
-        { error: 'TwitchTracker did not return channel data.' },
+        { error: 'TwitchTracker did not return category data.' },
         upstream.status === 404 ? 404 : 502,
       );
     }

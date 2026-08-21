@@ -9,6 +9,14 @@ test('worker rejects non-GET TwitchTracker requests', async () => {
   assert.equal(response.headers.get('allow'), 'GET');
 });
 
+
+test('worker routes TwitchTracker category summaries and rejects non-GET requests', async () => {
+  const request = new Request('https://nerdsync.test/api/twitchtracker-category-summary?game=27471', { method: 'POST' });
+  const response = await worker.fetch(request, { ASSETS: { fetch: () => new Response('asset') } }, { waitUntil() {} });
+  assert.equal(response.status, 405);
+  assert.equal(response.headers.get('allow'), 'GET');
+});
+
 test('worker falls through to static assets', async () => {
   const request = new Request('https://nerdsync.test/index.html');
   const response = await worker.fetch(request, { ASSETS: { fetch: () => new Response('asset-ok') } }, { waitUntil() {} });

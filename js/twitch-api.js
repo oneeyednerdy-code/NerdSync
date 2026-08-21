@@ -79,7 +79,7 @@ async function apiFetch(url, options = {}, retry = true) {
 }
 
 function renderDiagnostics() {
-  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.signalsChecked || 0} detailed checks · ${diagnostics.failures} partial failures · ${diagnostics.requests} API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}. <button id="download-diagnostics-btn" class="btn-logout diagnostics-download" type="button">Download error log</button>`;
+  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.signalsChecked || 0} Twitch detail checks · ${diagnostics.trackerChecked || 0} historical creator checks · ${diagnostics.trackerCategories || 0} historical category checks · ${diagnostics.failures} partial failures · ${diagnostics.requests} Twitch API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}. <button id="download-diagnostics-btn" class="btn-logout diagnostics-download" type="button">Download error log</button>`;
   document.getElementById('download-diagnostics-btn')?.addEventListener('click', downloadDiagnostics);
 }
 

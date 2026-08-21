@@ -9,10 +9,12 @@ async function showDiscoveryView() {
   loginView.classList.add('hidden');
   discoveryView.classList.remove('hidden');
   try { discoveryHistory = JSON.parse(localStorage.getItem(historyStorageKey()) || '{}') || {}; } catch (error) { discoveryHistory = {}; }
-  try { preferences = { ...preferences, ...(JSON.parse(localStorage.getItem(preferencesStorageKey()) || '{}') || {}) }; } catch (error) { preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true }; }
+  try { preferences = { ...preferences, ...(JSON.parse(localStorage.getItem(preferencesStorageKey()) || '{}') || {}) }; } catch (error) { preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true, historicalDiscoveryEnabled:true }; }
   preferences.categories ||= {}; preferences.categoryNames ||= {}; preferences.followedCategories ||= {}; preferences.tags ||= {}; preferences.languages ||= {}; preferences.viewerSamples ||= [];
   personalizationEnabled = preferences.personalizationEnabled !== false;
   personalizationModeEl.value = personalizationEnabled ? 'on' : 'off';
+  historicalDiscoveryEnabled = preferences.historicalDiscoveryEnabled !== false;
+  historicalDiscoveryEl.checked = historicalDiscoveryEnabled;
   try {
     const storedAccessibility = JSON.parse(localStorage.getItem(accessibilityStorageKey()) || '{}') || {};
     accessibilitySettings = { theme:'system', textSize:'normal', largeCards:false, highContrast:false, reduceMotion:false, ...storedAccessibility };

@@ -23,9 +23,10 @@ function discoveryScore(stream) {
   const sortedViewerSamples = personalizationEnabled ? preferences.viewerSamples.filter(Number.isFinite).slice().sort((a,b) => a-b) : [];
   const middle = Math.floor(sortedViewerSamples.length / 2);
   const preferredViewers = !sortedViewerSamples.length ? null : sortedViewerSamples.length % 2 ? sortedViewerSamples[middle] : (sortedViewerSamples[middle - 1] + sortedViewerSamples[middle]) / 2;
-  const audienceFit = preferredViewers == null ? 0 : Math.max(0, 20 - Math.abs((stream.viewer_count || 0) - preferredViewers) / Math.max(3, preferredViewers) * 10);
+  const audienceReference = Number.isFinite(stream._trackerSummary?.averageViewers) ? stream._trackerSummary.averageViewers : (stream.viewer_count || 0);
+  const audienceFit = preferredViewers == null ? 0 : Math.max(0, 20 - Math.abs(audienceReference - preferredViewers) / Math.max(3, preferredViewers) * 10);
   score += audienceFit;
-  if (audienceFit >= 14) reasons.push('audience size fit');
+  if (audienceFit >= 14) reasons.push(Number.isFinite(stream._trackerSummary?.averageViewers) ? 'typical audience size fit' : 'audience size fit');
   if (filters.language && stream.language === filters.language) { score += 10; reasons.push('language match'); }
   else if (personalizationEnabled && (preferences.languages[stream.language] || 0) > 0) { score += Math.min(7, preferences.languages[stream.language]); reasons.push('preferred language'); }
   const history = historyFor(stream.user_id);
@@ -35,6 +36,10 @@ function discoveryScore(stream) {
   if (personalizationEnabled && history.moreLike) { score += 12; reasons.push('more like a creator you chose'); }
   if (personalizationEnabled && history.lessLike) score -= Math.min(15, history.lessLike * 5);
   if (stream._lastBroadcastAt && Date.now() - new Date(stream._lastBroadcastAt).getTime() < 30 * 86400000) { score += 5; reasons.push('recently active'); }
+  if (Number.isFinite(stream._trackerDiscoveryBonus) && stream._trackerDiscoveryBonus > 0) {
+    score += stream._trackerDiscoveryBonus;
+    (stream._trackerReasons || []).forEach(reason => { if (!reasons.includes(reason)) reasons.push(reason); });
+  }
   if (stream._broadcasterType === 'none') { score += 4; reasons.push('not affiliated'); }
   const finalScore = Math.max(0, Math.min(100, Math.round(score)));
   return { score:finalScore, reasons:reasons.slice(0, 4) };

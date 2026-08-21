@@ -1,6 +1,6 @@
 # NerdSync security model
 
-NerdSync Alpha-0.16.6 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes one stateless Cloudflare endpoint that proxies optional public TwitchTracker channel summaries for Creator Match details.
+NerdSync Alpha-0.17.1 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy optional public TwitchTracker channel and category summaries for Historical Discovery and Creator Match details.
 
 ## Authentication boundaries
 
@@ -16,9 +16,10 @@ NerdSync Alpha-0.16.6 is a read-only Twitch client designed for Cloudflare Pages
 - Requests use no browser credentials, no referrer, no browser cache, and a 15-second timeout.
 - API-provided links are accepted only for HTTPS Twitch destinations; API-provided images must use HTTPS.
 - NerdSync does not perform raids, follows, moderation actions, chat writes, channel changes, or other Twitch mutations.
-- `/api/twitchtracker-summary` accepts only a validated public Twitch channel login and performs a server-side GET to TwitchTracker. The browser's Twitch OAuth token is never included in that request.
-- TwitchTracker responses are treated as supplemental third-party data. A failure does not block Twitch API details or Creator Match itself.
-- Successful TwitchTracker summaries are cached for five minutes to reduce repeated third-party requests.
+- `/api/twitchtracker-summary` accepts only a validated public Twitch channel login and `/api/twitchtracker-category-summary` accepts only a numeric Twitch category ID. Both perform server-side GET requests to TwitchTracker. The browser's Twitch OAuth token is never included.
+- Historical Discovery automatically enriches at most 20 strong creator candidates and 6 categories per Discovery load when the setting is enabled. Users can disable this behavior in Settings.
+- TwitchTracker responses are treated as supplemental third-party data. A failure does not block Twitch API discovery, filters, Creator Match, clips, VODs, or schedules.
+- Successful TwitchTracker summaries are cached for six hours in the browser and at Cloudflare's edge to reduce repeated third-party requests. Unavailable lookups are suppressed for one hour in the browser session.
 
 ## Local data
 
@@ -36,4 +37,4 @@ Cloudflare Access is optional and dashboard-managed. Enabling it will restrict t
 
 ## TwitchTracker boundary
 
-The TwitchTracker summary endpoint is an external, unofficial dependency and may change independently of NerdSync. NerdSync validates channel logins before proxying, sends no Twitch access token or client secret, performs no write action, and keeps no server-side user profile or history.
+The TwitchTracker basic API is an external, unofficial dependency and may change independently of NerdSync. NerdSync validates channel logins and category IDs before proxying, sends no Twitch access token or client secret, performs no write action, and keeps no server-side user profile or history. Historical values never replace Twitch as the source for live status or current live viewer count.

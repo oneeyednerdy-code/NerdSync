@@ -102,7 +102,8 @@ async function loadModalDetails(stream) {
   const scheduleEl = document.getElementById('modal-schedule');
   const trackerSectionEl = document.getElementById('modal-tracker-section');
   const trackerEl = document.getElementById('modal-tracker');
-  const shouldLoadTracker = Number.isFinite(stream._matchDistance) && Boolean(stream.user_login);
+  const shouldLoadTracker = Boolean(stream.user_login) && (activeTab === 'match' || (historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(activeTab)));
+  const shouldLoadTrackerCategory = shouldLoadTracker && /^\d+$/.test(String(stream.game_id || ''));
   videosEl.innerHTML = '<p class="status-msg">Loading…</p>';
   clipsEl.innerHTML = '<p class="status-msg">Loading…</p>';
   scheduleEl.innerHTML = '<p class="status-msg">Loading…</p>';
@@ -112,7 +113,7 @@ async function loadModalDetails(stream) {
 
   const cached = modalDetailCache[userId];
   let result;
-  if (cached && Date.now() - cached.timestamp < MODAL_CACHE_TTL_MS && (!shouldLoadTracker || cached.trackerSummary || cached.trackerUnavailable)) {
+  if (cached && Date.now() - cached.timestamp < MODAL_CACHE_TTL_MS && (!shouldLoadTracker || cached.trackerSummary || cached.trackerUnavailable) && (!shouldLoadTrackerCategory || cached.trackerCategorySummary || cached.trackerCategoryUnavailable)) {
     result = cached;
   } else {
     const since = new Date(Date.now() - CLIPS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -120,18 +121,21 @@ async function loadModalDetails(stream) {
       fetchVideosForBroadcaster(userId, currentToken, 3),
       fetchClipsForBroadcaster(userId, currentToken, since, new Date().toISOString()),
       fetchScheduleForBroadcaster(userId, currentToken, 3),
-      fetchUsersByIds([userId], currentToken)
+      fetchUsersByIds([userId], currentToken),
+      shouldLoadTracker ? (stream._trackerSummary ? Promise.resolve(stream._trackerSummary) : getTwitchTrackerSummary(stream.user_login)) : Promise.resolve(null),
+      shouldLoadTrackerCategory ? (stream._trackerCategorySummary ? Promise.resolve(stream._trackerCategorySummary) : getTwitchTrackerCategorySummary(stream.game_id)) : Promise.resolve(null)
     ];
-    if (shouldLoadTracker) requests.push(getTwitchTrackerSummary(stream.user_login));
-    const [videosR, clipsR, scheduleR, userR, trackerR] = await Promise.allSettled(requests);
+    const [videosR, clipsR, scheduleR, userR, trackerR, trackerCategoryR] = await Promise.allSettled(requests);
     result = {
       timestamp: Date.now(),
       videos: videosR.status === 'fulfilled' ? videosR.value.slice(0, 3) : [],
       clips: clipsR.status === 'fulfilled' ? [...clipsR.value].sort((a, b) => b.view_count - a.view_count).slice(0, 3) : [],
       schedule: scheduleR.status === 'fulfilled' ? scheduleR.value.slice(0, 3) : [],
       user: userR.status === 'fulfilled' ? userR.value[0] : null,
-      trackerSummary: shouldLoadTracker && trackerR?.status === 'fulfilled' ? trackerR.value : null,
-      trackerUnavailable: shouldLoadTracker && trackerR?.status === 'rejected'
+      trackerSummary: shouldLoadTracker && trackerR.status === 'fulfilled' ? trackerR.value : null,
+      trackerUnavailable: shouldLoadTracker && (trackerR.status === 'rejected' || !trackerR.value),
+      trackerCategorySummary: shouldLoadTrackerCategory && trackerCategoryR.status === 'fulfilled' ? trackerCategoryR.value : null,
+      trackerCategoryUnavailable: shouldLoadTrackerCategory && (trackerCategoryR.status === 'rejected' || !trackerCategoryR.value)
     };
     modalDetailCache[userId] = result;
   }
@@ -154,7 +158,20 @@ async function loadModalDetails(stream) {
         [Number.isFinite(tracker.followersGained) ? `${tracker.followersGained >= 0 ? '+' : ''}${fmt(tracker.followersGained)}` : 'Unavailable', 'followers gained'],
         [Number.isFinite(tracker.rank) ? `#${fmt(tracker.rank)}` : 'Unavailable', 'TwitchTracker rank']
       ];
-      trackerEl.innerHTML = stats.map(([value, label]) => `<div class="mini-card static tracker-stat"><strong>${escapeHtml(value)}</strong><span class="mini-meta">${escapeHtml(label)}</span></div>`).join('');
+      const category = result.trackerCategorySummary;
+      if (category) {
+        stats.push(
+          [fmt(category.averageViewers), `${stream.game_name || 'category'} 30-day avg viewers`],
+          [fmt(category.averageChannels), `${stream.game_name || 'category'} avg live channels`],
+          [fmt(category.hoursWatched), `${stream.game_name || 'category'} hours watched`],
+          [Number.isFinite(category.rank) ? `#${fmt(category.rank)}` : 'Unavailable', `${stream.game_name || 'category'} TwitchTracker rank`]
+        );
+      }
+      const newerAffiliate = activeTab === 'rising' && stream._emergingSection === 'newAffiliate' ? deriveNewerAffiliateSignal(stream, tracker) : null;
+      const affiliateContext = newerAffiliate
+        ? `<div class="mini-card static tracker-stat newer-affiliate-detail"><strong>${escapeHtml(newerAffiliate.label)}</strong><span class="mini-meta">${escapeHtml(`${Math.round(newerAffiliate.ageDays)}d-old Twitch account · current Affiliate status · ${newerAffiliate.score}/100 signal`)}</span><span class="mini-meta">Affiliate-earned date is not available from Twitch.</span></div>`
+        : '';
+      trackerEl.innerHTML = affiliateContext + stats.map(([value, label]) => `<div class="mini-card static tracker-stat"><strong>${escapeHtml(value)}</strong><span class="mini-meta">${escapeHtml(label)}</span></div>`).join('');
     } else {
       trackerEl.innerHTML = '<p class="status-msg">TwitchTracker data is unavailable for this channel right now. Twitch details still work normally.</p>';
     }

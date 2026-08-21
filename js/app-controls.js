@@ -281,6 +281,15 @@ personalizationModeEl.addEventListener('change', () => {
   renderGrid();
 });
 hideSeenEl.addEventListener('change', () => { hideSeen = hideSeenEl.checked; currentPage = 1; renderGrid(); });
+historicalDiscoveryEl.addEventListener('change', () => {
+  historicalDiscoveryEnabled = historicalDiscoveryEl.checked;
+  preferences.historicalDiscoveryEnabled = historicalDiscoveryEnabled;
+  savePreferences();
+  ['discover','gems','rising','spotlight'].forEach(tab => delete tabCache[tab]);
+  currentPage = 1;
+  if (['discover','gems','rising','spotlight'].includes(activeTab)) loadStreams();
+  else renderGrid();
+});
 document.getElementById('diagnostics-toggle').addEventListener('click', () => {
   diagnosticsPanel.classList.toggle('hidden');
   renderDiagnostics();
@@ -345,7 +354,7 @@ document.getElementById('restore-dismissed-btn').addEventListener('click', () =>
   saveHistory(); renderGrid(); renderSavedList();
 });
 document.getElementById('reset-recommendations-btn').addEventListener('click', () => {
-  preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled };
+  preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled, historicalDiscoveryEnabled };
   savePreferences();
   Object.values(discoveryHistory).forEach(item => { delete item.lessLike; delete item.moreLike; delete item.openCount; });
   saveHistory(); renderRecommendationProfile(); renderGrid();
