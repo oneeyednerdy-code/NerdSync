@@ -1,8 +1,18 @@
 'use strict';
 
+// Shared utility used by filters and other controls.
+// This must live in the foundation script because filters.js loads before app-controls.js.
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.17.2';
+const APP_VERSION = 'Alpha-0.17.3';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -115,7 +125,6 @@ const followingTeamsFirstEl = document.getElementById('following-teams-first');
 const contextToolbar = document.getElementById('context-toolbar');
 const resultsArea = document.getElementById('results-area');
 const featureActions = document.querySelector('.discovery-container > .feature-actions');
-const diagnosticsPanel = document.getElementById('diagnostics-panel');
 const channelToolsPanel = document.getElementById('channel-tools-panel');
 const channelSearchInput = document.getElementById('channel-search-input');
 const channelSearchResults = document.getElementById('channel-search-results');

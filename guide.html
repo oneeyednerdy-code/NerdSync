@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="NerdSync Field Guide: a plain-language guide to Discover, Following, Creator Match, Saved, filters, settings, and creator cards." />
   <title>NerdSync Field Guide</title>
-  <link rel="stylesheet" href="css/styles.css?v=0.17.2" />
+  <link rel="stylesheet" href="css/styles.css?v=0.17.3" />
 </head>
 <body class="guide-page">
   <main class="guide-shell">
@@ -83,15 +83,24 @@
         <p>Personalization is local and optional. Explicit filters continue working even when personalization is disabled.</p>
       </section>
 
+
+      <section id="troubleshooting" class="guide-section">
+        <h2>Troubleshooting</h2>
+        <p>Open <strong>Diagnostics / Bug Log</strong> from Settings, the login footer, or the bottom of NerdSync when something is not working. NerdSync records a limited privacy-safe session log of runtime errors and sanitized request failures.</p>
+        <p>The downloaded <code>.txt</code> file includes the NerdSync version, coarse browser/operating-system information, viewport size, the active section, filter counts, current scan totals, and sanitized request/error events. Twitch tokens, URL parameter values, chat text, and creator/channel identities are excluded.</p>
+        <p>Post the downloaded file in the <strong>#bug-reports</strong> channel in the Nerdspace Labs Discord and include a short description of what you clicked before the problem happened.</p>
+      </section>
+
       <section id="privacy" class="guide-section guide-wide">
         <h2>Data and privacy</h2>
         <p>NerdSync uses your Twitch login and the permissions listed at login to read the data needed for its tools. Recommendation history, saved creators, and preferences are designed to stay in your browser storage.</p>
         <p>Twitch team lookups use the public broadcaster ID for live channels you follow and only run when you enable <strong>Twitch teams first</strong>. When Historical Discovery is enabled, NerdSync sends only public Twitch channel logins and category IDs for a limited set of strong candidates through its same-origin Cloudflare proxy to TwitchTracker. Public summaries are cached for six hours to reduce repeated third-party requests. Your Twitch OAuth token is never sent to TwitchTracker.</p>
+        <p>The Diagnostics / Bug Log is local and optional. It stays in session storage until you clear it or the browser session ends, and it is never uploaded automatically. You decide whether to download or copy the sanitized report for support.</p>
       </section>
     </div>
 
     <footer class="guide-footer">
-      <span>NerdSync · Nerdspace Labs - Twitch Tools by OneEyedNerdy · Alpha-0.17.2</span>
+      <span>NerdSync · Nerdspace Labs - Twitch Tools by OneEyedNerdy · Alpha-0.17.3</span>
       <a href="index.html#discover">Return to Discovery</a>
     </footer>
   </main>

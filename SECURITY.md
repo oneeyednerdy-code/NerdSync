@@ -1,6 +1,6 @@
 # NerdSync security model
 
-NerdSync Alpha-0.17.1 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy optional public TwitchTracker channel and category summaries for Historical Discovery and Creator Match details.
+NerdSync Alpha-0.17.3 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy optional public TwitchTracker channel and category summaries for Historical Discovery and Creator Match details.
 
 ## Authentication boundaries
 
@@ -26,7 +26,9 @@ NerdSync Alpha-0.17.1 is a read-only Twitch client designed for Cloudflare Pages
 - The Twitch access token is stored only for the browser tab session.
 - Saved creators, preferences, accessibility choices, and recommendation history remain in browser-local storage partitioned by Twitch user ID.
 - GHOST SIGNAL ending progress and its cosmetic reward also remain local and partitioned by Twitch user ID.
-- Diagnostic files contain endpoint paths and parameter names, but omit tokens, parameter values, response bodies, and browser-identifying details.
+- Diagnostics are stored only in the current browser session (or memory when session storage is unavailable) and are never uploaded automatically.
+- Downloaded diagnostic files contain coarse browser/OS/viewport information, active-section/filter counts, scan totals, endpoint paths and parameter names, and sanitized runtime/request failures.
+- Diagnostic reports omit OAuth tokens, URL parameter values, response bodies, chat content, raw user-agent strings, and creator/channel identities.
 
 ## Cloudflare deployment
 
