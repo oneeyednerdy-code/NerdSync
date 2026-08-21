@@ -8,23 +8,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.17.3">
-<link rel="stylesheet" href="css/secret-game.css?v=0.17.3">
+<link rel="stylesheet" href="css/styles.css?v=0.17.2">
+<link rel="stylesheet" href="css/secret-game.css?v=0.17.2">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.17.3" defer></script>
-<script src="js/diagnostics.js?v=0.17.3" defer></script>
-<script src="js/ui-state.js?v=0.17.3" defer></script>
-<script src="js/filters.js?v=0.17.3" defer></script>
-<script src="js/twitch-api.js?v=0.17.3" defer></script>
-<script src="js/discovery.js?v=0.17.3" defer></script>
-<script src="js/recommendations.js?v=0.17.3" defer></script>
-<script src="js/creator-tools.js?v=0.17.3" defer></script>
-<script src="js/feed-rendering.js?v=0.17.3" defer></script>
-<script src="js/twitchtracker-summary.js?v=0.17.3" defer></script>
-<script src="js/stream-details.js?v=0.17.3" defer></script>
-<script src="js/app-controls.js?v=0.17.3" defer></script>
-<script src="js/secret-game.js?v=0.17.3" defer></script>
-<script src="js/session.js?v=0.17.3" defer></script>
+<script src="js/app-foundation.js?v=0.17.2" defer></script>
+<script src="js/ui-state.js?v=0.17.2" defer></script>
+<script src="js/filters.js?v=0.17.2" defer></script>
+<script src="js/twitch-api.js?v=0.17.2" defer></script>
+<script src="js/discovery.js?v=0.17.2" defer></script>
+<script src="js/recommendations.js?v=0.17.2" defer></script>
+<script src="js/creator-tools.js?v=0.17.2" defer></script>
+<script src="js/feed-rendering.js?v=0.17.2" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.17.2" defer></script>
+<script src="js/stream-details.js?v=0.17.2" defer></script>
+<script src="js/app-controls.js?v=0.17.2" defer></script>
+<script src="js/secret-game.js?v=0.17.2" defer></script>
+<script src="js/session.js?v=0.17.2" defer></script>
 </head>
 <body>
 
@@ -42,7 +41,6 @@
       <li><strong>No data brokering.</strong> NerdSync does not sell your Twitch data or send it to advertisers or data brokers. The only optional third-party lookup is the public channel-name request to TwitchTracker described below.</li>
       <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, and recommendations on this device.</li>
       <li><strong>No hidden database.</strong> Your Twitch token stays in session storage and your preferences remain in your browser.</li>
-      <li><strong>Diagnostics stay local.</strong> NerdSync keeps a sanitized troubleshooting log only in this browser session so you can choose to download it as a text file. The log is never uploaded automatically.</li>
       <li><strong>Historical Discovery is optional.</strong> When enabled in Settings, NerdSync sends only the public channel names and Twitch category IDs for a limited set of strong Discovery candidates through its Cloudflare endpoint to request 30-day TwitchTracker summaries. Opening Creator Match details can also request that creator's public summary. Your Twitch token is never sent to TwitchTracker.</li>
     </ul>
     <p class="privacy-note">Continuing allows this necessary browser storage. Clearing your browser's site data removes locally saved NerdSync information.</p>
@@ -56,9 +54,9 @@
       <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.17.3</span>
+      <span class="release-version">Alpha-0.17.2</span>
     </div>
-    <button id="twitch-login-btn" class="btn-twitch" type="button">Log in with Twitch</button>
+    <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
     <button id="privacy-review-btn" class="privacy-review-btn" type="button">Review the NerdSync data promise</button>
   </div>
@@ -66,8 +64,6 @@
     <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support this project on Ko-fi <span aria-hidden="true">↗</span></a>
     <span aria-hidden="true">·</span>
     <a href="guide.html">NerdSync Field Guide</a>
-    <span aria-hidden="true">·</span>
-    <button class="footer-text-button" type="button" data-open-diagnostics>Diagnostics / Bug Log</button>
     <span aria-hidden="true">·</span>
     <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
   </footer>
@@ -175,8 +171,9 @@
       <label class="global-control global-control--check"><input id="a11y-high-contrast" type="checkbox" /> Higher contrast</label>
       <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
     </div>
-    <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button class="btn-logout" type="button" data-open-diagnostics>Diagnostics / Bug Log</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
+    <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
     <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage. Historical Discovery, when enabled, sends only public Twitch channel names and category IDs for up to a limited set of strong candidates to TwitchTracker through NerdSync; public summaries are cached for six hours. Twitch OAuth is never forwarded.</p>
+    <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
   </section>
 
   <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
@@ -438,13 +435,11 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.17.3</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.17.2</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
         <span aria-hidden="true">·</span>
         <a href="guide.html">NerdSync Field Guide</a>
-        <span aria-hidden="true">·</span>
-        <button class="footer-text-button" type="button" data-open-diagnostics>Diagnostics / Bug Log</button>
         <span aria-hidden="true">·</span>
         <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
       </p>
@@ -453,27 +448,6 @@
   </footer>
 </div>
 </main>
-
-<dialog id="diagnostics-dialog" class="diagnostics-dialog" aria-labelledby="diagnostics-title" aria-describedby="diagnostics-description">
-  <div class="diagnostics-dialog-head">
-    <div>
-      <p class="footer-eyebrow">TROUBLESHOOTING</p>
-      <h2 id="diagnostics-title">Diagnostics / Bug Log</h2>
-    </div>
-    <button id="diagnostics-close" class="modal-close diagnostics-close" type="button" aria-label="Close diagnostics">&times;</button>
-  </div>
-  <p id="diagnostics-description" class="filter-hint diagnostics-description">NerdSync keeps a privacy-safe troubleshooting log for this browser session. It excludes Twitch OAuth tokens, URL values, chat content, and creator/channel identities.</p>
-  <div class="diagnostics-help">
-    <strong>Having a problem?</strong> Download the text log and post it in the <strong>#bug-reports</strong> channel in the Nerdspace Labs Discord with a short description of what you were doing when the issue happened.
-  </div>
-  <p id="diagnostics-storage-status" class="diagnostics-status" role="status" aria-live="polite"></p>
-  <pre id="diagnostics-preview" class="diagnostics-preview" tabindex="0" aria-label="Diagnostic bug log preview"></pre>
-  <div class="feature-actions diagnostics-actions">
-    <button id="diagnostics-download" class="btn-twitch btn-auto" type="button">Download TXT bug log</button>
-    <button id="diagnostics-copy" class="btn-logout" type="button">Copy log</button>
-    <button id="diagnostics-clear" class="btn-logout" type="button">Clear log</button>
-  </div>
-</dialog>
 
 <div id="stream-modal" class="modal-overlay hidden">
   <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-streamer" aria-describedby="modal-title-text" tabindex="-1">

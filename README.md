@@ -1,17 +1,6 @@
 # NerdSync
 
-Current release: **Alpha-0.17.3**
-
-## Alpha-0.17.3 Stability + Diagnostics
-
-- Fixes a startup-order bug where `filters.js` could call `debounce()` before the helper existed, leaving filter controls visible but unwired in affected loads.
-- Audits every quick-choice filter control and keeps the real filter state synchronized with its visible/`aria-pressed` state.
-- Adds a Wormhole-style **Diagnostics / Bug Log** tool available from login, Settings, and the app footer.
-- Records a capped, privacy-safe browser-session log of runtime errors plus sanitized Twitch/TwitchTracker request failures; diagnostics fall back to memory if session storage is unavailable.
-- Downloads a plain-text NerdSync bug log and tells users to post it in `#bug-reports` in the Nerdspace Labs Discord with a short description of what they clicked before the problem.
-- Excludes OAuth tokens, URL parameter values, chat content, raw user-agent strings, and creator/channel identities from the report.
-- Tightens narrow-screen card actions and diagnostics layout so controls do not overlap or clip at 320px-wide mobile layouts.
-- Browser layout/interaction audit passes at 1440, 1024, 768, 720, 430, 375, and 320 CSS pixels with no page-wide horizontal overflow.
+Current release: **Alpha-0.17.2**
 
 ## Alpha-0.17.2 Creator Match TwitchTracker link
 
@@ -115,7 +104,7 @@ Current release: **Alpha-0.17.3**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.3 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.2 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
 
 ## Build and deploy on Cloudflare
 
@@ -128,7 +117,7 @@ NerdSync is a personalized Twitch discovery app for finding relevant live creato
 
 For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
 
-For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.3 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.2 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
 
 For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` and `functions/api/twitchtracker-category-summary.js` files in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 

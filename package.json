@@ -1,6 +1,6 @@
 {
   "name": "nerdsync",
-  "version": "0.17.3",
+  "version": "0.17.2",
   "private": true,
   "type": "module",
   "engines": {

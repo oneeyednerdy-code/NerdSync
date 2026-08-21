@@ -1,12 +1,3 @@
-# Alpha-0.17.3 Stability and diagnostics integration
-
-- `debounce()` now lives in `app-foundation.js`, which loads before every filter/control module that uses it.
-- The Diagnostics / Bug Log module loads immediately after foundation so runtime and request failures can be captured before the rest of the app initializes.
-- Diagnostics use session storage when available, cap the log at 150 events, and fall back to in-memory storage if browser session storage is blocked.
-- Twitch and TwitchTracker failures are sanitized before logging. Channel/creator identities, OAuth values, URL parameter values, chat content, and raw user-agent strings are excluded.
-- Users can open Diagnostics from login, Settings, or the app footer, preview the report, copy it, clear it, or download a `.txt` file for `#bug-reports` in the Nerdspace Labs Discord.
-- The responsive audit verifies no page-wide horizontal overflow from 1440px through 320px; mobile card actions collapse to one column at the narrowest breakpoint.
-
 # Alpha-0.17.1 Historical Discovery integration
 
 - Discovery enrichment runs after Twitch candidate generation, broadcaster-type enrichment, and any required chat/activity detail checks.

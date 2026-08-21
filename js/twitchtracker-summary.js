@@ -105,21 +105,14 @@ async function getTwitchTrackerSummary(channel, { fetchImpl = fetch, signal, for
 
   const url = new URL(TWITCHTRACKER_SUMMARY_ENDPOINT, location.origin);
   url.searchParams.set('channel', normalized);
-  let response;
-  try {
-    response = await fetchImpl(url, {
-      headers: { Accept: 'application/json' },
-      cache: 'no-store',
-      signal,
-    });
-  } catch (error) {
-    if (error?.name !== 'AbortError') recordNerdSyncDiagnostic({ area:'twitchtracker', message:'TwitchTracker channel summary request failed', details:{ endpoint:'channel-summary', error } });
-    throw error;
-  }
+  const response = await fetchImpl(url, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+    signal,
+  });
   if (!response.ok) {
     twitchTrackerFailureCache.set(`channel:${normalized}`, Date.now());
     if (response.status === 404) return null;
-    recordNerdSyncDiagnostic({ level:'warning', area:'twitchtracker', message:'TwitchTracker channel summary returned a non-success status', details:{ endpoint:'channel-summary', status:response.status } });
     throw new Error(`TwitchTracker summary unavailable (${response.status}).`);
   }
   const payload = await response.json();
@@ -142,21 +135,14 @@ async function getTwitchTrackerCategorySummary(gameId, { fetchImpl = fetch, sign
 
   const url = new URL(TWITCHTRACKER_CATEGORY_ENDPOINT, location.origin);
   url.searchParams.set('game', normalized);
-  let response;
-  try {
-    response = await fetchImpl(url, {
-      headers: { Accept: 'application/json' },
-      cache: 'no-store',
-      signal,
-    });
-  } catch (error) {
-    if (error?.name !== 'AbortError') recordNerdSyncDiagnostic({ area:'twitchtracker', message:'TwitchTracker category summary request failed', details:{ endpoint:'category-summary', error } });
-    throw error;
-  }
+  const response = await fetchImpl(url, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+    signal,
+  });
   if (!response.ok) {
     twitchTrackerFailureCache.set(`category:${normalized}`, Date.now());
     if (response.status === 404) return null;
-    recordNerdSyncDiagnostic({ level:'warning', area:'twitchtracker', message:'TwitchTracker category summary returned a non-success status', details:{ endpoint:'category-summary', status:response.status } });
     throw new Error(`TwitchTracker category summary unavailable (${response.status}).`);
   }
   const payload = await response.json();

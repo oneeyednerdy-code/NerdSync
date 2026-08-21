@@ -1,5 +1,13 @@
 'use strict';
 
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
 // --- Login / logout ---
 function showPrivacyNotice() {
   loginView.classList.add('hidden');
@@ -282,56 +290,9 @@ historicalDiscoveryEl.addEventListener('change', () => {
   if (['discover','gems','rising','spotlight'].includes(activeTab)) loadStreams();
   else renderGrid();
 });
-nerdSyncDiagnosticsLog.setContextProvider(() => ({
-  activeSection:activeTab,
-  loggedIn:Boolean(currentToken),
-  currentPage,
-  discoveryFeed:discoverFeedMode?.value || null,
-  followingFeed:followingFeedMode?.value || null,
-  filterCount:typeof activeFilterCountValue === 'function' ? activeFilterCountValue() : undefined,
-}));
-
-const diagnosticsDialog = document.getElementById('diagnostics-dialog');
-const diagnosticsCloseBtn = document.getElementById('diagnostics-close');
-const diagnosticsDownloadBtn = document.getElementById('diagnostics-download');
-const diagnosticsCopyBtn = document.getElementById('diagnostics-copy');
-const diagnosticsClearBtn = document.getElementById('diagnostics-clear');
-
-function openDiagnosticsDialog() {
-  if (!diagnosticsDialog) return;
-  if (!diagnosticsDialog.open) diagnosticsDialog.showModal();
+document.getElementById('diagnostics-toggle').addEventListener('click', () => {
+  diagnosticsPanel.classList.toggle('hidden');
   renderDiagnostics();
-  diagnosticsCloseBtn?.focus();
-}
-
-document.querySelectorAll('[data-open-diagnostics]').forEach(button => button.addEventListener('click', openDiagnosticsDialog));
-diagnosticsCloseBtn?.addEventListener('click', () => diagnosticsDialog.close());
-diagnosticsDialog?.addEventListener('click', event => {
-  if (event.target !== diagnosticsDialog) return;
-  const rect = diagnosticsDialog.getBoundingClientRect();
-  const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
-  if (!inside) diagnosticsDialog.close();
-});
-diagnosticsDownloadBtn?.addEventListener('click', downloadDiagnostics);
-diagnosticsCopyBtn?.addEventListener('click', async () => {
-  const text = nerdSyncDiagnosticsLog.toText(diagnosticsReportExtras());
-  try {
-    await navigator.clipboard.writeText(text);
-    const status = document.getElementById('diagnostics-storage-status');
-    if (status) status.textContent = 'Bug log copied. Paste it in #bug-reports in the Nerdspace Labs Discord with a short description of the issue.';
-  } catch (error) {
-    recordNerdSyncDiagnostic({ area:'diagnostics', message:'Clipboard copy failed', details:{ error } });
-    const status = document.getElementById('diagnostics-storage-status');
-    if (status) status.textContent = 'Could not copy the log. Use Download TXT bug log instead.';
-    renderDiagnostics();
-  }
-});
-diagnosticsClearBtn?.addEventListener('click', () => {
-  nerdSyncDiagnosticsLog.clear();
-  diagnosticEvents = [];
-  renderDiagnostics();
-  const status = document.getElementById('diagnostics-storage-status');
-  if (status) status.textContent = 'Diagnostic events cleared for this browser session.';
 });
 
 function toggleSettingsPanel(trigger) {
