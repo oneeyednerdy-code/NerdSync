@@ -8,20 +8,31 @@ function getAccessTokenFromUrl() {
 
 async function validateToken(token) {
   if (!token || typeof token !== 'string') return null;
-  const res = await fetch('https://id.twitch.tv/oauth2/validate', {
-    headers: { Authorization: `OAuth ${token}` },
-    cache: 'no-store',
-    credentials: 'omit',
-    referrerPolicy: 'no-referrer'
-  });
-  if (!res.ok) return null;
+  let res;
+  try {
+    res = await fetch('https://id.twitch.tv/oauth2/validate', {
+      headers: { Authorization: `OAuth ${token}` },
+      cache: 'no-store',
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer'
+    });
+  } catch (error) {
+    recordNerdSyncDiagnostic({ area:'authentication', message:'Twitch token validation request failed', details:{ error } });
+    return null;
+  }
+  if (!res.ok) {
+    recordNerdSyncDiagnostic({ level:'warning', area:'authentication', message:'Twitch token validation was rejected', details:{ status:res.status } });
+    return null;
+  }
   const validation = await res.json();
   const scopes = Array.isArray(validation.scopes) ? validation.scopes : [];
   const validClient = validation.client_id === CLIENT_ID;
   const validIdentity = typeof validation.user_id === 'string' && validation.user_id.length > 0;
   const validExpiry = Number(validation.expires_in) > 0;
   const hasRequiredScopes = scopes.length === REQUIRED_SCOPES.length && REQUIRED_SCOPES.every(scope => scopes.includes(scope));
-  return validClient && validIdentity && validExpiry && hasRequiredScopes ? validation : null;
+  const valid = validClient && validIdentity && validExpiry && hasRequiredScopes;
+  if (!valid) recordNerdSyncDiagnostic({ level:'warning', area:'authentication', message:'Twitch session did not meet NerdSync validation requirements', details:{ validClient, validIdentity, validExpiry, hasRequiredScopes, scopeCount:scopes.length } });
+  return valid ? validation : null;
 }
 
 function authHeaders(token) {
@@ -56,15 +67,19 @@ async function apiFetch(url, options = {}, retry = true) {
     });
   } catch (error) {
     const status = error?.name === 'AbortError' ? (scanSignal?.aborted ? 'cancelled' : 'timeout') : 'network-error';
-    diagnosticEvents.push({ time:new Date().toISOString(), target:safeTarget, status, ms:Math.round(performance.now()-started) });
+    const requestEvent = { time:new Date().toISOString(), target:safeTarget, status, ms:Math.round(performance.now()-started) };
+    diagnosticEvents.push(requestEvent);
     diagnosticEvents = diagnosticEvents.slice(-100);
+    recordNerdSyncDiagnostic({ area:'twitch-api', message:`Twitch request ${status}`, details:{ target:safeTarget, status, ms:requestEvent.ms, error } });
     throw error;
   } finally {
     clearTimeout(timeoutId);
     scanSignal?.removeEventListener('abort', cancelForAbandonedScan);
   }
-  diagnosticEvents.push({ time:new Date().toISOString(), target:safeTarget, status:res.status, ms:Math.round(performance.now()-started) });
+  const requestEvent = { time:new Date().toISOString(), target:safeTarget, status:res.status, ms:Math.round(performance.now()-started) };
+  diagnosticEvents.push(requestEvent);
   diagnosticEvents = diagnosticEvents.slice(-100);
+  if (!res.ok) recordNerdSyncDiagnostic({ level:res.status >= 500 ? 'error' : 'warning', area:'twitch-api', message:'Twitch API returned a non-success status', details:{ target:safeTarget, status:res.status, ms:requestEvent.ms } });
   diagnostics.rateRemaining = res.headers.get('Ratelimit-Remaining') || diagnostics.rateRemaining;
   diagnostics.rateLimit = res.headers.get('Ratelimit-Limit') || diagnostics.rateLimit;
   if (res.status === 429 && retry) {
@@ -78,41 +93,63 @@ async function apiFetch(url, options = {}, retry = true) {
   return res;
 }
 
+function diagnosticsFilterSummary() {
+  return {
+    includedTagCount:filters.tags.length,
+    preferredTagCount:(filters.preferredTags || []).length,
+    excludedTagCount:filters.excludedTags.length,
+    contentLabelCount:filters.contentLabels.length,
+    genreCount:filters.genres.length,
+    includedCategoryCount:filters.categories.length,
+    excludedCategoryCount:filters.excludedCategories.length,
+    languageSelected:Boolean(filters.language),
+    audienceRange:[filters.minViewers, filters.maxViewers],
+    audienceBasis:filters.audienceBasis || 'live',
+    trackerActivityHours:filters.trackerActivityHours,
+    trackerGrowth:filters.trackerGrowth || null,
+    uptimeHours:filters.maxUptimeHours,
+    activityDays:filters.activityDays,
+    openChatOnly:filters.openChatOnly,
+  };
+}
+
+function diagnosticsReportExtras() {
+  return {
+    activeSection:activeTab,
+    filterSummary:diagnosticsFilterSummary(),
+    scanSummary:{ ...diagnostics },
+    creatorMatch:{ source:matchSource, audience:matchPeak, tolerance:matchTolerance, candidateAudienceBasis:matchAudienceBasis, shortlistCount:typeof localWorkflowData !== 'undefined' ? localWorkflowData.matchShortlist.length : 0, historyCount:typeof localWorkflowData !== 'undefined' ? localWorkflowData.matchHistory.length : 0 },
+    recentRequests:diagnosticEvents.slice(-100),
+  };
+}
+
 function renderDiagnostics() {
-  diagnosticsPanel.innerHTML = `<strong>Current scan</strong> · ${diagnostics.categories} categories · ${diagnostics.pages} directory pages · ${diagnostics.candidates} streams inspected · ${diagnostics.eligible} eligible · ${diagnostics.signalsChecked || 0} Twitch detail checks · ${diagnostics.trackerChecked || 0} historical creator checks · ${diagnostics.trackerCategories || 0} historical category checks · ${diagnostics.failures} partial failures · ${diagnostics.requests} Twitch API requests${diagnostics.rateRemaining != null ? ` · rate limit ${diagnostics.rateRemaining}/${diagnostics.rateLimit || '?'}` : ''}. <button id="download-diagnostics-btn" class="btn-logout diagnostics-download" type="button">Download error log</button>`;
-  document.getElementById('download-diagnostics-btn')?.addEventListener('click', downloadDiagnostics);
+  const dialog = document.getElementById('diagnostics-dialog');
+  if (!dialog?.open) return;
+  const status = document.getElementById('diagnostics-storage-status');
+  const preview = document.getElementById('diagnostics-preview');
+  const clear = document.getElementById('diagnostics-clear');
+  const copy = document.getElementById('diagnostics-copy');
+  const entries = nerdSyncDiagnosticsLog.entries();
+  const requestCount = diagnosticEvents.length;
+  if (status) status.textContent = `${entries.length} recorded error/event${entries.length === 1 ? '' : 's'} · ${requestCount} recent sanitized request${requestCount === 1 ? '' : 's'} · kept in this browser session only.`;
+  if (preview) preview.textContent = nerdSyncDiagnosticsLog.toText(diagnosticsReportExtras());
+  if (clear) clear.disabled = entries.length === 0 && requestCount === 0;
+  if (copy) copy.disabled = false;
 }
 
 function downloadDiagnostics() {
-  const safeFilters = {
-    includedTagCount:filters.tags.length,
-    excludedTagCount:filters.excludedTags.length,
-    contentLabelCount:filters.contentLabels.length,
-    includedCategoryCount:filters.categories.length,
-    excludedCategoryCount:filters.excludedCategories.length,
-    language:Boolean(filters.language),
-    audienceRange:[filters.minViewers, filters.maxViewers],
-    uptimeHours:filters.maxUptimeHours,
-    activityDays:filters.activityDays,
-    openChatOnly:filters.openChatOnly
-  };
-  const text = [
-    `NerdSync ${APP_VERSION} diagnostic report`,
-    `Generated: ${new Date().toISOString()}`,
-    `Active panel: ${activeTab}`,
-    'Browser details: omitted for privacy',
-    `Summary: ${JSON.stringify(diagnostics)}`,
-    `Filter summary: ${JSON.stringify(safeFilters)}`,
-    '',
-    'Recent requests (endpoint parameter names only; tokens and values omitted):',
-    ...diagnosticEvents.map(event => `${event.time} ${event.status} ${event.ms}ms ${event.target}`)
-  ].join('\n');
-  const url = URL.createObjectURL(new Blob([text], { type:'text/plain' }));
+  const text = nerdSyncDiagnosticsLog.toText(diagnosticsReportExtras());
+  const url = URL.createObjectURL(new Blob([text], { type:'text/plain;charset=utf-8' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = `nerdsync-${APP_VERSION.toLowerCase()}-diagnostics.txt`;
+  link.download = `nerdsync-${APP_VERSION.toLowerCase().replace(/[^a-z0-9.-]+/g, '-')}-bug-log-${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const status = document.getElementById('diagnostics-storage-status');
+  if (status) status.textContent = 'Bug log downloaded. Post the TXT file in #bug-reports in the Nerdspace Labs Discord with a short description of the issue.';
 }
 
 async function fetchTwitchUserData(token) {

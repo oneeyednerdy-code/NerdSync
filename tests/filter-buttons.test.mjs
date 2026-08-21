@@ -7,6 +7,7 @@ const foundation = await readFile(new URL('../js/app-foundation.js', import.meta
 const filters = await readFile(new URL('../js/filters.js', import.meta.url), 'utf8');
 const controls = await readFile(new URL('../js/app-controls.js', import.meta.url), 'utf8');
 const discovery = await readFile(new URL('../js/discovery.js', import.meta.url), 'utf8');
+const creatorMatch = await readFile(new URL('../js/creator-match.js', import.meta.url), 'utf8');
 const styles = await readFile(new URL('../css/styles.css', import.meta.url), 'utf8');
 
 test('quick-choice discovery controls use native buttons', () => {
@@ -35,14 +36,16 @@ test('restricted chat exclusion is enabled by default and resets to default-on',
 });
 
 test('Creator Match source and tolerance are button groups', () => {
-  assert.match(html, /id="match-source"[\s\S]*data-value="live"[\s\S]*data-value="manual"[\s\S]*data-value="vod"/);
+  assert.match(html, /id="match-source"[\s\S]*data-value="live"[\s\S]*data-value="typical"[\s\S]*data-value="last"[\s\S]*data-value="vod"[\s\S]*data-value="custom"/);
+  assert.match(html, /id="match-audience-basis"[\s\S]*data-value="live"[\s\S]*data-value="typical"/);
   assert.match(html, /id="match-tolerance"[\s\S]*data-value="50"[\s\S]*data-value="75"[\s\S]*data-value="100"/);
   assert.doesNotMatch(html, /<select id="match-source"/);
   assert.doesNotMatch(html, /<select id="match-tolerance"/);
   assert.match(controls, /matchSourceEl\.addEventListener\('click'/);
   assert.match(controls, /matchToleranceEl\.addEventListener\('click'/);
-  assert.match(discovery, /selectedChoiceValue\(matchSourceEl, 'live'\)/);
-  assert.match(discovery, /selectedChoiceValue\(matchToleranceEl, '50'\)/);
+  assert.match(creatorMatch, /selectedChoiceValue\(matchSourceEl, 'live'\)/);
+  assert.match(creatorMatch, /matchAudienceBasis/);
+  assert.match(creatorMatch, /selectedChoiceValue\(matchToleranceEl, '50'\)/);
 });
 
 test('button state helpers update classes and aria-pressed together', () => {
@@ -141,14 +144,14 @@ test('genre resolution turns a selected genre into Twitch category filters', asy
 
 test('common filtering honors tag, content label, category, and viewer choices', async () => {
   const vm = await import('node:vm');
-  const start = filters.indexOf('function passesCommonFilters(s)');
+  const start = filters.indexOf('function passesCommonFilters(s,');
   assert.ok(start >= 0);
   const source = filters.slice(start, filters.indexOf('// Keep every button', start));
   const context = {
     filters:{
       tags:['Cozy'], excludedTags:['DropsEnabled'], contentLabels:['MatureGame'], language:'en',
       genres:[], categories:[{ id:'game-1' }], excludedCategories:[], minViewers:10, maxViewers:100,
-      minFollowDays:null, maxUptimeHours:null, activityDays:null, openChatOnly:false,
+      audienceBasis:'live', minFollowDays:null, maxUptimeHours:null, activityDays:null, trackerActivityHours:null, trackerGrowth:'', openChatOnly:false,
     },
     activeTab:'discover',
     Date,

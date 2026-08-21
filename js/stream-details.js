@@ -1,6 +1,6 @@
 'use strict';
 
-streamGrid.addEventListener('click', e => {
+streamGrid.addEventListener('click', async e => {
   const card = e.target.closest('.stream-card');
   if (!card || card.dataset.kind !== 'stream') return;
   const externalCardLink = e.target.closest('a.card-action-link');
@@ -17,6 +17,22 @@ streamGrid.addEventListener('click', e => {
     if (action.dataset.action === 'less') recordCreatorFeedback(item, 'less');
     if (action.dataset.action === 'more') recordCreatorFeedback(item, 'more');
     if (action.dataset.action === 'follow-category') toggleFollowCategory(item);
+    if (action.dataset.action === 'shortlist') { toggleMatchShortlist(item); renderGrid(); return; }
+    if (action.dataset.action === 'bookmark') { cycleCreatorBookmark(item); renderGrid(); return; }
+    if (action.dataset.action === 'retry-tracker') {
+      action.disabled = true; action.textContent = 'Retrying…';
+      try {
+        const summary = await getTwitchTrackerSummary(item.user_login, { force:true });
+        if (summary) {
+          const updated = applyTwitchTrackerSummaryToStream(item, summary, activeTab);
+          const index = allStreams.findIndex(stream => stream.user_id === item.user_id);
+          if (index >= 0) allStreams[index] = updated;
+          cardDataById.set(item.user_id, updated);
+          setStatus('30-day context refreshed for this creator.');
+        } else setStatus('TwitchTracker has no public 30-day summary for this creator right now.', true);
+      } catch { setStatus('TwitchTracker is unavailable for this creator right now.', true); }
+      renderGrid(); return;
+    }
     if (action.dataset.action === 'compare') { addToComparison(item); return; }
     renderGrid();
     return;
@@ -25,6 +41,16 @@ streamGrid.addEventListener('click', e => {
   e.preventDefault();
   const item = cardDataById.get(card.dataset.userId);
   if (item) { recordCreatorFeedback(item, 'open'); openStreamModal(item); }
+});
+
+streamGrid.addEventListener('keydown', event => {
+  const card = event.target.closest?.('.stream-card[data-kind="stream"]');
+  if (!card || event.target.closest('button,a,input,select')) return;
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    const item = cardDataById.get(card.dataset.userId);
+    if (item) { recordCreatorFeedback(item, 'open'); openStreamModal(item); }
+  }
 });
 
 let modalCurrentStream = null;

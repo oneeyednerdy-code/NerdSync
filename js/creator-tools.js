@@ -56,7 +56,7 @@ channelSearchResults.addEventListener('click', event => {
 function addToComparison(creator) {
   rememberCreator(creator);
   const id = creator.user_id || creator.id;
-  if (!compareIds.includes(id)) compareIds = [...compareIds, id].slice(-2);
+  if (!compareIds.includes(id)) compareIds = [...compareIds, id].slice(-4);
   if (activeTab !== 'match') setActiveTab('match');
   renderComparison();
 }
@@ -66,9 +66,10 @@ async function fetchComparisonDetail(creator) {
   const cached = comparisonDetailCache[id];
   if (cached && Date.now() - cached.timestamp < SIGNAL_CACHE_TTL_MS) return cached.data;
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
-  const [userR, streamR, videosR, clipsR, chatR, channelR] = await Promise.allSettled([
+  const [userR, streamR, videosR, clipsR, chatR, channelR, trackerR] = await Promise.allSettled([
     fetchUsersByIds([id], currentToken), fetchStreamsByUserIds([id], currentToken), fetchVideosForBroadcaster(id, currentToken, 3),
-    fetchClipsForBroadcaster(id, currentToken, since, new Date().toISOString()), fetchChatSettings(id, currentToken), fetchChannelsByIds([id], currentToken)
+    fetchClipsForBroadcaster(id, currentToken, since, new Date().toISOString()), fetchChatSettings(id, currentToken), fetchChannelsByIds([id], currentToken),
+    getTwitchTrackerSummary(creator.user_login || creator.login || '')
   ]);
   const user = userR.status === 'fulfilled' ? userR.value[0] : null;
   const live = streamR.status === 'fulfilled' ? streamR.value[0] : null;
@@ -76,7 +77,8 @@ async function fetchComparisonDetail(creator) {
   const clips = clipsR.status === 'fulfilled' ? clipsR.value : [];
   const chat = chatR.status === 'fulfilled' ? chatR.value : null;
   const channel = channelR.status === 'fulfilled' ? channelR.value[0] : null;
-  const data = { ...creator, ...(live || {}), _profileImage:user?.profile_image_url || creator._profileImage, _broadcasterType:user?.broadcaster_type || creator._broadcasterType || 'none', _accountCreatedAt:user?.created_at || creator._accountCreatedAt, content_classification_labels:channel?.content_classification_labels || creator.content_classification_labels || [], _lastBroadcastAt:videos[0]?.created_at || null, _recentBroadcasts:videos.length, _recentClips:clips.length, _chatOpen:chat ? !chat.follower_mode && !chat.subscriber_mode && !chat.emote_mode : null };
+  const tracker = trackerR.status === 'fulfilled' ? trackerR.value : null;
+  const data = { ...creator, ...(live || {}), _profileImage:user?.profile_image_url || creator._profileImage, _broadcasterType:user?.broadcaster_type || creator._broadcasterType || 'none', _accountCreatedAt:user?.created_at || creator._accountCreatedAt, content_classification_labels:channel?.content_classification_labels || creator.content_classification_labels || [], _lastBroadcastAt:videos[0]?.created_at || null, _recentBroadcasts:videos.length, _recentClips:clips.length, _chatOpen:chat ? !chat.follower_mode && !chat.subscriber_mode && !chat.emote_mode : null, _trackerSummary:tracker || creator._trackerSummary || null, _trackerSignals:tracker ? deriveTwitchTrackerSignals(tracker, live?.viewer_count ?? creator.viewer_count) : creator._trackerSignals || null };
   comparisonDetailCache[id] = { timestamp:Date.now(), data };
   knownCreators.set(id, data);
   return data;
@@ -84,8 +86,8 @@ async function fetchComparisonDetail(creator) {
 
 async function renderComparison() {
   const generation = ++comparisonGeneration;
-  document.getElementById('compare-count').textContent = `${compareIds.length}/2`;
-  if (!compareIds.length) { comparisonGrid.innerHTML = '<p class="empty-compact">Choose up to two creators from search results, saved creators, or discovery cards.</p>'; return; }
+  document.getElementById('compare-count').textContent = `${compareIds.length}/4`;
+  if (!compareIds.length) { comparisonGrid.innerHTML = '<p class="empty-compact">Choose up to four creators from search results, saved creators, or discovery cards.</p>'; return; }
   comparisonGrid.innerHTML = '<p class="empty-compact">Loading comparison…</p>';
   const bases = compareIds.map(id => knownCreators.get(id) || (historyFor(id).snapshot ? streamFromSnapshot(historyFor(id).snapshot) : null)).filter(Boolean);
   const details = await Promise.all(bases.map(fetchComparisonDetail));
@@ -94,7 +96,9 @@ async function renderComparison() {
     const score = discoveryScore(creator);
     const status = creator.type === 'live' ? `${new Intl.NumberFormat().format(creator.viewer_count)} viewers` : 'Offline';
     const chat = creator._chatOpen == null ? 'Chat unknown' : creator._chatOpen ? 'Open chat' : 'Restricted chat';
-    return `<article class="compare-card"><h3>${escapeHtml(creator.user_name)}</h3><p>${escapeHtml(status)}<br>${escapeHtml(creator.game_name || 'No category')}<br>${escapeHtml(creator._broadcasterType === 'none' ? 'Not affiliated' : creator._broadcasterType)}<br>${escapeHtml(chat)}<br>Recent broadcasts checked: ${creator._recentBroadcasts || 0}<br>Recent clips checked: ${creator._recentClips || 0}<br>Latest broadcast: ${creator._lastBroadcastAt ? formatRelativeTime(creator._lastBroadcastAt) : 'Unavailable'}<br>Account created: ${creator._accountCreatedAt ? new Date(creator._accountCreatedAt).toLocaleDateString() : 'Unavailable'}</p>${contentLabelsHtml(creator)}<span class="score-badge">Discovery fit ${score.score}/100</span><div class="signal-row">${(creator.tags || []).slice(0,5).map(tag => `<span class="signal">${escapeHtml(tag)}</span>`).join('')}</div><a class="btn-twitch compare-watch-link" href="https://twitch.tv/${encodeURIComponent(creator.user_login)}" target="_blank" rel="noopener noreferrer">Watch on Twitch</a></article>`;
+    const tracker = creator._trackerSummary;
+    const trackerLine = tracker ? `<br>30D avg: ${Number.isFinite(tracker.averageViewers) ? new Intl.NumberFormat().format(Math.round(tracker.averageViewers)) : '—'} · peak: ${Number.isFinite(tracker.maxViewers) ? new Intl.NumberFormat().format(Math.round(tracker.maxViewers)) : '—'}<br>30D growth: ${Number.isFinite(tracker.followersGained) ? `${tracker.followersGained >= 0 ? '+' : ''}${tracker.followersGained}` : '—'} · active: ${Number.isFinite(tracker.minutesStreamed) ? `${Math.round(tracker.minutesStreamed / 6) / 10}h` : '—'}` : '<br>30D context unavailable';
+    return `<article class="compare-card"><h3>${escapeHtml(creator.user_name)}</h3><p>${escapeHtml(status)}<br>${escapeHtml(creator.game_name || 'No category')}<br>${escapeHtml(creator._broadcasterType === 'none' ? 'Not affiliated' : creator._broadcasterType)}<br>${escapeHtml(chat)}${trackerLine}<br>Recent broadcasts checked: ${creator._recentBroadcasts || 0}<br>Recent clips checked: ${creator._recentClips || 0}<br>Latest broadcast: ${creator._lastBroadcastAt ? formatRelativeTime(creator._lastBroadcastAt) : 'Unavailable'}<br>Account created: ${creator._accountCreatedAt ? new Date(creator._accountCreatedAt).toLocaleDateString() : 'Unavailable'}</p>${contentLabelsHtml(creator)}<span class="score-badge">Discovery fit ${score.score}/100</span><div class="signal-row">${(creator.tags || []).slice(0,5).map(tag => `<span class="signal">${escapeHtml(tag)}</span>`).join('')}</div><div class="feature-actions"><a class="btn-twitch compare-watch-link" href="https://twitch.tv/${encodeURIComponent(creator.user_login)}" target="_blank" rel="noopener noreferrer">Twitch</a><a class="btn-logout compare-watch-link" href="https://twitchtracker.com/${encodeURIComponent(creator.user_login)}" target="_blank" rel="noopener noreferrer">TwitchTracker</a></div></article>`;
   }).join('');
 }
 

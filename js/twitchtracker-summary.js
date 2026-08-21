@@ -105,14 +105,21 @@ async function getTwitchTrackerSummary(channel, { fetchImpl = fetch, signal, for
 
   const url = new URL(TWITCHTRACKER_SUMMARY_ENDPOINT, location.origin);
   url.searchParams.set('channel', normalized);
-  const response = await fetchImpl(url, {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
-    signal,
-  });
+  let response;
+  try {
+    response = await fetchImpl(url, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      signal,
+    });
+  } catch (error) {
+    if (error?.name !== 'AbortError') recordNerdSyncDiagnostic({ area:'twitchtracker', message:'TwitchTracker channel summary request failed', details:{ endpoint:'channel-summary', error } });
+    throw error;
+  }
   if (!response.ok) {
     twitchTrackerFailureCache.set(`channel:${normalized}`, Date.now());
     if (response.status === 404) return null;
+    recordNerdSyncDiagnostic({ level:'warning', area:'twitchtracker', message:'TwitchTracker channel summary returned a non-success status', details:{ endpoint:'channel-summary', status:response.status } });
     throw new Error(`TwitchTracker summary unavailable (${response.status}).`);
   }
   const payload = await response.json();
@@ -135,14 +142,21 @@ async function getTwitchTrackerCategorySummary(gameId, { fetchImpl = fetch, sign
 
   const url = new URL(TWITCHTRACKER_CATEGORY_ENDPOINT, location.origin);
   url.searchParams.set('game', normalized);
-  const response = await fetchImpl(url, {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
-    signal,
-  });
+  let response;
+  try {
+    response = await fetchImpl(url, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      signal,
+    });
+  } catch (error) {
+    if (error?.name !== 'AbortError') recordNerdSyncDiagnostic({ area:'twitchtracker', message:'TwitchTracker category summary request failed', details:{ endpoint:'category-summary', error } });
+    throw error;
+  }
   if (!response.ok) {
     twitchTrackerFailureCache.set(`category:${normalized}`, Date.now());
     if (response.status === 404) return null;
+    recordNerdSyncDiagnostic({ level:'warning', area:'twitchtracker', message:'TwitchTracker category summary returned a non-success status', details:{ endpoint:'category-summary', status:response.status } });
     throw new Error(`TwitchTracker category summary unavailable (${response.status}).`);
   }
   const payload = await response.json();
@@ -254,6 +268,11 @@ function twitchTrackerDiscoveryBonus(summary, currentViewers, mode = '') {
 }
 
 function trackerCandidatePriority(stream, tabId) {
+  if (tabId === 'match') {
+    const distance = Number.isFinite(matchPeak) ? Math.abs(stream.viewer_count - matchPeak) / Math.max(matchPeak, 1) : 1;
+    const preferred = typeof creatorMatchTagAssessment === 'function' ? creatorMatchTagAssessment(stream).preferredMatches.length : 0;
+    return Math.max(0, 100 - distance * 100) + preferred * 8;
+  }
   if (tabId === 'rising' && stream._emergingSection === 'newAffiliate') return Number(stream._newAffiliateScore || 0) + discoveryScore(stream).score + 20;
   if (tabId === 'rising') return Number(stream._risingScore || 0) + discoveryScore(stream).score;
   if (tabId === 'gems') {
@@ -269,7 +288,7 @@ function trackerEligibleCandidate(stream, tabId) {
   if (isDismissed(stream.user_id)) return false;
   if (hideSeen && wasSeenRecently(stream.user_id) && !historyFor(stream.user_id).saved) return false;
   if (creatorStage !== 'balanced' && creatorStage !== 'all' && !matchesCreatorStage(stream)) return false;
-  if (TABS[tabId]?.hasCommonFilters && !passesCommonFilters(stream)) return false;
+  if (TABS[tabId]?.hasCommonFilters && !passesCommonFilters(stream, { ignoreHistorical:true })) return false;
   return true;
 }
 
@@ -308,11 +327,15 @@ function applyTwitchTrackerSummaryToStream(stream, summary, tabId) {
 }
 
 async function enrichDiscoveryWithTwitchTracker(items, tabId, { signal } = {}) {
-  if (!historicalDiscoveryEnabled || !['discover', 'gems', 'rising', 'spotlight'].includes(tabId) || !items.length) return items;
+  const filterState = typeof filters !== 'undefined' && filters ? filters : {};
+  const currentMatchBasis = typeof matchAudienceBasis !== 'undefined' ? matchAudienceBasis : 'live';
+  const explicitHistoricalFilter = filterState.audienceBasis === 'typical' || filterState.trackerActivityHours != null || Boolean(filterState.trackerGrowth);
+  if ((!historicalDiscoveryEnabled && tabId !== 'match' && !explicitHistoricalFilter) || !['discover', 'gems', 'rising', 'spotlight', 'match'].includes(tabId) || !items.length) return items;
+  const requestedLimit = (filterState.audienceBasis === 'typical' || filterState.trackerActivityHours != null || filterState.trackerGrowth || (tabId === 'match' && currentMatchBasis === 'typical')) ? 40 : TWITCHTRACKER_DISCOVERY_LIMIT;
   const candidates = items
     .filter(stream => trackerEligibleCandidate(stream, tabId))
     .sort((a,b) => trackerCandidatePriority(b, tabId) - trackerCandidatePriority(a, tabId) || a.viewer_count - b.viewer_count)
-    .slice(0, TWITCHTRACKER_DISCOVERY_LIMIT);
+    .slice(0, requestedLimit);
   if (!candidates.length) return items;
 
   const categoryIds = [...new Set(candidates.map(stream => String(stream.game_id || '')).filter(id => /^\d+$/.test(id)))].slice(0, TWITCHTRACKER_CATEGORY_LIMIT);

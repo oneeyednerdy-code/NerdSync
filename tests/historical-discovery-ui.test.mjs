@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const feed = await readFile(new URL('../js/feed-rendering.js', import.meta.url), 'utf8');
+const discoveryContext = await readFile(new URL('../js/discovery-context.js', import.meta.url), 'utf8');
 const controls = await readFile(new URL('../js/app-controls.js', import.meta.url), 'utf8');
 const recommendations = await readFile(new URL('../js/recommendations.js', import.meta.url), 'utf8');
 const css = await readFile(new URL('../css/styles.css', import.meta.url), 'utf8');
@@ -15,12 +16,12 @@ test('Settings exposes Historical Discovery as an explicit default-on checkbox',
 });
 
 test('Discovery cards render a separate 30-day context panel', () => {
-  assert.match(feed, /function historicalDiscoveryContextHtml/);
-  assert.match(feed, /Live now/);
-  assert.match(feed, /30d avg/);
-  assert.match(feed, /30d growth/);
-  assert.match(feed, /30d active/);
-  assert.match(feed, /_trackerCategorySummary/);
+  assert.match(discoveryContext, /function historicalDiscoveryContextHtml/);
+  assert.match(discoveryContext, /Live now/);
+  assert.match(discoveryContext, /30d avg/);
+  assert.match(discoveryContext, /30d growth/);
+  assert.match(discoveryContext, /30d active/);
+  assert.match(discoveryContext, /_trackerCategorySummary/);
   assert.match(css, /\.historical-stat-grid/);
 });
 

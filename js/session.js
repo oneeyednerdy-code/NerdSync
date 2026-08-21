@@ -23,6 +23,8 @@ async function showDiscoveryView() {
     if (!['normal','large','xlarge'].includes(accessibilitySettings.textSize)) accessibilitySettings.textSize = 'normal';
   } catch (error) { accessibilitySettings = { theme:'system', textSize:'normal', largeCards:false, highContrast:false, reduceMotion:false }; }
   applyAccessibilitySettings();
+  loadLocalWorkflowData();
+  applySharedFiltersFromUrl();
   updateSavedCount();
   renderSavedList();
   renderRecommendationProfile();

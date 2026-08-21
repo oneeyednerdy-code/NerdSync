@@ -8,22 +8,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.17.2">
-<link rel="stylesheet" href="css/secret-game.css?v=0.17.2">
+<link rel="stylesheet" href="css/styles.css?v=0.18.0">
+<link rel="stylesheet" href="css/secret-game.css?v=0.18.0">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.17.2" defer></script>
-<script src="js/ui-state.js?v=0.17.2" defer></script>
-<script src="js/filters.js?v=0.17.2" defer></script>
-<script src="js/twitch-api.js?v=0.17.2" defer></script>
-<script src="js/discovery.js?v=0.17.2" defer></script>
-<script src="js/recommendations.js?v=0.17.2" defer></script>
-<script src="js/creator-tools.js?v=0.17.2" defer></script>
-<script src="js/feed-rendering.js?v=0.17.2" defer></script>
-<script src="js/twitchtracker-summary.js?v=0.17.2" defer></script>
-<script src="js/stream-details.js?v=0.17.2" defer></script>
-<script src="js/app-controls.js?v=0.17.2" defer></script>
-<script src="js/secret-game.js?v=0.17.2" defer></script>
-<script src="js/session.js?v=0.17.2" defer></script>
+<script src="js/app-foundation.js?v=0.18.0" defer></script>
+<script src="js/diagnostics.js?v=0.18.0" defer></script>
+<script src="js/ui-state.js?v=0.18.0" defer></script>
+<script src="js/filters.js?v=0.18.0" defer></script>
+<script src="js/twitch-api.js?v=0.18.0" defer></script>
+<script src="js/discovery.js?v=0.18.0" defer></script>
+<script src="js/creator-match.js?v=0.18.0" defer></script>
+<script src="js/recommendations.js?v=0.18.0" defer></script>
+<script src="js/creator-tools.js?v=0.18.0" defer></script>
+<script src="js/discovery-context.js?v=0.18.0" defer></script>
+<script src="js/feed-rendering.js?v=0.18.0" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.18.0" defer></script>
+<script src="js/local-workflows.js?v=0.18.0" defer></script>
+<script src="js/stream-details.js?v=0.18.0" defer></script>
+<script src="js/app-controls.js?v=0.18.0" defer></script>
+<script src="js/secret-game.js?v=0.18.0" defer></script>
+<script src="js/session.js?v=0.18.0" defer></script>
 </head>
 <body>
 
@@ -39,9 +43,10 @@
     <ul class="privacy-points">
       <li><strong>No selling.</strong> NerdSync will never sell your information or discovery activity.</li>
       <li><strong>No data brokering.</strong> NerdSync does not sell your Twitch data or send it to advertisers or data brokers. The only optional third-party lookup is the public channel-name request to TwitchTracker described below.</li>
-      <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, and recommendations on this device.</li>
+      <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, local presets, match history, shortlists, bookmarks, and recommendations on this device.</li>
       <li><strong>No hidden database.</strong> Your Twitch token stays in session storage and your preferences remain in your browser.</li>
-      <li><strong>Historical Discovery is optional.</strong> When enabled in Settings, NerdSync sends only the public channel names and Twitch category IDs for a limited set of strong Discovery candidates through its Cloudflare endpoint to request 30-day TwitchTracker summaries. Opening Creator Match details can also request that creator's public summary. Your Twitch token is never sent to TwitchTracker.</li>
+      <li><strong>Diagnostics stay local.</strong> NerdSync keeps a sanitized troubleshooting log only in this browser session so you can choose to download it as a text file. The log is never uploaded automatically.</li>
+      <li><strong>TwitchTracker context is limited and public.</strong> Historical Discovery can send only public channel names and Twitch category IDs for a limited set of strong Discovery candidates through NerdSync to request 30-day summaries. When you use Creator Match, NerdSync can also request your own public channel summary to suggest a 30-day typical audience, and Typical candidate mode can request a limited set of public candidate summaries. Your Twitch token is never sent to TwitchTracker.</li>
     </ul>
     <p class="privacy-note">Continuing allows this necessary browser storage. Clearing your browser's site data removes locally saved NerdSync information.</p>
     <button id="privacy-accept-btn" class="btn-twitch" type="button">I understand — continue to login</button>
@@ -54,9 +59,9 @@
       <img class="brand-brain brand-brain--hero" src="assets/nerdsync-brain-circuit.svg" alt="" />
       <h1><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.17.2</span>
+      <span class="release-version">Alpha-0.18.0</span>
     </div>
-    <button id="twitch-login-btn" class="btn-twitch">Log in with Twitch</button>
+    <button id="twitch-login-btn" class="btn-twitch" type="button">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
     <button id="privacy-review-btn" class="privacy-review-btn" type="button">Review the NerdSync data promise</button>
   </div>
@@ -64,6 +69,8 @@
     <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support this project on Ko-fi <span aria-hidden="true">↗</span></a>
     <span aria-hidden="true">·</span>
     <a href="guide.html">NerdSync Field Guide</a>
+    <span aria-hidden="true">·</span>
+    <button class="footer-text-button" type="button" data-open-diagnostics>Diagnostics / Bug Log</button>
     <span aria-hidden="true">·</span>
     <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
   </footer>
@@ -108,13 +115,16 @@
     <label class="global-control" for="view-count-sort">Sort
       <select id="view-count-sort"><option value="default">Recommended</option><option value="asc">Low to high</option><option value="desc">High to low</option></select>
     </label>
+    <span id="tracker-availability" class="tracker-availability" aria-live="polite">30D context ready</span>
     <div id="filter-toggle-row" class="filter-toggle-row">
       <button id="filters-toggle-btn" class="btn-logout" type="button" aria-controls="filter-panel" aria-expanded="false">Filters<span id="filters-badge" class="filters-badge hidden">0</span></button>
     </div>
   </div>
 
-  <div class="feature-actions" aria-label="Discovery tools">
+  <div class="feature-actions discovery-tool-actions" aria-label="Discovery tools">
     <button id="try-someone-btn" class="btn-twitch btn-auto" type="button">Try Someone New</button>
+    <details class="export-menu"><summary class="btn-logout">Export results</summary><div class="export-menu-popover"><button class="footer-text-button" type="button" data-export-current="txt">TXT</button><button class="footer-text-button" type="button" data-export-current="csv">CSV</button><button class="footer-text-button" type="button" data-export-current="json">JSON</button></div></details>
+    <button id="retry-historical-btn" class="btn-logout" type="button">Retry 30D context</button>
   </div>
 
   <section id="channel-tools-panel" class="feature-panel hidden" aria-labelledby="channel-tools-title">
@@ -124,7 +134,7 @@
       <button class="btn-logout" type="submit">Search Twitch</button>
     </form>
     <div id="channel-search-results" class="tool-results" aria-live="polite"></div>
-    <div class="feature-panel-head feature-panel-head--spaced"><h2>Comparison <span id="compare-count">0/2</span></h2><button id="clear-compare-btn" class="btn-logout" type="button">Clear</button></div>
+    <div class="feature-panel-head feature-panel-head--spaced"><h2>Comparison <span id="compare-count">0/4</span></h2><button id="clear-compare-btn" class="btn-logout" type="button">Clear</button></div>
     <div id="comparison-grid" class="compare-grid"></div>
   </section>
 
@@ -171,31 +181,36 @@
       <label class="global-control global-control--check"><input id="a11y-high-contrast" type="checkbox" /> Higher contrast</label>
       <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
     </div>
-    <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button id="diagnostics-toggle" class="btn-logout" type="button">Scan details</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
-    <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage. Historical Discovery, when enabled, sends only public Twitch channel names and category IDs for up to a limited set of strong candidates to TwitchTracker through NerdSync; public summaries are cached for six hours. Twitch OAuth is never forwarded.</p>
-    <div id="diagnostics-panel" class="diagnostics-panel hidden" aria-live="polite"></div>
+    <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button class="btn-logout" type="button" data-open-diagnostics>Diagnostics / Bug Log</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
+    <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage. Historical Discovery sends only public Twitch channel names and category IDs for a limited set of candidates when enabled. Creator Match can request your own public 30-day TwitchTracker summary for an editable audience suggestion and, only when Typical candidate mode is selected, a limited set of candidate summaries. Public summaries are cached for six hours. Twitch OAuth is never forwarded.</p>
   </section>
 
   <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
-    <div class="feature-panel-head"><div><h2 id="creator-match-title">Find networking matches</h2><p class="filter-hint">Match live creators to your current audience or a past peak. Existing NerdSync filters refine the results. Use TwitchTracker stats on a match card for the creator's full public TwitchTracker profile, or open Details for NerdSync's 30-day summary. Discovery feeds can also use 30-day context when Historical Discovery is enabled in Settings.</p></div></div>
+    <div class="feature-panel-head"><div><h2 id="creator-match-title">Creator Match 2.0</h2><p class="filter-hint">Use your live audience, TwitchTracker 30-day typical audience, your latest Twitch VOD, another past broadcast, or a custom number. Suggested audience values are always editable. Nothing here requires D1 or permanent server storage.</p></div></div>
     <aside id="secret-reward-profile" class="secret-reward-profile hidden" aria-labelledby="secret-reward-title">
       <img id="secret-reward-avatar" class="secret-reward-avatar" src="" alt="" />
-      <div class="secret-reward-copy">
-        <p class="secret-reward-kicker">GHOST SIGNAL // CLEARED</p>
-        <h3 id="secret-reward-title">Golden Match Signal</h3>
-        <p id="secret-reward-summary"></p>
-        <p class="secret-reward-note">This achievement and gold border are stored locally for your Twitch account on this device.</p>
-      </div>
+      <div class="secret-reward-copy"><p class="secret-reward-kicker">GHOST SIGNAL // CLEARED</p><h3 id="secret-reward-title">Golden Match Signal</h3><p id="secret-reward-summary"></p><p class="secret-reward-note">This achievement and gold border are stored locally for your Twitch account on this device.</p></div>
       <button id="secret-game-replay" class="btn-logout" type="button">Replay signal</button>
     </aside>
-    <div class="settings-grid">
-      <div class="filter-group">
+    <div class="match-source-summary" id="match-own-context" aria-live="polite"><span>Loading your audience context when Creator Match opens…</span></div>
+    <div class="settings-grid creator-match-grid">
+      <div class="filter-group creator-match-wide">
         <span class="filter-label">Audience source</span>
-        <div id="match-source" class="option-button-grid option-button-grid--three" role="group" aria-label="Audience source">
-          <button class="sort-btn option-button active" data-value="live" type="button" aria-pressed="true">My audience live now</button>
-          <button class="sort-btn option-button" data-value="manual" type="button" aria-pressed="false">Enter a past peak</button>
-          <button class="sort-btn option-button" data-value="vod" type="button" aria-pressed="false">Past VOD + entered peak</button>
+        <div id="match-source" class="option-button-grid option-button-grid--five" role="group" aria-label="Audience source">
+          <button class="sort-btn option-button active" data-value="live" type="button" aria-pressed="true">Live now</button>
+          <button class="sort-btn option-button" data-value="typical" type="button" aria-pressed="false">30D typical</button>
+          <button class="sort-btn option-button" data-value="last" type="button" aria-pressed="false">Last stream</button>
+          <button class="sort-btn option-button" data-value="vod" type="button" aria-pressed="false">Past broadcast</button>
+          <button class="sort-btn option-button" data-value="custom" type="button" aria-pressed="false">Custom</button>
         </div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Compare candidate audience using</span>
+        <div id="match-audience-basis" class="option-button-grid option-button-grid--two" role="group" aria-label="Creator Match candidate audience basis">
+          <button class="sort-btn option-button active" data-value="live" type="button" aria-pressed="true">Live viewers</button>
+          <button class="sort-btn option-button" data-value="typical" type="button" aria-pressed="false">30D typical</button>
+        </div>
+        <p class="filter-hint">Typical mode checks a limited set of strong candidates through TwitchTracker and falls back to live viewers when history is unavailable.</p>
       </div>
       <div class="filter-group">
         <span class="filter-label">Match range</span>
@@ -208,14 +223,27 @@
       <div id="match-vod-group" class="filter-group hidden">
         <label for="match-vod">Past broadcast</label>
         <select id="match-vod"><option value="">Load past broadcasts…</option></select>
-        <p class="filter-hint">Twitch reports total VOD plays, not peak live viewers. Select a VOD for context, then enter the peak you observed.</p>
+        <p class="filter-hint">Shows Twitch archive title, date, game when available, and duration. VOD play count is never treated as live audience.</p>
       </div>
-      <div id="match-peak-group" class="filter-group hidden">
-        <label for="match-peak">Past peak live viewers</label>
+      <div id="match-peak-group" class="filter-group">
+        <label for="match-peak">Audience used for matching</label>
         <input id="match-peak" type="number" min="1" inputmode="numeric" placeholder="e.g. 20" />
+        <p class="filter-hint">NerdSync fills this when possible. You can always adjust it before matching.</p>
+      </div>
+      <div class="filter-group creator-match-wide">
+        <span class="filter-label">Match tags</span>
+        <div class="match-tag-grid">
+          <label>Required <input id="match-required-tags" type="text" placeholder="e.g. LGBTQIAPlus, Cozy" /></label>
+          <label>Preferred <input id="match-preferred-tags" type="text" placeholder="e.g. PlayingWithViewers" /></label>
+          <label>Excluded <input id="match-excluded-tags" type="text" placeholder="e.g. DropsEnabled" /></label>
+        </div>
+        <p class="filter-hint">Required tags must all be present. Preferred tags improve the match explanation/order. Excluded tags remove a creator. These are separate from the main Discovery tag filters.</p>
       </div>
     </div>
-    <div class="feature-actions"><button id="run-creator-match" class="btn-twitch btn-auto" type="button">Find Creator Matches</button><span id="match-range-summary" class="empty-compact" aria-live="polite"></span></div>
+    <div class="feature-actions match-run-actions"><button id="run-creator-match" class="btn-twitch btn-auto" type="button">Find Creator Matches</button><button id="expand-creator-match" class="btn-logout hidden" type="button">Expand match range</button><span id="match-range-summary" class="empty-compact" aria-live="polite"></span></div>
+    <div id="match-exclusion-summary" class="match-exclusion-summary" aria-live="polite"></div>
+    <details class="saved-management"><summary>Local Match history</summary><div id="match-history-list" class="match-history-list"></div></details>
+    <details class="saved-management"><summary>Shortlist <span id="match-shortlist-count">0</span></summary><div id="match-shortlist-list" class="local-tool-list"></div><div class="feature-actions"><button class="btn-logout" type="button" data-export-shortlist="txt">Export TXT</button><button class="btn-logout" type="button" data-export-shortlist="csv">Export CSV</button><button class="btn-logout" type="button" data-export-shortlist="json">Export JSON</button></div></details>
   </section>
 
   <section id="filter-panel" class="filter-panel hidden" aria-labelledby="filter-panel-title">
@@ -255,6 +283,11 @@
         <p class="filter-hint">These are creator-entered discovery tags, not proof of age and not an age gate.</p>
       </div>
       <div class="filter-group">
+        <label for="preferred-tags">Preferred tags</label>
+        <input id="preferred-tags" type="text" placeholder="e.g. Cozy, LGBTQIAPlus" autocomplete="off" />
+        <p class="filter-hint">Optional scoring preference. These tags do not exclude creators; they strengthen Discovery Fit when present.</p>
+      </div>
+      <div class="filter-group">
         <label for="excluded-tags">Exclude tags</label>
         <input id="excluded-tags" type="text" placeholder="e.g. DropsEnabled, VTuber" autocomplete="off" />
         <p class="filter-hint">Comma-separated. Streams with any matching tag are removed.</p>
@@ -281,6 +314,32 @@
           <div><label for="filter-max-viewers">Maximum</label><input id="filter-max-viewers" type="number" min="0" placeholder="Any" /></div>
         </div>
         <div class="preset-row" aria-label="Audience presets"><button class="sort-btn audience-preset" data-min="0" data-max="20" type="button">0–20</button><button class="sort-btn audience-preset" data-min="21" data-max="100" type="button">21–100</button><button class="sort-btn audience-preset" data-min="101" data-max="500" type="button">101–500</button><button class="sort-btn audience-preset" data-min="501" data-max="5000" type="button">501–5K</button><button class="sort-btn audience-preset" data-min="5001" data-max="" type="button">5K+</button><button class="sort-btn audience-preset" data-min="" data-max="" type="button">Any</button></div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Audience filter basis</span>
+        <div id="audience-basis-filter" class="option-button-grid option-button-grid--two" role="group" aria-label="Audience filter basis">
+          <button class="sort-btn option-button active" data-value="live" type="button" aria-pressed="true">Live now</button>
+          <button class="sort-btn option-button" data-value="typical" type="button" aria-pressed="false">30D typical</button>
+        </div>
+        <p class="filter-hint">Typical mode uses TwitchTracker when available. Creators without historical data do not pass a typical-audience min/max filter.</p>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">30-day activity</span>
+        <div id="tracker-activity-filter" class="option-button-grid option-button-grid--compact" role="group" aria-label="TwitchTracker 30-day streamed hours">
+          <button class="sort-btn option-button active" data-value="" type="button" aria-pressed="true">Any</button>
+          <button class="sort-btn option-button" data-value="10" type="button" aria-pressed="false">10h+</button>
+          <button class="sort-btn option-button" data-value="25" type="button" aria-pressed="false">25h+</button>
+          <button class="sort-btn option-button" data-value="50" type="button" aria-pressed="false">50h+</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">30-day growth</span>
+        <div id="tracker-growth-filter" class="option-button-grid option-button-grid--three" role="group" aria-label="TwitchTracker follower growth">
+          <button class="sort-btn option-button active" data-value="" type="button" aria-pressed="true">Any</button>
+          <button class="sort-btn option-button" data-value="growing" type="button" aria-pressed="false">Growing</button>
+          <button class="sort-btn option-button" data-value="strong" type="button" aria-pressed="false">Strong growth</button>
+        </div>
+        <p class="filter-hint">Historical filters only use public 30-day TwitchTracker summaries and never make popularity a quality score.</p>
       </div>
       <div class="filter-group">
         <span class="filter-label">Maximum stream uptime</span>
@@ -358,6 +417,13 @@
       </div>
       </div>
     </details>
+    <details class="filter-section-disclosure local-tools-disclosure">
+      <summary>Local presets and sharing</summary>
+      <div class="filter-disclosure-body">
+        <div class="filter-group"><label for="filter-preset-name">Save this filter setup</label><div class="filter-row-inline"><input id="filter-preset-name" type="text" maxlength="60" placeholder="e.g. Small Horror Raids" /><button id="save-filter-preset" class="btn-logout" type="button">Save preset</button></div><div id="filter-preset-list" class="local-tool-list"></div></div>
+        <div class="filter-group"><span class="filter-label">Share this filter setup</span><button id="copy-filter-link" class="btn-logout" type="button">Copy shareable filter link</button><p class="filter-hint">The URL contains only filter choices. No Twitch token, identity, saved creators, or local history is included.</p></div>
+      </div>
+    </details>
     <div class="active-filter-summary">
       <div class="active-filter-heading"><span id="active-filter-count">0 active filters</span><button id="clear-filters-btn" class="btn-logout" type="button">Clear all</button></div>
       <div id="active-filter-chips" class="active-filter-chips" aria-live="polite"></div>
@@ -392,6 +458,7 @@
 
   <p id="tab-explainer" class="tab-explainer hidden"></p>
   <div id="status-area" role="status" aria-live="polite" aria-atomic="true"></div>
+  <p id="filter-exclusion-summary" class="filter-exclusion-summary" aria-live="polite"></p>
   <div id="scan-deeper-row" class="scan-deeper-row hidden">
     <button id="scan-deeper-btn" class="btn-logout" type="button">Scan deeper in these categories</button>
     <p id="scan-depth-status">Quick scan checks the first two directory pages.</p>
@@ -435,11 +502,13 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.17.2</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.18.0</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
         <span aria-hidden="true">·</span>
         <a href="guide.html">NerdSync Field Guide</a>
+        <span aria-hidden="true">·</span>
+        <button class="footer-text-button" type="button" data-open-diagnostics>Diagnostics / Bug Log</button>
         <span aria-hidden="true">·</span>
         <span>Project by <a href="https://www.beacons.ai/oneeyednerdy" target="_blank" rel="noopener noreferrer">OneEyedNerdy</a></span>
       </p>
@@ -448,6 +517,27 @@
   </footer>
 </div>
 </main>
+
+<dialog id="diagnostics-dialog" class="diagnostics-dialog" aria-labelledby="diagnostics-title" aria-describedby="diagnostics-description">
+  <div class="diagnostics-dialog-head">
+    <div>
+      <p class="footer-eyebrow">TROUBLESHOOTING</p>
+      <h2 id="diagnostics-title">Diagnostics / Bug Log</h2>
+    </div>
+    <button id="diagnostics-close" class="modal-close diagnostics-close" type="button" aria-label="Close diagnostics">&times;</button>
+  </div>
+  <p id="diagnostics-description" class="filter-hint diagnostics-description">NerdSync keeps a privacy-safe troubleshooting log for this browser session. It excludes Twitch OAuth tokens, URL values, chat content, and creator/channel identities.</p>
+  <div class="diagnostics-help">
+    <strong>Having a problem?</strong> Download the text log and post it in the <strong>#bug-reports</strong> channel in the Nerdspace Labs Discord with a short description of what you were doing when the issue happened.
+  </div>
+  <p id="diagnostics-storage-status" class="diagnostics-status" role="status" aria-live="polite"></p>
+  <pre id="diagnostics-preview" class="diagnostics-preview" tabindex="0" aria-label="Diagnostic bug log preview"></pre>
+  <div class="feature-actions diagnostics-actions">
+    <button id="diagnostics-download" class="btn-twitch btn-auto" type="button">Download TXT bug log</button>
+    <button id="diagnostics-copy" class="btn-logout" type="button">Copy log</button>
+    <button id="diagnostics-clear" class="btn-logout" type="button">Clear log</button>
+  </div>
+</dialog>
 
 <div id="stream-modal" class="modal-overlay hidden">
   <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-streamer" aria-describedby="modal-title-text" tabindex="-1">
@@ -472,7 +562,7 @@
     <div id="modal-tracker-section" class="modal-section hidden">
       <h3>30-Day Channel Stats</h3>
       <div id="modal-tracker" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading TwitchTracker…</p></div>
-      <p class="modal-source-note">Public 30-day channel and category context from TwitchTracker. Discovery can preload a limited set of strong candidates when Historical Discovery is enabled; Creator Match still loads on demand. Your Twitch login token is never sent.</p>
+      <p class="modal-source-note">Public 30-day channel and category context from TwitchTracker. Discovery can preload a limited set of strong candidates when Historical Discovery is enabled. Creator Match can request your own public summary for an editable 30-day audience suggestion and can request limited candidate summaries when Typical mode is selected. Your Twitch login token is never sent.</p>
     </div>
     <div class="modal-section">
       <h3>Recent Broadcasts</h3>

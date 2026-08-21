@@ -6,18 +6,22 @@ import path from 'node:path';
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 const outAssets = path.join(dist, 'assets');
-const version = '0.17.2';
+const version = '0.18.0';
 
 const jsSources = [
   'js/app-foundation.js',
+  'js/diagnostics.js',
   'js/ui-state.js',
   'js/filters.js',
   'js/twitch-api.js',
   'js/discovery.js',
+  'js/creator-match.js',
   'js/recommendations.js',
   'js/creator-tools.js',
+  'js/discovery-context.js',
   'js/feed-rendering.js',
   'js/twitchtracker-summary.js',
+  'js/local-workflows.js',
   'js/stream-details.js',
   'js/app-controls.js',
   'js/secret-game.js',
@@ -80,7 +84,7 @@ html = html
   .replace(/href="css\/styles\.css\?v=[^"]+"/, `href="/assets/${cssFiles.styles}"`)
   .replace(/href="css\/secret-game\.css\?v=[^"]+"/, `href="/assets/${cssFiles['secret-game']}"`)
   .replace(/<script src="js\/app-foundation\.js\?v=[^"]+" defer><\/script>/, `<script src="/assets/${jsFile}" defer></script>`)
-  .replace(/\s*<script src="js\/(?:ui-state|filters|twitch-api|discovery|recommendations|creator-tools|feed-rendering|twitchtracker-summary|stream-details|app-controls|secret-game|session)\.js\?v=[^"]+" defer><\/script>/g, '');
+  .replace(/\s*<script src="js\/(?:diagnostics|ui-state|filters|twitch-api|discovery|creator-match|recommendations|creator-tools|discovery-context|feed-rendering|twitchtracker-summary|local-workflows|stream-details|app-controls|secret-game|session)\.js\?v=[^"]+" defer><\/script>/g, '');
 await writeFile(path.join(dist, 'index.html'), html);
 
 let guideHtml = await readFile(path.join(root, 'guide.html'), 'utf8');

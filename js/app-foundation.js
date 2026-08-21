@@ -1,8 +1,18 @@
 'use strict';
 
+// Shared utility used by filters and other controls.
+// This must live in the foundation script because filters.js loads before app-controls.js.
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.17.2';
+const APP_VERSION = 'Alpha-0.18.0';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -13,7 +23,7 @@ const TOKEN_VALIDATION_INTERVAL_MS = 60 * 60 * 1000;
 const HISTORY_KEY = 'nerdsync_discovery_history_v1';
 const PREFERENCES_KEY = 'nerdsync_preferences_v2';
 const ACCESSIBILITY_KEY = 'nerdsync_accessibility_v1';
-const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v2';
+const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v3';
 
 // Tuning knobs — kept small to stay well under Twitch's Helix rate limits.
 const MAX_FOLLOW_PAGES = 10;
@@ -115,7 +125,6 @@ const followingTeamsFirstEl = document.getElementById('following-teams-first');
 const contextToolbar = document.getElementById('context-toolbar');
 const resultsArea = document.getElementById('results-area');
 const featureActions = document.querySelector('.discovery-container > .feature-actions');
-const diagnosticsPanel = document.getElementById('diagnostics-panel');
 const channelToolsPanel = document.getElementById('channel-tools-panel');
 const channelSearchInput = document.getElementById('channel-search-input');
 const channelSearchResults = document.getElementById('channel-search-results');
@@ -194,8 +203,8 @@ function buildTabs() {
   },
   match: {
     label: 'Creator Match',
-    explainer: 'Find live networking peers near your current audience or an audience peak you enter. The match range is based on current live viewers; use tags, categories, language, chat openness, and other filters to find compatible creators.',
-    empty: 'Set an audience source and choose Find Creator Matches. If you entered a peak, try a wider percentage or more categories.',
+    explainer: 'Creator Match 2.0 can start from your live viewers, TwitchTracker 30-day typical audience, latest VOD context, another VOD, or a custom editable audience. Match candidates can be compared by live or typical audience, with separate required/preferred/excluded match tags and local shortlist/history tools.',
+    empty: 'Set an audience source and choose Find Creator Matches. If the result is small, use Expand match range to widen the percentage and then broaden category discovery.',
     load: loadCreatorMatches,
     hasCommonFilters: true,
     isMatch: true,
@@ -256,6 +265,11 @@ let creatorStage = 'balanced';
 let matchSource = 'live';
 let matchTolerance = 50;
 let matchPeak = null;
+let matchAudienceBasis = 'live';
+let matchOwnTrackerSummary = null;
+let matchVods = [];
+let matchFallbackExpanded = false;
+let recordNextCreatorMatch = false;
 let matchSourceStream = null;
 let matchVodsLoaded = false;
 let excludePartners = false;
@@ -264,7 +278,7 @@ let personalizationEnabled = true;
 let historicalDiscoveryEnabled = true;
 let followedInterestProfile = { categories:new Map(), tags:new Map() };
 let hideSeen = false;
-let filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:true };
+let filters = { tags: [], preferredTags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, audienceBasis:'live', minFollowDays: null, maxUptimeHours:null, activityDays:null, trackerActivityHours:null, trackerGrowth:'', openChatOnly:true };
 let diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
 let discoveryHistory = {};
 let preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true, historicalDiscoveryEnabled:true };

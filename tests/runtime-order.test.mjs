@@ -21,6 +21,10 @@ test('every authored button declares an explicit type', () => {
   for (const button of buttons) assert.match(button, /\btype="(?:button|submit|reset)"/);
 });
 
+test('closed details disclosures hide authored grid and flex children', () => {
+  assert.match(styles, /details:not\(\[open\]\) > :not\(summary\) \{ display:none !important; \}/);
+});
+
 test('narrow layouts collapse dense card and diagnostic actions safely', () => {
   assert.match(styles, /@media \(max-width:380px\)[\s\S]*?\.card-actions \{ grid-template-columns:1fr; \}/);
   assert.match(styles, /\.diagnostics-dialog \{[\s\S]*?width:min\(760px,calc\(100vw - 2rem\)\)/);

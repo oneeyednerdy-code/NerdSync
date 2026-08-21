@@ -15,6 +15,8 @@ function discoveryScore(stream) {
   const streamTags = (stream.tags || []).map(tag => tag.toLowerCase());
   const explicitMatches = filters.tags.filter(tag => streamTags.includes(tag.toLowerCase())).length;
   if (explicitMatches) { score += Math.min(24, 12 + explicitMatches * 4); reasons.push(`${explicitMatches} selected tag${explicitMatches === 1 ? '' : 's'}`); }
+  const preferredMatches = (filters.preferredTags || []).filter(tag => streamTags.includes(tag.toLowerCase())).length;
+  if (preferredMatches) { score += Math.min(12, preferredMatches * 4); reasons.push(`${preferredMatches} preferred tag${preferredMatches === 1 ? '' : 's'}`); }
   const learnedTagScore = personalizationEnabled ? streamTags.reduce((sum, tag) => sum + (preferences.tags[tag] || 0), 0) : 0;
   if (learnedTagScore > 0) { score += Math.min(12, learnedTagScore); reasons.push('tags you engage with'); }
   if (learnedTagScore < 0) score += Math.max(-12, learnedTagScore);
@@ -192,7 +194,7 @@ function streamFromSnapshot(snapshot) {
     game_id:snapshot.gameId || '', game_name:snapshot.gameName || '', thumbnail_url:snapshot.thumbnail || '',
     tags:snapshot.tags || [], language:snapshot.language || '', viewer_count:snapshot.viewerCount,
     content_classification_labels:snapshot.contentLabels || [],
-    _profileImage:snapshot.profileImage || '', _broadcasterType:snapshot.broadcasterType || 'unknown', type:'offline', title:''
+    _profileImage:snapshot.profileImage || '', _broadcasterType:snapshot.broadcasterType || 'unknown', _trackerSummary:snapshot.trackerSummary || null, _trackerSignals:snapshot.trackerSignals || null, _why:snapshot.why || '', type:'offline', title:''
   };
 }
 

@@ -1,13 +1,5 @@
 'use strict';
 
-function debounce(fn, delay) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
-
 // --- Login / logout ---
 function showPrivacyNotice() {
   loginView.classList.add('hidden');
@@ -290,9 +282,56 @@ historicalDiscoveryEl.addEventListener('change', () => {
   if (['discover','gems','rising','spotlight'].includes(activeTab)) loadStreams();
   else renderGrid();
 });
-document.getElementById('diagnostics-toggle').addEventListener('click', () => {
-  diagnosticsPanel.classList.toggle('hidden');
+nerdSyncDiagnosticsLog.setContextProvider(() => ({
+  activeSection:activeTab,
+  loggedIn:Boolean(currentToken),
+  currentPage,
+  discoveryFeed:discoverFeedMode?.value || null,
+  followingFeed:followingFeedMode?.value || null,
+  filterCount:typeof activeFilterCountValue === 'function' ? activeFilterCountValue() : undefined,
+}));
+
+const diagnosticsDialog = document.getElementById('diagnostics-dialog');
+const diagnosticsCloseBtn = document.getElementById('diagnostics-close');
+const diagnosticsDownloadBtn = document.getElementById('diagnostics-download');
+const diagnosticsCopyBtn = document.getElementById('diagnostics-copy');
+const diagnosticsClearBtn = document.getElementById('diagnostics-clear');
+
+function openDiagnosticsDialog() {
+  if (!diagnosticsDialog) return;
+  if (!diagnosticsDialog.open) diagnosticsDialog.showModal();
   renderDiagnostics();
+  diagnosticsCloseBtn?.focus();
+}
+
+document.querySelectorAll('[data-open-diagnostics]').forEach(button => button.addEventListener('click', openDiagnosticsDialog));
+diagnosticsCloseBtn?.addEventListener('click', () => diagnosticsDialog.close());
+diagnosticsDialog?.addEventListener('click', event => {
+  if (event.target !== diagnosticsDialog) return;
+  const rect = diagnosticsDialog.getBoundingClientRect();
+  const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+  if (!inside) diagnosticsDialog.close();
+});
+diagnosticsDownloadBtn?.addEventListener('click', downloadDiagnostics);
+diagnosticsCopyBtn?.addEventListener('click', async () => {
+  const text = nerdSyncDiagnosticsLog.toText(diagnosticsReportExtras());
+  try {
+    await navigator.clipboard.writeText(text);
+    const status = document.getElementById('diagnostics-storage-status');
+    if (status) status.textContent = 'Bug log copied. Paste it in #bug-reports in the Nerdspace Labs Discord with a short description of the issue.';
+  } catch (error) {
+    recordNerdSyncDiagnostic({ area:'diagnostics', message:'Clipboard copy failed', details:{ error } });
+    const status = document.getElementById('diagnostics-storage-status');
+    if (status) status.textContent = 'Could not copy the log. Use Download TXT bug log instead.';
+    renderDiagnostics();
+  }
+});
+diagnosticsClearBtn?.addEventListener('click', () => {
+  nerdSyncDiagnosticsLog.clear();
+  diagnosticEvents = [];
+  renderDiagnostics();
+  const status = document.getElementById('diagnostics-storage-status');
+  if (status) status.textContent = 'Diagnostic events cleared for this browser session.';
 });
 
 function toggleSettingsPanel(trigger) {
@@ -317,10 +356,14 @@ document.querySelectorAll('[data-close-panel]').forEach(button => button.addEven
   if (panelReturnFocus?.isConnected) panelReturnFocus.focus();
 }));
 document.getElementById('try-someone-btn').addEventListener('click', () => trySomeoneNew());
+document.getElementById('retry-historical-btn')?.addEventListener('click', () => { twitchTrackerFailureCache.clear(); delete tabCache[activeTab]; setStatus('Retrying 30-day historical context…'); loadStreams(); });
 document.getElementById('run-creator-match').addEventListener('click', () => {
   matchPeak = numOrNull(matchPeakEl.value);
   matchTolerance = Number(selectedChoiceValue(matchToleranceEl, '50'));
   matchSource = selectedChoiceValue(matchSourceEl, 'live');
+  matchAudienceBasis = selectedChoiceValue(document.getElementById('match-audience-basis'), 'live');
+  matchFallbackExpanded = false;
+  recordNextCreatorMatch = true;
   delete tabCache.match;
   loadStreams();
 });
@@ -336,13 +379,29 @@ matchSourceEl.addEventListener('click', async event => {
   const button = event.target.closest('button[data-value]');
   if (!button || !matchSourceEl.contains(button)) return;
   setSingleChoice(matchSourceEl, button.dataset.value);
-  matchSource = button.dataset.value;
-  matchVodGroup.classList.toggle('hidden', matchSource !== 'vod');
-  matchPeakGroup.classList.toggle('hidden', matchSource === 'live');
-  if (matchSource === 'vod' && !matchVodsLoaded) await loadMatchVods();
+  await applyCreatorMatchSource(button.dataset.value);
+});
+document.getElementById('match-audience-basis')?.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button) return;
+  setSingleChoice(document.getElementById('match-audience-basis'), button.dataset.value);
+  matchAudienceBasis = button.dataset.value;
   updateMatchRangeSummary();
 });
-matchVodEl.addEventListener('change', () => updateMatchRangeSummary());
+matchVodEl.addEventListener('change', () => {
+  if (matchVodEl.value && Number.isFinite(matchOwnTrackerSummary?.averageViewers) && !numOrNull(matchPeakEl.value)) matchPeakEl.value = String(Math.round(matchOwnTrackerSummary.averageViewers));
+  updateMatchRangeSummary();
+});
+document.getElementById('expand-creator-match')?.addEventListener('click', () => {
+  const next = matchTolerance < 75 ? 75 : matchTolerance < 100 ? 100 : 100;
+  if (next > matchTolerance) {
+    matchTolerance = next;
+    setSingleChoice(matchToleranceEl, String(next));
+  } else matchFallbackExpanded = true;
+  delete tabCache.match;
+  updateMatchRangeSummary();
+  loadStreams();
+});
 document.getElementById('channel-search-form').addEventListener('submit', event => { event.preventDefault(); runChannelSearch(); });
 document.getElementById('clear-compare-btn').addEventListener('click', () => { compareIds = []; renderComparison(); });
 document.getElementById('clear-seen-btn').addEventListener('click', () => {

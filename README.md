@@ -1,6 +1,33 @@
 # NerdSync
 
-Current release: **Alpha-0.17.2**
+Current release: **Alpha-0.18.0**
+
+
+## Alpha-0.18.0 Creator Match 2.0 + No-D1 Discovery Toolkit
+
+- Rebuilds Creator Match around five editable audience sources: **Live now**, **30D typical**, **Last stream**, **Past broadcast**, and **Custom**.
+- Loads recent Twitch archived VOD metadata for context, but never treats VOD `view_count` as concurrent live audience. Last/Past Broadcast use the TwitchTracker 30-day typical audience only as an editable suggestion until NerdSync 3.0 can support opt-in persisted stream history.
+- Adds candidate audience comparison by **Live** or **30D typical**, with bounded TwitchTracker lookups only when Typical mode is requested.
+- Adds separate **Required**, **Preferred**, and **Excluded** Creator Match tags plus plain-language match reasons and exclusion counts.
+- Adds progressive match expansion from ±50% to ±75% to ±100%, followed by a broader category search when the initial pool is thin.
+- Adds local Creator Match history, local shortlist, up-to-four creator comparison, Maybe/Watch later/Possible raid marks, and TXT/CSV/JSON exports.
+- Adds local named Discovery filter presets and shareable filter URLs containing filter choices only—never the Twitch token or Twitch identity.
+- Adds Discovery preferred tags, selectable **Live vs 30D typical** audience filtering, 30-day streamed-hour filters, and recent-growth filters.
+- Adds category opportunity/stability context, filter-exclusion explanations, staged loading, partial Twitch results before historical enrichment when safe, per-card/global 30-day retries, and a visible TwitchTracker availability indicator.
+- Adds keyboard shortcuts: `/` focuses search, `F` opens filters, `S` saves the focused creator card, and `B` cycles local bookmark labels.
+- Keeps Alpha-0.18.0 deliberately **database-free**. No D1 binding, persistent cloud profile, cross-device sync, or background stream tracking is introduced. Those capabilities are reserved for the 3.0 architecture.
+- Re-prompts the one-time privacy acknowledgement for this release because Creator Match 2.0 can request the signed-in channel's public 30-day TwitchTracker summary and Typical candidate mode can request limited candidate summaries.
+
+## Alpha-0.17.3 Stability + Diagnostics
+
+- Fixes a startup-order bug where `filters.js` could call `debounce()` before the helper existed, leaving filter controls visible but unwired in affected loads.
+- Audits every quick-choice filter control and keeps the real filter state synchronized with its visible/`aria-pressed` state.
+- Adds a Wormhole-style **Diagnostics / Bug Log** tool available from login, Settings, and the app footer.
+- Records a capped, privacy-safe browser-session log of runtime errors plus sanitized Twitch/TwitchTracker request failures; diagnostics fall back to memory if session storage is unavailable.
+- Downloads a plain-text NerdSync bug log and tells users to post it in `#bug-reports` in the Nerdspace Labs Discord with a short description of what they clicked before the problem.
+- Excludes OAuth tokens, URL parameter values, chat content, raw user-agent strings, and creator/channel identities from the report.
+- Tightens narrow-screen card actions and diagnostics layout so controls do not overlap or clip at 320px-wide mobile layouts.
+- Browser layout/interaction audit passes at 1440, 1024, 768, 720, 430, 375, and 320 CSS pixels with no page-wide horizontal overflow.
 
 ## Alpha-0.17.2 Creator Match TwitchTracker link
 
@@ -104,7 +131,7 @@ Current release: **Alpha-0.17.2**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no database or Twitch client secret. Alpha-0.17.2 uses small stateless Cloudflare endpoints to proxy optional TwitchTracker 30-day channel and category summaries; Twitch OAuth is never forwarded.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no user database or Twitch client secret. Alpha-0.18.0 uses small stateless Cloudflare endpoints to proxy public TwitchTracker 30-day channel/category summaries when requested by Historical Discovery or Creator Match; Twitch OAuth is never forwarded.
 
 ## Build and deploy on Cloudflare
 
@@ -117,7 +144,7 @@ NerdSync is a personalized Twitch discovery app for finding relevant live creato
 
 For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
 
-For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.17.2 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding.
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.18.0 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding. There is intentionally no D1 binding in this release.
 
 For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` and `functions/api/twitchtracker-category-summary.js` files in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 
@@ -355,3 +382,7 @@ Quick-choice discovery controls now use native buttons instead of checkbox-label
 ## Alpha-0.16.6 additions
 
 Following Live includes an optional **Twitch teams first** control that checks Twitch team memberships for live followed creators, labels their teams, and prioritizes team-affiliated channels. The footer also links to the **NerdSync Field Guide**, a plain-language guide to the main sections and filters.
+
+### Alpha-0.18.0 module layout
+
+Creator Match 2.0 lives in `js/creator-match.js`, while 30-day Discovery context and filter explanation/status helpers live in `js/discovery-context.js`. This keeps the main Discovery and feed-rendering modules below the project's 25 KB source-module target.

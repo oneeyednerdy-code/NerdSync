@@ -1,3 +1,23 @@
+# Alpha-0.18.0 Creator Match 2.0 + no-D1 toolkit integration
+
+- Adds `js/local-workflows.js` after TwitchTracker helpers and before details/controls. It stores named filter presets, Creator Match history/shortlists, and export/bookmark workflow state only in browser `localStorage` partitioned by Twitch user ID.
+- Creator Match 2.0 adds Live, 30D Typical, Last Stream, Past Broadcast, and Custom audience sources. The number used for matching remains editable.
+- Twitch archived-video metadata comes from `GET /helix/videos?type=archive`; video play counts are not used as live audience values.
+- Candidate matching can use live audience or a bounded set of TwitchTracker 30-day averages, with separate Required/Preferred/Excluded match tags and explicit fallback expansion.
+- Discovery adds preferred tags, live/typical audience basis, 30-day activity and growth controls, category opportunity/stability context, exclusion summaries, staged/partial rendering, retry controls, and TwitchTracker availability status.
+- Comparison expands from two to four creators and can include 30-day TwitchTracker context. Current views and Creator Match shortlists export locally to TXT, CSV, or JSON.
+- Shareable Discovery URLs contain only normalized filter choices. OAuth tokens and Twitch identity are not serialized.
+- `wrangler.jsonc` deliberately has no D1 binding. D1-backed user sync and background stream history are deferred to NerdSync 3.0.
+
+# Alpha-0.17.3 Stability and diagnostics integration
+
+- `debounce()` now lives in `app-foundation.js`, which loads before every filter/control module that uses it.
+- The Diagnostics / Bug Log module loads immediately after foundation so runtime and request failures can be captured before the rest of the app initializes.
+- Diagnostics use session storage when available, cap the log at 150 events, and fall back to in-memory storage if browser session storage is blocked.
+- Twitch and TwitchTracker failures are sanitized before logging. Channel/creator identities, OAuth values, URL parameter values, chat content, and raw user-agent strings are excluded.
+- Users can open Diagnostics from login, Settings, or the app footer, preview the report, copy it, clear it, or download a `.txt` file for `#bug-reports` in the Nerdspace Labs Discord.
+- The responsive audit verifies no page-wide horizontal overflow from 1440px through 320px; mobile card actions collapse to one column at the narrowest breakpoint.
+
 # Alpha-0.17.1 Historical Discovery integration
 
 - Discovery enrichment runs after Twitch candidate generation, broadcaster-type enrichment, and any required chat/activity detail checks.

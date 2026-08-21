@@ -43,6 +43,12 @@ tagInput.addEventListener('input', debounce(() => {
   filtersChanged();
 }, DEBOUNCE_MS));
 
+const preferredTagsInput = document.getElementById('preferred-tags');
+preferredTagsInput?.addEventListener('input', debounce(() => {
+  filters.preferredTags = parseTagInput(preferredTagsInput.value);
+  filtersChanged();
+}, DEBOUNCE_MS));
+
 function syncPopularTagButtons() {
   const selected = new Set(filters.tags.map(tag => tag.toLowerCase()));
   document.querySelectorAll('.tag-preset').forEach(button => {
@@ -144,6 +150,33 @@ maxViewersInput.addEventListener('input', debounce(() => {
   syncAudiencePresetButtons();
   filtersChanged();
 }, DEBOUNCE_MS));
+
+const audienceBasisFilterEl = document.getElementById('audience-basis-filter');
+const trackerActivityFilterEl = document.getElementById('tracker-activity-filter');
+const trackerGrowthFilterEl = document.getElementById('tracker-growth-filter');
+audienceBasisFilterEl?.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button) return;
+  setSingleChoice(audienceBasisFilterEl, button.dataset.value);
+  filters.audienceBasis = button.dataset.value || 'live';
+  filtersChanged();
+});
+trackerActivityFilterEl?.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button) return;
+  setSingleChoice(trackerActivityFilterEl, button.dataset.value);
+  filters.trackerActivityHours = numOrNull(button.dataset.value);
+  ['discover','match','spotlight','gems','rising'].forEach(tab => delete tabCache[tab]);
+  if (['discover','match','spotlight','gems','rising'].includes(activeTab)) loadStreams(); else filtersChanged();
+});
+trackerGrowthFilterEl?.addEventListener('click', event => {
+  const button = event.target.closest('button[data-value]');
+  if (!button) return;
+  setSingleChoice(trackerGrowthFilterEl, button.dataset.value);
+  filters.trackerGrowth = button.dataset.value || '';
+  ['discover','match','spotlight','gems','rising'].forEach(tab => delete tabCache[tab]);
+  if (['discover','match','spotlight','gems','rising'].includes(activeTab)) loadStreams(); else filtersChanged();
+});
 
 followDaysInput.addEventListener('input', debounce(() => {
   filters.minFollowDays = numOrNull(followDaysInput.value);
@@ -268,8 +301,9 @@ function renderSelectedCategories() {
 clearFiltersBtn.addEventListener('click', () => {
   genreResolveGeneration += 1;
   clearTimeout(genreResolveTimer);
-  filters = { tags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, minFollowDays: null, maxUptimeHours:null, activityDays:null, openChatOnly:true };
+  filters = { tags: [], preferredTags: [], excludedTags: [], contentLabels:[], language:'', genres: [], categories: [], excludedCategories: [], minViewers: null, maxViewers: null, audienceBasis:'live', minFollowDays: null, maxUptimeHours:null, activityDays:null, trackerActivityHours:null, trackerGrowth:'', openChatOnly:true };
   tagInput.value = '';
+  if (preferredTagsInput) preferredTagsInput.value = '';
   excludedTagsInput.value = '';
   setSingleChoice(languageFilterEl, '');
   minViewersInput.value = '';
@@ -277,6 +311,9 @@ clearFiltersBtn.addEventListener('click', () => {
   followDaysInput.value = '';
   setSingleChoice(maxUptimeEl, '');
   setSingleChoice(activityFilterEl, '');
+  setSingleChoice(audienceBasisFilterEl, 'live');
+  setSingleChoice(trackerActivityFilterEl, '');
+  setSingleChoice(trackerGrowthFilterEl, '');
   setChoicePressed(openChatOnlyEl, true);
   choiceButtons(contentLabelFiltersEl).forEach(button => setChoicePressed(button, false));
   choiceButtons(genreFiltersEl).forEach(button => setChoicePressed(button, false));
@@ -295,6 +332,7 @@ clearFiltersBtn.addEventListener('click', () => {
 function renderFilterState() {
   const active = [
     ...filters.tags.map(tag => ({ key:`tag:${tag}`, label:`#${tag}` })),
+    ...filters.preferredTags.map(tag => ({ key:`preferredTag:${tag}`, label:`Prefer #${tag}` })),
     ...filters.excludedTags.map(tag => ({ key:`excludedTag:${tag}`, label:`Not #${tag}` })),
     ...filters.contentLabels.map(id => ({ key:`contentLabel:${id}`, label:CONTENT_LABELS[id] || id })),
     ...(filters.language ? [{ key:'language', label:`Language ${filters.language.toUpperCase()}` }] : []),
@@ -303,6 +341,9 @@ function renderFilterState() {
     ...filters.excludedCategories.map(category => ({ key:`excludedCategory:${category.id}`, label:`Not ${category.name}` })),
     ...(filters.minViewers != null ? [{ key:'min', label:`Min ${filters.minViewers}` }] : []),
     ...(filters.maxViewers != null ? [{ key:'max', label:`Max ${filters.maxViewers}` }] : []),
+    ...(filters.audienceBasis === 'typical' ? [{ key:'audienceBasis', label:'Audience: 30D typical' }] : []),
+    ...(filters.trackerActivityHours != null ? [{ key:'trackerActivity', label:`30D active ${filters.trackerActivityHours}h+` }] : []),
+    ...(filters.trackerGrowth ? [{ key:'trackerGrowth', label:filters.trackerGrowth === 'strong' ? 'Strong 30D growth' : 'Growing 30D' }] : []),
     ...(filters.minFollowDays != null ? [{ key:'follow', label:`Followed ${filters.minFollowDays}+ days` }] : []),
     ...(filters.maxUptimeHours != null ? [{ key:'uptime', label:`Uptime ≤ ${filters.maxUptimeHours}h` }] : []),
     ...(filters.activityDays != null ? [{ key:'activity', label:`Active in ${filters.activityDays}d` }] : []),
@@ -322,6 +363,10 @@ function clearSingleFilter(key) {
     filters.tags = filters.tags.filter(tag => tag.toLowerCase() !== removed);
     tagInput.value = filters.tags.join(', ');
     syncPopularTagButtons();
+  } else if (key.startsWith('preferredTag:')) {
+    const removed = key.slice(13).toLowerCase();
+    filters.preferredTags = filters.preferredTags.filter(tag => tag.toLowerCase() !== removed);
+    if (preferredTagsInput) preferredTagsInput.value = filters.preferredTags.join(', ');
   } else if (key.startsWith('excludedTag:')) {
     const removed = key.slice(12).toLowerCase();
     filters.excludedTags = filters.excludedTags.filter(tag => tag.toLowerCase() !== removed);
@@ -347,6 +392,9 @@ function clearSingleFilter(key) {
     return;
   } else if (key === 'min') { filters.minViewers = null; minViewersInput.value = ''; syncAudiencePresetButtons(); }
   else if (key === 'max') { filters.maxViewers = null; maxViewersInput.value = ''; syncAudiencePresetButtons(); }
+  else if (key === 'audienceBasis') { filters.audienceBasis = 'live'; setSingleChoice(audienceBasisFilterEl, 'live'); }
+  else if (key === 'trackerActivity') { filters.trackerActivityHours = null; setSingleChoice(trackerActivityFilterEl, ''); delete tabCache[activeTab]; loadStreams(); return; }
+  else if (key === 'trackerGrowth') { filters.trackerGrowth = ''; setSingleChoice(trackerGrowthFilterEl, ''); delete tabCache[activeTab]; loadStreams(); return; }
   else if (key === 'follow') { filters.minFollowDays = null; followDaysInput.value = ''; }
   else if (key === 'uptime') { filters.maxUptimeHours = null; setSingleChoice(maxUptimeEl, ''); }
   else if (key === 'activity') { filters.activityDays = null; setSingleChoice(activityFilterEl, ''); delete tabCache[activeTab]; loadStreams(); return; }
@@ -354,25 +402,37 @@ function clearSingleFilter(key) {
   filtersChanged();
 }
 
-function passesCommonFilters(s) {
+function passesCommonFilters(s, { ignoreHistorical = false } = {}) {
   const streamTags = (s.tags || []).map(tag => String(tag).trim().toLowerCase());
   const contentLabels = s.content_classification_labels || [];
-  if (filters.tags.length) {
-    if (!filters.tags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
-  }
+  if (filters.tags.length && !filters.tags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
   if (filters.excludedTags.some(tag => streamTags.includes(tag.toLowerCase()))) return false;
   if (filters.contentLabels.length && !filters.contentLabels.some(label => contentLabels.includes(label))) return false;
   if (filters.language && s.language !== filters.language) return false;
   if (filters.categories.length && !filters.categories.some(category => category.id === s.game_id)) return false;
   if (filters.excludedCategories.some(category => category.id === s.game_id)) return false;
-  if (filters.minViewers != null && s.viewer_count < filters.minViewers) return false;
-  if (filters.maxViewers != null && s.viewer_count > filters.maxViewers) return false;
+  const audienceValue = !ignoreHistorical && filters.audienceBasis === 'typical'
+    ? (Number.isFinite(s._trackerSummary?.averageViewers) ? s._trackerSummary.averageViewers : null)
+    : s.viewer_count;
+  if (!(ignoreHistorical && filters.audienceBasis === 'typical')) {
+    if (filters.minViewers != null && (!Number.isFinite(audienceValue) || audienceValue < filters.minViewers)) return false;
+    if (filters.maxViewers != null && (!Number.isFinite(audienceValue) || audienceValue > filters.maxViewers)) return false;
+  }
   if (filters.maxUptimeHours != null && s.started_at) {
     const uptimeHours = (Date.now() - new Date(s.started_at).getTime()) / 3600000;
     if (uptimeHours > filters.maxUptimeHours) return false;
   }
   if (filters.activityDays != null) {
     if (!s._lastBroadcastAt || Date.now() - new Date(s._lastBroadcastAt).getTime() > filters.activityDays * 86400000) return false;
+  }
+  if (!ignoreHistorical && filters.trackerActivityHours != null) {
+    const hours = Number.isFinite(s._trackerSummary?.minutesStreamed) ? s._trackerSummary.minutesStreamed / 60 : null;
+    if (!Number.isFinite(hours) || hours < filters.trackerActivityHours) return false;
+  }
+  if (!ignoreHistorical && filters.trackerGrowth) {
+    const signals = s._trackerSignals || (typeof deriveTwitchTrackerSignals === 'function' ? deriveTwitchTrackerSignals(s._trackerSummary, s.viewer_count) : null);
+    if (!signals?.growing) return false;
+    if (filters.trackerGrowth === 'strong' && !(Number.isFinite(signals.followersPerHour) && signals.followersPerHour >= 0.75)) return false;
   }
   if (filters.openChatOnly && s._chatOpen !== true) return false;
   if (filters.minFollowDays != null && activeTab === 'following') {
@@ -392,3 +452,6 @@ setSingleChoice(categoryFilterMode, 'include');
 setSingleChoice(languageFilterEl, filters.language);
 setSingleChoice(maxUptimeEl, filters.maxUptimeHours == null ? '' : String(filters.maxUptimeHours));
 setSingleChoice(activityFilterEl, filters.activityDays == null ? '' : String(filters.activityDays));
+setSingleChoice(audienceBasisFilterEl, filters.audienceBasis || 'live');
+setSingleChoice(trackerActivityFilterEl, filters.trackerActivityHours == null ? '' : String(filters.trackerActivityHours));
+setSingleChoice(trackerGrowthFilterEl, filters.trackerGrowth || '');

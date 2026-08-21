@@ -14,22 +14,24 @@ function creatorMatchTwitchTrackerLinkHtml(stream) {
 
 function creatorMatchTagsHtml(stream) {
   if (activeTab !== 'match') return '';
-  const selectedTags = new Set((filters.tags || []).map(tag => String(tag).trim().toLowerCase()).filter(Boolean));
+  const parseLocalTags = value => String(value || '').split(',').map(tag => tag.trim()).filter(Boolean);
+  const discovery = new Set(((typeof filters !== 'undefined' ? filters.tags : []) || []).map(tag => String(tag).trim().toLowerCase()).filter(Boolean));
+  const doc = typeof document !== 'undefined' ? document : null;
+  const required = new Set(parseLocalTags(doc?.getElementById('match-required-tags')?.value).map(tag => tag.toLowerCase()));
+  const preferred = new Set(parseLocalTags(doc?.getElementById('match-preferred-tags')?.value).map(tag => tag.toLowerCase()));
   const seen = new Set();
-  const tags = (stream.tags || [])
-    .map(tag => String(tag).trim())
-    .filter(tag => {
-      const key = tag.toLowerCase();
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .map(tag => ({ tag, matched:selectedTags.has(tag.toLowerCase()) }))
-    .sort((a,b) => Number(b.matched) - Number(a.matched));
-
+  const tags = (stream.tags || []).map(tag => String(tag).trim()).filter(tag => {
+    const key = tag.toLowerCase(); if (!key || seen.has(key)) return false; seen.add(key); return true;
+  }).map(tag => {
+    const key = tag.toLowerCase();
+    const kind = required.has(key) ? 'required' : preferred.has(key) ? 'preferred' : discovery.has(key) ? 'discovery' : '';
+    return { tag, kind, matched:Boolean(kind) };
+  }).sort((a,b) => Number(b.matched) - Number(a.matched) || a.tag.localeCompare(b.tag));
   if (!tags.length) return '<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Twitch tags</span><div class="match-tags-list"><span class="match-tags-empty">No Twitch tags listed</span></div></div>';
-
-  return `<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Twitch tags</span><div class="match-tags-list">${tags.map(({ tag, matched }) => `<span class="match-tag${matched ? ' match-tag--matched' : ''}"${matched ? ` aria-label="${escapeHtml(tag)}, matches your selected tag"` : ''}>${escapeHtml(tag)}${matched ? '<span class="match-tag-check" aria-hidden="true">✓</span>' : ''}</span>`).join('')}</div></div>`;
+  return `<div class="match-tags" aria-label="Creator tags"><span class="match-tags-label">Twitch tags</span><div class="match-tags-list">${tags.map(({ tag, kind, matched }) => {
+    const aria = kind === 'discovery' ? `${tag}, matches your selected tag` : kind === 'required' ? `${tag}, required Creator Match tag` : kind === 'preferred' ? `${tag}, preferred Creator Match tag` : '';
+    return `<span class="match-tag${matched ? ' match-tag--matched' : ''}${kind ? ` match-tag--${kind}` : ''}"${aria ? ` aria-label="${escapeHtml(aria)}"` : ''}>${escapeHtml(tag)}${matched ? `<span class="match-tag-check" aria-hidden="true">${kind === 'required' ? '★' : '✓'}</span>` : ''}</span>`;
+  }).join('')}</div></div>`;
 }
 
 function prioritizeFollowingTeamMembers(items) {
@@ -56,40 +58,6 @@ function newerAffiliateContextHtml(stream) {
   return `<div class="newer-affiliate-context" aria-label="Newer Affiliate context"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(ageLabel)} · current Affiliate status</span>${score}</div>`;
 }
 
-function formatTrackerCompact(value) {
-  if (!Number.isFinite(value)) return null;
-  return new Intl.NumberFormat(undefined, { notation:'compact', maximumFractionDigits:1 }).format(value);
-}
-
-function historicalDiscoveryContextHtml(stream) {
-  const tracker = stream._trackerSummary;
-  if (!tracker) return '';
-  const signals = stream._trackerSignals || deriveTwitchTrackerSignals(tracker, stream.viewer_count, { mode:activeTab });
-  const streamedHours = Number.isFinite(signals?.streamedHours) ? Math.round(signals.streamedHours * 10) / 10 : null;
-  const growth = Number.isFinite(tracker.followersGained) ? `${tracker.followersGained >= 0 ? '+' : ''}${formatTrackerCompact(tracker.followersGained)}` : null;
-  const stats = [
-    [formatTrackerCompact(stream.viewer_count), 'Live now'],
-    [formatTrackerCompact(tracker.averageViewers), '30d avg'],
-    [growth, '30d growth'],
-    [streamedHours == null ? null : `${formatTrackerCompact(streamedHours)}h`, '30d active']
-  ].filter(([value]) => value != null);
-  const contextLabel = signals?.gemLabel || signals?.liveContext || (signals?.growing ? 'Growing this month' : '');
-  const percentage = Number.isFinite(signals?.percentVsAverage)
-    ? `${signals.percentVsAverage >= 0 ? '+' : ''}${signals.percentVsAverage}% vs typical`
-    : '';
-  const category = stream._trackerCategorySummary;
-  const categoryBits = category ? [
-    Number.isFinite(category.averageViewers) ? `${formatTrackerCompact(category.averageViewers)} avg viewers` : null,
-    Number.isFinite(category.averageChannels) ? `${formatTrackerCompact(category.averageChannels)} avg channels` : null
-  ].filter(Boolean) : [];
-  return `<section class="historical-context" aria-label="30-day TwitchTracker discovery context">
-    <div class="historical-context-head"><span>30-day context · TwitchTracker</span>${contextLabel ? `<strong class="historical-context-badge">${escapeHtml(contextLabel)}</strong>` : ''}</div>
-    <div class="historical-stat-grid">${stats.map(([value, label]) => `<span class="historical-stat"><strong>${escapeHtml(value)}</strong><small>${escapeHtml(label)}</small></span>`).join('')}</div>
-    ${percentage ? `<p class="historical-context-note">${escapeHtml(percentage)}</p>` : ''}
-    ${categoryBits.length ? `<p class="historical-category-note"><strong>${escapeHtml(stream.game_name || 'Category')}:</strong> ${escapeHtml(categoryBits.join(' · '))} over 30 days</p>` : ''}
-  </section>`;
-}
-
 function streamCardHtml(s) {
   const thumb = safeHttpsUrl(String(s.thumbnail_url || '').replace('{width}', '320').replace('{height}', '180'));
   const viewers = new Intl.NumberFormat().format(s.viewer_count);
@@ -99,6 +67,8 @@ function streamCardHtml(s) {
   const saved = Boolean(historyFor(s.user_id).saved);
   const moreLike = Boolean(historyFor(s.user_id).moreLike);
   const followsCategory = Boolean(preferences.followedCategories[s.game_id]);
+  const bookmark = historyFor(s.user_id).bookmark || '';
+  const shortlisted = activeTab === 'match' && typeof shortlistHas === 'function' ? shortlistHas(s.user_id) : false;
   const learningDisabled = personalizationEnabled ? '' : ' disabled title="Turn personalization on to teach the feed"';
   const why = s._why || (s._via ? `Found via ${s._via}` : 'Live now');
   const uptimeHours = s.started_at ? Math.max(0, (Date.now() - new Date(s.started_at).getTime()) / 3600000) : null;
@@ -108,7 +78,7 @@ function streamCardHtml(s) {
     s._lastBroadcastAt ? `Last broadcast ${formatRelativeTime(s._lastBroadcastAt)}` : null
   ].filter(Boolean);
   return `
-    <article class="stream-card" aria-label="${escapeHtml(s.user_name)}. ${viewers} viewers. ${escapeHtml(stage.label)}. ${escapeHtml(s.game_name || 'No category')}." data-kind="stream" data-user-id="${s.user_id}" data-url="https://twitch.tv/${encodeURIComponent(s.user_login)}">
+    <article class="stream-card" aria-label="${escapeHtml(s.user_name)}. ${viewers} viewers. ${escapeHtml(stage.label)}. ${escapeHtml(s.game_name || 'No category')}." data-kind="stream" tabindex="0" data-user-id="${s.user_id}" data-url="https://twitch.tv/${encodeURIComponent(s.user_login)}">
       <div class="thumb-wrap">
         <img class="thumbnail" src="${escapeHtml(thumb)}" alt="Live preview for ${escapeHtml(s.user_name)}" loading="lazy" decoding="async" />
         <span class="live-badge">Live</span>
@@ -129,7 +99,7 @@ function streamCardHtml(s) {
         <span class="stage-badge">${escapeHtml(stage.label)} · current live audience</span>
         ${s._discoveryScore != null ? `<span class="score-badge">Discovery fit ${s._discoveryScore}/100</span>` : ''}
         ${signals.length ? `<div class="signal-row">${signals.map(signal => `<span class="signal">${escapeHtml(signal)}</span>`).join('')}</div>` : ''}
-        <div class="card-actions"><button class="card-action" data-action="open" type="button" aria-label="Open ${escapeHtml(s.user_name)} stream details">Details</button>${creatorMatchTwitchTrackerLinkHtml(s)}<button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button" aria-label="${saved ? 'Unsave' : 'Save'} ${escapeHtml(s.user_name)}">${saved ? 'Saved' : 'Save'}</button><button class="card-action${moreLike ? ' saved' : ''}" data-action="more" type="button" aria-pressed="${moreLike}" aria-label="${moreLike ? 'Remove' : 'Add'} more like ${escapeHtml(s.user_name)} preference"${learningDisabled}>${moreLike ? 'More like this ✓' : 'More like this'}</button><button class="card-action" data-action="less" type="button" aria-label="Show fewer creators like ${escapeHtml(s.user_name)}"${learningDisabled}>Less like this</button><button class="card-action${followsCategory ? ' saved' : ''}" data-action="follow-category" type="button" aria-pressed="${followsCategory}" aria-label="${followsCategory ? 'Unfollow' : 'Follow'} ${escapeHtml(s.game_name || 'this category')} in NerdSync">${followsCategory ? 'Category followed' : 'Follow category'}</button><button class="card-action" data-action="dismiss" type="button" aria-label="Hide ${escapeHtml(s.user_name)} for 30 days">Hide 30d</button><button class="card-action" data-action="never" type="button" aria-label="Never show ${escapeHtml(s.user_name)} again">Never show</button><button class="card-action" data-action="compare" type="button" aria-label="Add ${escapeHtml(s.user_name)} to comparison">Compare</button></div>
+        <div class="card-actions"><button class="card-action" data-action="open" type="button" aria-label="Open ${escapeHtml(s.user_name)} stream details">Details</button>${creatorMatchTwitchTrackerLinkHtml(s)}${activeTab === 'match' ? `<button class="card-action${shortlisted ? ' saved' : ''}" data-action="shortlist" type="button">${shortlisted ? 'Shortlisted ✓' : 'Shortlist'}</button>` : ''}<button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button" aria-label="${saved ? 'Unsave' : 'Save'} ${escapeHtml(s.user_name)}">${saved ? 'Saved' : 'Save'}</button><button class="card-action${bookmark ? ' saved' : ''}" data-action="bookmark" type="button" aria-label="Cycle local bookmark for ${escapeHtml(s.user_name)}">${escapeHtml(bookmarkLabel(bookmark))}</button><button class="card-action${moreLike ? ' saved' : ''}" data-action="more" type="button" aria-pressed="${moreLike}" aria-label="${moreLike ? 'Remove' : 'Add'} more like ${escapeHtml(s.user_name)} preference"${learningDisabled}>${moreLike ? 'More like this ✓' : 'More like this'}</button><button class="card-action" data-action="less" type="button" aria-label="Show fewer creators like ${escapeHtml(s.user_name)}"${learningDisabled}>Less like this</button><button class="card-action${followsCategory ? ' saved' : ''}" data-action="follow-category" type="button" aria-pressed="${followsCategory}" aria-label="${followsCategory ? 'Unfollow' : 'Follow'} ${escapeHtml(s.game_name || 'this category')} in NerdSync">${followsCategory ? 'Category followed' : 'Follow category'}</button>${historicalDiscoveryEnabled && ['discover','match','spotlight','gems','rising'].includes(activeTab) && !s._trackerSummary ? '<button class="card-action" data-action="retry-tracker" type="button">Retry 30D</button>' : ''}<button class="card-action" data-action="dismiss" type="button" aria-label="Hide ${escapeHtml(s.user_name)} for 30 days">Hide 30d</button><button class="card-action" data-action="never" type="button" aria-label="Never show ${escapeHtml(s.user_name)} again">Never show</button><button class="card-action" data-action="compare" type="button" aria-label="Add ${escapeHtml(s.user_name)} to comparison">Compare</button></div>
       </div>
     </article>`;
 }
@@ -224,6 +194,7 @@ function renderEmergingSections(items, cfg) {
 function renderGrid() {
   const query = searchInput.value.trim().toLowerCase();
   const cfg = TABS[activeTab];
+  renderFilterExclusionSummary();
   if (cfg.isSaved) {
     renderSavedList();
     renderRecommendationProfile();
@@ -323,6 +294,7 @@ async function loadStreams() {
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     if (tabId !== activeTab || generation !== loadGeneration) return;
     allStreams = cached.data;
+    updateTrackerAvailabilityStatus(allStreams, tabId);
     streamGrid.setAttribute('aria-busy', 'false');
     renderGrid();
     updateScanDeeperControl(tabId, false);
@@ -340,16 +312,25 @@ async function loadStreams() {
   diagnostics = { requests:0, pages:0, candidates:0, eligible:0, failures:0, categories:0, rateRemaining:null, rateLimit:null };
   renderDiagnostics();
   try {
+    setStatus('Finding live Twitch candidates…');
     let loaded = await TABS[tabId].load({ deep:deepScanTabs.has(tabId) });
+    setStatus('Applying account, chat, activity, and filter context…');
     loaded = await enrichBroadcasterTypes(loaded, TABS[tabId].isClips === true);
     loaded = await enrichCandidateSignals(loaded, tabId);
-    if (historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(tabId)) setStatus('Adding 30-day historical context…');
+    const historicalFiltering = filters.audienceBasis === 'typical' || filters.trackerActivityHours != null || Boolean(filters.trackerGrowth) || (tabId === 'match' && matchAudienceBasis === 'typical');
+    if (!historicalFiltering && !TABS[tabId].isClips && tabId !== 'saved') {
+      allStreams = loaded;
+      streamGrid.setAttribute('aria-busy', 'false');
+      renderGrid();
+    }
+    if ((historicalDiscoveryEnabled && ['discover','gems','rising','spotlight'].includes(tabId)) || tabId === 'match' || historicalFiltering) setStatus('Live results ready · adding 30-day historical context…');
     loaded = await enrichDiscoveryWithTwitchTracker(loaded, tabId, { signal:controller.signal });
     if (tabId === 'following' && followingTeamsFirst) loaded = await enrichFollowingTeams(loaded, currentToken);
     tabCache[tabId] = { data: loaded, timestamp: Date.now() };
     if (tabId !== activeTab || generation !== loadGeneration) return;
     allStreams = loaded;
     streamGrid.setAttribute('aria-busy', 'false');
+    updateTrackerAvailabilityStatus(loaded, tabId);
     renderGrid();
     updateScanDeeperControl(tabId, false);
   } catch (err) {

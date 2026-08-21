@@ -93,7 +93,8 @@ function creatorSnapshot(stream) {
     thumbnail:stream.thumbnail_url || stream._profileImage || '',
     profileImage:stream._profileImage || '', tags:stream.tags || [], language:stream.language || '',
     broadcasterType:stream._broadcasterType || 'unknown', viewerCount:stream.viewer_count ?? null,
-    contentLabels:stream.content_classification_labels || []
+    contentLabels:stream.content_classification_labels || [],
+    trackerSummary:stream._trackerSummary || null, trackerSignals:stream._trackerSignals || null, why:stream._why || ''
   };
 }
 function rememberCreator(stream) {
