@@ -99,7 +99,7 @@ async function getTwitchTrackerSummary(channel, { fetchImpl = fetch, signal, for
   const normalized = String(channel || '').trim().toLowerCase();
   if (!/^[a-z0-9_]{1,25}$/.test(normalized)) throw new Error('Invalid Twitch channel login.');
   const cached = twitchTrackerSummaryCache.get(normalized);
-  if (!force && cached && Date.now() - cached.at < TWITCHTRACKER_CACHE_MS) return cached.value;
+  if (!force && cached && Date.now() - cached.at < TWITCHTRACKER_CACHE_MS) { if (typeof nerdSyncRequestManager !== 'undefined') nerdSyncRequestManager.markCacheHit(); return cached.value; }
   const failedAt = twitchTrackerFailureCache.get(`channel:${normalized}`);
   if (!force && failedAt && Date.now() - failedAt < TWITCHTRACKER_FAILURE_CACHE_MS) return null;
 
@@ -136,7 +136,7 @@ async function getTwitchTrackerCategorySummary(gameId, { fetchImpl = fetch, sign
   const normalized = String(gameId || '').trim();
   if (!/^\d{1,24}$/.test(normalized)) throw new Error('Invalid Twitch category ID.');
   const cached = twitchTrackerCategoryCache.get(normalized);
-  if (!force && cached && Date.now() - cached.at < TWITCHTRACKER_CACHE_MS) return cached.value;
+  if (!force && cached && Date.now() - cached.at < TWITCHTRACKER_CACHE_MS) { if (typeof nerdSyncRequestManager !== 'undefined') nerdSyncRequestManager.markCacheHit(); return cached.value; }
   const failedAt = twitchTrackerFailureCache.get(`category:${normalized}`);
   if (!force && failedAt && Date.now() - failedAt < TWITCHTRACKER_FAILURE_CACHE_MS) return null;
 

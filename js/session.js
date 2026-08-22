@@ -8,6 +8,7 @@ async function showDiscoveryView() {
   privacyView.classList.add('hidden');
   loginView.classList.add('hidden');
   discoveryView.classList.remove('hidden');
+  migrateNerdSyncLocalProfile();
   try { discoveryHistory = JSON.parse(localStorage.getItem(historyStorageKey()) || '{}') || {}; } catch (error) { discoveryHistory = {}; }
   try { preferences = { ...preferences, ...(JSON.parse(localStorage.getItem(preferencesStorageKey()) || '{}') || {}) }; } catch (error) { preferences = { categories:{}, categoryNames:{}, followedCategories:{}, tags:{}, languages:{}, viewerSamples:[], personalizationEnabled:true, historicalDiscoveryEnabled:true }; }
   preferences.categories ||= {}; preferences.categoryNames ||= {}; preferences.followedCategories ||= {}; preferences.tags ||= {}; preferences.languages ||= {}; preferences.viewerSamples ||= [];

@@ -11,7 +11,7 @@ const controls = await readFile(new URL('../js/app-controls.js', import.meta.url
 const tools = await readFile(new URL('../js/creator-tools.js', import.meta.url), 'utf8');
 const feed = await readFile(new URL('../js/feed-rendering.js', import.meta.url), 'utf8');
 
-test('Alpha-0.18.1 exposes shared contextual loading helpers', () => {
+test('Alpha-0.19.0 exposes shared contextual loading helpers', () => {
   assert.match(ui, /function setLoadingStatus/);
   assert.match(ui, /function loadingMessageHtml/);
   assert.match(ui, /function loadingPanelHtml/);
@@ -35,8 +35,8 @@ test('loading animation respects reduced motion', () => {
   assert.match(css, /animation:none!important/);
 });
 
-test('0.18.1 asset URLs are consistently versioned', () => {
-  assert.match(html, /css\/styles\.css\?v=0\.18\.1/);
-  assert.match(html, /js\/ui-state\.js\?v=0\.18\.1/);
+test('0.19.0 asset URLs are consistently versioned', () => {
+  assert.match(html, /css\/styles\.css\?v=0\.19\.0/);
+  assert.match(html, /js\/ui-state\.js\?v=0\.19\.0/);
   assert.doesNotMatch(html, /\?v=0\.18\.0/);
 });

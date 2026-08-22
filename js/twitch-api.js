@@ -29,7 +29,7 @@ async function validateToken(token) {
   const validClient = validation.client_id === CLIENT_ID;
   const validIdentity = typeof validation.user_id === 'string' && validation.user_id.length > 0;
   const validExpiry = Number(validation.expires_in) > 0;
-  const hasRequiredScopes = scopes.length === REQUIRED_SCOPES.length && REQUIRED_SCOPES.every(scope => scopes.includes(scope));
+  const hasRequiredScopes = REQUIRED_SCOPES.every(scope => scopes.includes(scope));
   const valid = validClient && validIdentity && validExpiry && hasRequiredScopes;
   if (!valid) recordNerdSyncDiagnostic({ level:'warning', area:'authentication', message:'Twitch session did not meet NerdSync validation requirements', details:{ validClient, validIdentity, validExpiry, hasRequiredScopes, scopeCount:scopes.length } });
   return valid ? validation : null;
@@ -43,29 +43,55 @@ async function apiFetch(url, options = {}, retry = true) {
   diagnostics.requests += 1;
   const started = performance.now();
   const parsed = new URL(url);
-  if (parsed.origin !== 'https://api.twitch.tv' || !parsed.pathname.startsWith('/helix/')) {
-    throw new Error('UNTRUSTED_API_TARGET');
-  }
+  if (parsed.origin !== 'https://api.twitch.tv' || !parsed.pathname.startsWith('/helix/')) throw new Error('UNTRUSTED_API_TARGET');
   const method = String(options.method || 'GET').toUpperCase();
   if (method !== 'GET') throw new Error('READ_ONLY_API_REQUIRED');
   const safeTarget = `${parsed.pathname}${[...parsed.searchParams.keys()].length ? `?${[...new Set(parsed.searchParams.keys())].join('&')}` : ''}`;
-  let res;
   const controller = new AbortController();
   const scanSignal = activeLoadController?.signal || null;
   const cancelForAbandonedScan = () => controller.abort();
   if (scanSignal?.aborted) throw new DOMException('Scan cancelled', 'AbortError');
   scanSignal?.addEventListener('abort', cancelForAbandonedScan, { once:true });
   const timeoutId = setTimeout(() => controller.abort(), 15000);
+  let acquired = false;
+  let outcome = 'completed';
   try {
-    res = await fetch(url, {
+    await nerdSyncRequestManager.respectRateBudget(scanSignal);
+    await nerdSyncRequestManager.acquire(scanSignal);
+    acquired = true;
+    const res = await fetch(url, {
       ...options,
       method,
-      signal: controller.signal,
-      cache: 'no-store',
-      credentials: 'omit',
-      referrerPolicy: 'no-referrer'
+      signal:controller.signal,
+      cache:'no-store',
+      credentials:'omit',
+      referrerPolicy:'no-referrer'
     });
+    nerdSyncRequestManager.updateRate(res.headers);
+    const requestEvent = { time:new Date().toISOString(), target:safeTarget, status:res.status, ms:Math.round(performance.now()-started) };
+    diagnosticEvents.push(requestEvent);
+    diagnosticEvents = diagnosticEvents.slice(-100);
+    diagnostics.rateRemaining = res.headers.get('Ratelimit-Remaining') || diagnostics.rateRemaining;
+    diagnostics.rateLimit = res.headers.get('Ratelimit-Limit') || diagnostics.rateLimit;
+    if (!res.ok) {
+      outcome = res.status >= 500 ? 'failed' : 'completed';
+      recordNerdSyncDiagnostic({ level:res.status >= 500 ? 'error' : 'warning', area:'twitch-api', message:'Twitch API returned a non-success status', details:{ target:safeTarget, status:res.status, ms:requestEvent.ms } });
+    }
+    if (res.status === 429 && retry) {
+      const resetAt = Number(res.headers.get('Ratelimit-Reset') || 0) * 1000;
+      const waitMs = Math.max(500, Math.min(5000, resetAt - Date.now()));
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, waitMs);
+        const abort = () => { clearTimeout(timer); reject(new DOMException('Scan cancelled', 'AbortError')); };
+        scanSignal?.addEventListener('abort', abort, { once:true });
+      });
+      if (scanSignal?.aborted) throw new DOMException('Scan cancelled', 'AbortError');
+      return apiFetch(url, options, false);
+    }
+    if (res.status === 401) throw new Error('SESSION_EXPIRED');
+    return res;
   } catch (error) {
+    outcome = error?.name === 'AbortError' ? 'cancelled' : 'failed';
     const status = error?.name === 'AbortError' ? (scanSignal?.aborted ? 'cancelled' : 'timeout') : 'network-error';
     const requestEvent = { time:new Date().toISOString(), target:safeTarget, status, ms:Math.round(performance.now()-started) };
     diagnosticEvents.push(requestEvent);
@@ -75,22 +101,8 @@ async function apiFetch(url, options = {}, retry = true) {
   } finally {
     clearTimeout(timeoutId);
     scanSignal?.removeEventListener('abort', cancelForAbandonedScan);
+    if (acquired) nerdSyncRequestManager.release(outcome);
   }
-  const requestEvent = { time:new Date().toISOString(), target:safeTarget, status:res.status, ms:Math.round(performance.now()-started) };
-  diagnosticEvents.push(requestEvent);
-  diagnosticEvents = diagnosticEvents.slice(-100);
-  if (!res.ok) recordNerdSyncDiagnostic({ level:res.status >= 500 ? 'error' : 'warning', area:'twitch-api', message:'Twitch API returned a non-success status', details:{ target:safeTarget, status:res.status, ms:requestEvent.ms } });
-  diagnostics.rateRemaining = res.headers.get('Ratelimit-Remaining') || diagnostics.rateRemaining;
-  diagnostics.rateLimit = res.headers.get('Ratelimit-Limit') || diagnostics.rateLimit;
-  if (res.status === 429 && retry) {
-    const resetAt = Number(res.headers.get('Ratelimit-Reset') || 0) * 1000;
-    const waitMs = Math.max(500, Math.min(5000, resetAt - Date.now()));
-    await new Promise(resolve => setTimeout(resolve, waitMs));
-    if (scanSignal?.aborted) throw new DOMException('Scan cancelled', 'AbortError');
-    return apiFetch(url, options, false);
-  }
-  if (res.status === 401) throw new Error('SESSION_EXPIRED');
-  return res;
 }
 
 function diagnosticsFilterSummary() {
@@ -119,6 +131,7 @@ function diagnosticsReportExtras() {
     filterSummary:diagnosticsFilterSummary(),
     scanSummary:{ ...diagnostics },
     creatorMatch:{ source:matchSource, audience:matchPeak, tolerance:matchTolerance, candidateAudienceBasis:matchAudienceBasis, shortlistCount:typeof localWorkflowData !== 'undefined' ? localWorkflowData.matchShortlist.length : 0, historyCount:typeof localWorkflowData !== 'undefined' ? localWorkflowData.matchHistory.length : 0 },
+    requestManager:nerdSyncRequestManager.snapshot(),
     recentRequests:diagnosticEvents.slice(-100),
   };
 }
@@ -132,7 +145,7 @@ function renderDiagnostics() {
   const copy = document.getElementById('diagnostics-copy');
   const entries = nerdSyncDiagnosticsLog.entries();
   const requestCount = diagnosticEvents.length;
-  if (status) status.textContent = `${entries.length} recorded error/event${entries.length === 1 ? '' : 's'} · ${requestCount} recent sanitized request${requestCount === 1 ? '' : 's'} · kept in this browser session only.`;
+  if (status) { const budget = nerdSyncRequestManager.snapshot(); status.textContent = `${entries.length} recorded error/event${entries.length === 1 ? '' : 's'} · ${requestCount} recent sanitized request${requestCount === 1 ? '' : 's'} · ${budget.cacheHits} cache hits · Twitch rate remaining ${budget.rateRemaining ?? 'unknown'} · kept in this browser session only.`; }
   if (preview) preview.textContent = nerdSyncDiagnosticsLog.toText(diagnosticsReportExtras());
   if (clear) clear.disabled = entries.length === 0 && requestCount === 0;
   if (copy) copy.disabled = false;
@@ -443,7 +456,8 @@ async function fetchVideosForBroadcaster(broadcasterId, token, first) {
 
 async function fetchScheduleForBroadcaster(broadcasterId, token, first) {
   const res = await apiFetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${broadcasterId}&first=${first}`, { headers: authHeaders(token) });
-  if (!res.ok) return []; // 404 when the channel has no schedule published
+  if (res.status === 404) return []; // Twitch uses 404 when the broadcaster has no schedule published.
+  if (!res.ok) throw new Error('Failed to load Twitch schedule');
   const data = await res.json();
   return (data.data && data.data.segments) || [];
 }

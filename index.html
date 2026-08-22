@@ -8,26 +8,31 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=0.18.1">
-<link rel="stylesheet" href="css/secret-game.css?v=0.18.1">
+<link rel="stylesheet" href="css/styles.css?v=0.19.0">
+<link rel="stylesheet" href="css/secret-game.css?v=0.19.0">
 <script src="config.js" defer></script>
-<script src="js/app-foundation.js?v=0.18.1" defer></script>
-<script src="js/diagnostics.js?v=0.18.1" defer></script>
-<script src="js/ui-state.js?v=0.18.1" defer></script>
-<script src="js/filters.js?v=0.18.1" defer></script>
-<script src="js/twitch-api.js?v=0.18.1" defer></script>
-<script src="js/discovery.js?v=0.18.1" defer></script>
-<script src="js/creator-match.js?v=0.18.1" defer></script>
-<script src="js/recommendations.js?v=0.18.1" defer></script>
-<script src="js/creator-tools.js?v=0.18.1" defer></script>
-<script src="js/discovery-context.js?v=0.18.1" defer></script>
-<script src="js/feed-rendering.js?v=0.18.1" defer></script>
-<script src="js/twitchtracker-summary.js?v=0.18.1" defer></script>
-<script src="js/local-workflows.js?v=0.18.1" defer></script>
-<script src="js/stream-details.js?v=0.18.1" defer></script>
-<script src="js/app-controls.js?v=0.18.1" defer></script>
-<script src="js/secret-game.js?v=0.18.1" defer></script>
-<script src="js/session.js?v=0.18.1" defer></script>
+<script src="js/app-meta.js?v=0.19.0" defer></script>
+<script src="js/app-foundation.js?v=0.19.0" defer></script>
+<script src="js/diagnostics.js?v=0.19.0" defer></script>
+<script src="js/request-manager.js?v=0.19.0" defer></script>
+<script src="js/ui-state.js?v=0.19.0" defer></script>
+<script src="js/filters.js?v=0.19.0" defer></script>
+<script src="js/twitch-api.js?v=0.19.0" defer></script>
+<script src="js/discovery.js?v=0.19.0" defer></script>
+<script src="js/collaboration-fit.js?v=0.19.0" defer></script>
+<script src="js/creator-match.js?v=0.19.0" defer></script>
+<script src="js/recommendations.js?v=0.19.0" defer></script>
+<script src="js/discovery-tools.js?v=0.19.0" defer></script>
+<script src="js/creator-tools.js?v=0.19.0" defer></script>
+<script src="js/discovery-context.js?v=0.19.0" defer></script>
+<script src="js/feed-rendering.js?v=0.19.0" defer></script>
+<script src="js/twitchtracker-summary.js?v=0.19.0" defer></script>
+<script src="js/local-workflows.js?v=0.19.0" defer></script>
+<script src="js/data-portability.js?v=0.19.0" defer></script>
+<script src="js/stream-details.js?v=0.19.0" defer></script>
+<script src="js/app-controls.js?v=0.19.0" defer></script>
+<script src="js/secret-game.js?v=0.19.0" defer></script>
+<script src="js/session.js?v=0.19.0" defer></script>
 </head>
 <body>
 
@@ -42,11 +47,11 @@
     <p id="privacy-summary" class="privacy-lead">Before you connect Twitch, here is NerdSync's simple data promise.</p>
     <ul class="privacy-points">
       <li><strong>No selling.</strong> NerdSync will never sell your information or discovery activity.</li>
-      <li><strong>No data brokering.</strong> NerdSync does not sell your Twitch data or send it to advertisers or data brokers. The only optional third-party lookup is the public channel-name request to TwitchTracker described below.</li>
+      <li><strong>No data brokering.</strong> NerdSync does not sell your Twitch data or send it to advertisers or data brokers. The only optional third-party lookups are the limited public TwitchTracker requests described below.</li>
       <li><strong>No tracking cookies.</strong> NerdSync uses only essential browser storage for your login session, settings, saved creators, local presets, match history, shortlists, bookmarks, and recommendations on this device.</li>
       <li><strong>No hidden database.</strong> Your Twitch token stays in session storage and your preferences remain in your browser.</li>
       <li><strong>Diagnostics stay local.</strong> NerdSync keeps a sanitized troubleshooting log only in this browser session so you can choose to download it as a text file. The log is never uploaded automatically.</li>
-      <li><strong>TwitchTracker context is limited and public.</strong> Historical Discovery can send only public channel names and Twitch category IDs for a limited set of strong Discovery candidates through NerdSync to request 30-day summaries. When you use Creator Match, NerdSync can also request your own public channel summary to suggest a 30-day typical audience, and Typical candidate mode can request a limited set of public candidate summaries. Your Twitch token is never sent to TwitchTracker.</li>
+      <li><strong>TwitchTracker context is limited and public.</strong> Historical Discovery can send only public channel names and Twitch category IDs for a limited set of strong Discovery candidates through NerdSync to request 30-day summaries. Creator Match can request your own public summary for a 30-day audience suggestion, can request limited candidate summaries in Typical mode, and can use a candidate summary to cross-check public VOD activity when Schedule Intelligence must infer a likely stream pattern. Your Twitch token is never sent to TwitchTracker.</li>
     </ul>
     <p class="privacy-note">Continuing allows this necessary browser storage. Clearing your browser's site data removes locally saved NerdSync information.</p>
     <button id="privacy-accept-btn" class="btn-twitch" type="button">I understand — continue to login</button>
@@ -58,7 +63,7 @@
     <div class="brand-header">
       <h1 class="brand-wordmark brand-wordmark--hero"><span class="logo-nerd">Nerd</span><span class="logo-sync">Sync</span></h1>
       <p>A better Twitch discovery feed.</p>
-      <span class="release-version">Alpha-0.18.1</span>
+      <span class="release-version">Alpha-0.19.0</span>
     </div>
     <button id="twitch-login-btn" class="btn-twitch" type="button">Log in with Twitch</button>
     <p id="config-warning" class="config-warning hidden">No Twitch Client ID is set yet. Add yours to <code>config.js</code> before logging in.</p>
@@ -122,6 +127,7 @@
 
   <div class="feature-actions discovery-tool-actions" aria-label="Discovery tools">
     <button id="try-someone-btn" class="btn-twitch btn-auto" type="button">Try Someone New</button>
+    <button id="start-discovery-session" class="btn-logout" type="button">Discovery Session</button>
     <details class="export-menu"><summary class="btn-logout">Export results</summary><div class="export-menu-popover"><button class="footer-text-button" type="button" data-export-current="txt">TXT</button><button class="footer-text-button" type="button" data-export-current="csv">CSV</button><button class="footer-text-button" type="button" data-export-current="json">JSON</button></div></details>
     <button id="retry-historical-btn" class="btn-logout" type="button">Retry 30D context</button>
   </div>
@@ -138,7 +144,12 @@
   </section>
 
   <section id="saved-panel" class="feature-panel hidden" aria-labelledby="saved-panel-title" tabindex="-1">
-    <div class="feature-panel-head"><h2 id="saved-panel-title">Saved creators</h2></div>
+    <div class="feature-panel-head"><div><h2 id="saved-panel-title">Saved creators</h2><p class="filter-hint">Organize saved creators into local collections for raids, collaborations, games, guests, or any workflow you want.</p></div></div>
+    <div class="saved-collection-toolbar">
+      <label class="global-control" for="saved-collection-filter">Collection <select id="saved-collection-filter"><option value="">All saved creators</option></select></label>
+      <div class="filter-row-inline"><input id="saved-collection-name" type="text" maxlength="50" placeholder="New collection name" aria-label="New collection name" /><button id="create-saved-collection" class="btn-logout" type="button">Create collection</button></div>
+    </div>
+    <div id="saved-collections-list" class="local-tool-list saved-collections-list"></div>
     <div id="saved-list" class="tool-results"></div>
     <details class="saved-management">
       <summary>Data and recommendation controls</summary>
@@ -168,6 +179,11 @@
       <label class="global-control global-control--check historical-discovery-control"><input id="historical-discovery" type="checkbox" checked /> Historical Discovery context</label>
       <label class="global-control global-control--check"><input id="hide-seen" type="checkbox" /> Hide seen for 7 days</label>
     </div>
+    <h3 class="filter-section-title">Local data backup</h3>
+    <div class="settings-grid backup-settings-grid">
+      <div class="global-control backup-control"><strong>Export NerdSync</strong><span>Download your saved creators, collections, presets, local recommendation profile, Creator Match history, accessibility settings, and Ghost Signal progress as JSON.</span><button id="nerdsync-backup-export" class="btn-logout" type="button">Download local backup</button></div>
+      <label class="global-control backup-control" for="nerdsync-backup-import"><strong>Import NerdSync backup</strong><span>Restore a backup for this same Twitch account in this browser. OAuth tokens and TwitchTracker caches are never included.</span><input id="nerdsync-backup-import" type="file" accept="application/json,.json" /></label>
+    </div>
     <h3 class="filter-section-title">Appearance</h3>
     <div class="settings-grid">
       <label class="global-control" for="a11y-theme">Appearance
@@ -181,7 +197,7 @@
       <label class="global-control global-control--check"><input id="a11y-reduce-motion" type="checkbox" /> Reduce motion</label>
     </div>
     <div class="feature-actions feature-actions--spaced"><button id="a11y-reset" class="btn-logout" type="button">Reset accessibility settings</button><button class="btn-logout" type="button" data-open-diagnostics>Diagnostics / Bug Log</button><button id="logout-btn" class="btn-logout" type="button">Log out</button></div>
-    <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage. Historical Discovery sends only public Twitch channel names and category IDs for a limited set of candidates when enabled. Creator Match can request your own public 30-day TwitchTracker summary for an editable audience suggestion and, only when Typical candidate mode is selected, a limited set of candidate summaries. Public summaries are cached for six hours. Twitch OAuth is never forwarded.</p>
+    <p class="filter-hint">NerdSync never sells your Twitch data. Your token stays in session storage. Historical Discovery sends only public Twitch channel names and category IDs for a limited set of candidates when enabled. Creator Match can request your own public 30-day TwitchTracker summary for an editable audience suggestion, limited candidate summaries for Typical matching, and a candidate summary when Schedule Intelligence cross-checks inferred VOD activity. Public summaries are cached for six hours. Twitch OAuth is never forwarded.</p>
   </section>
 
   <section id="creator-match-panel" class="feature-panel hidden" aria-labelledby="creator-match-title">
@@ -228,6 +244,10 @@
         <label for="match-peak">Audience used for matching</label>
         <input id="match-peak" type="number" min="1" inputmode="numeric" placeholder="e.g. 20" />
         <p class="filter-hint">NerdSync fills this when possible. You can always adjust it before matching.</p>
+      </div>
+      <div class="filter-group creator-match-wide">
+        <label class="global-control global-control--check collab-fit-toggle"><input id="match-collaboration-fit" type="checkbox" checked /> Add Collaboration Fit + Schedule Intelligence</label>
+        <p class="filter-hint">Checks up to the strongest 12 matches. Published Twitch schedules are preferred. If none exists, NerdSync can infer likely stream windows from recent public VODs and cross-check their completeness against TwitchTracker 30-day activity. Inferred windows are clearly labeled and receive less weight than published schedules.</p>
       </div>
       <div class="filter-group creator-match-wide">
         <span class="filter-label">Match tags</span>
@@ -458,6 +478,7 @@
   <p id="tab-explainer" class="tab-explainer hidden"></p>
   <div id="status-area" role="status" aria-live="polite" aria-atomic="true"></div>
   <p id="filter-exclusion-summary" class="filter-exclusion-summary" aria-live="polite"></p>
+  <div id="category-opportunity-report" class="category-opportunity-report hidden"></div>
   <div id="scan-deeper-row" class="scan-deeper-row hidden">
     <button id="scan-deeper-btn" class="btn-logout" type="button">Scan deeper in these categories</button>
     <p id="scan-depth-status">Quick scan checks the first two directory pages.</p>
@@ -501,7 +522,7 @@
     </details>
 
     <div class="footer-utility">
-      <p>NerdSync · A better Twitch discovery feed · Alpha-0.18.1</p>
+      <p>NerdSync · A better Twitch discovery feed · Alpha-0.19.0</p>
       <p class="footer-project-credit">
         <a href="https://ko-fi.com/S6S5BZT4I" target="_blank" rel="noopener noreferrer">Support on Ko-fi <span aria-hidden="true">↗</span></a>
         <span aria-hidden="true">·</span>
@@ -516,6 +537,19 @@
   </footer>
 </div>
 </main>
+
+<dialog id="discovery-session-dialog" class="diagnostics-dialog discovery-session-dialog" aria-labelledby="discovery-session-title">
+  <div class="diagnostics-dialog-head"><div><p class="footer-eyebrow">GUIDED DISCOVERY</p><h2 id="discovery-session-title">Discovery Session</h2></div><button id="discovery-session-close" class="modal-close" type="button" aria-label="Close Discovery Session">&times;</button></div>
+  <p id="discovery-session-progress" class="diagnostics-status" aria-live="polite"></p>
+  <div id="discovery-session-body"></div>
+  <div id="discovery-session-actions" class="feature-actions discovery-session-actions">
+    <button class="btn-twitch btn-auto" type="button" data-session-action="save">Save</button>
+    <button class="btn-logout" type="button" data-session-action="raid">Possible raid</button>
+    <button class="btn-logout" type="button" data-session-action="more">More like this</button>
+    <button class="btn-logout" type="button" data-session-action="skip">Skip</button>
+    <button class="btn-logout" type="button" data-session-action="never">Never show</button>
+  </div>
+</dialog>
 
 <dialog id="diagnostics-dialog" class="diagnostics-dialog" aria-labelledby="diagnostics-title" aria-describedby="diagnostics-description">
   <div class="diagnostics-dialog-head">
@@ -561,7 +595,7 @@
     <div id="modal-tracker-section" class="modal-section hidden">
       <h3>30-Day Channel Stats</h3>
       <div id="modal-tracker" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading TwitchTracker…</p></div>
-      <p class="modal-source-note">Public 30-day channel and category context from TwitchTracker. Discovery can preload a limited set of strong candidates when Historical Discovery is enabled. Creator Match can request your own public summary for an editable 30-day audience suggestion and can request limited candidate summaries when Typical mode is selected. Your Twitch login token is never sent.</p>
+      <p class="modal-source-note">Public 30-day channel and category context from TwitchTracker. Discovery can preload a limited set of strong candidates when Historical Discovery is enabled. Creator Match can request your own public summary for an editable 30-day audience suggestion, limited candidate summaries in Typical mode, and a candidate summary when Schedule Intelligence cross-checks inferred public VOD activity. Your Twitch login token is never sent.</p>
     </div>
     <div class="modal-section">
       <h3>Recent Broadcasts</h3>
@@ -572,7 +606,7 @@
       <div id="modal-clips" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
     <div class="modal-section">
-      <h3>Upcoming Schedule</h3>
+      <h3>Schedule / Observed Pattern</h3>
       <div id="modal-schedule" class="modal-mini-grid" aria-live="polite"><p class="status-msg">Loading…</p></div>
     </div>
   </div>

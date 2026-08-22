@@ -222,5 +222,6 @@ async function loadCreatorMatches(options = {}) {
     recordCreatorMatchSearch({ audience:matchPeak, tolerance:matchTolerance, source:matchSource, sourceLabel:matchSourceLabel(), audienceBasis:matchAudienceBasis, ...creatorMatchTagConfig() });
     recordNextCreatorMatch = false;
   }
+  candidates = await enrichCollaborationFit(candidates, { limit:COLLAB_FIT_CANDIDATE_LIMIT });
   return candidates.slice(0, 120);
 }

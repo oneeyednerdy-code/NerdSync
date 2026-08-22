@@ -94,12 +94,14 @@ function streamCardHtml(s) {
         ${contentLabelsHtml(s)}
         ${newerAffiliateContextHtml(s)}
         ${historicalDiscoveryContextHtml(s)}
+        ${activeTab === 'match' ? collaborationFitHtml(s) : ''}
         ${viaTag}
         <p class="why-row">Why this: ${escapeHtml(why)}</p>
+        ${discoveryTransparencyHtml(s)}
         <span class="stage-badge">${escapeHtml(stage.label)} · current live audience</span>
         ${s._discoveryScore != null ? `<span class="score-badge">Discovery fit ${s._discoveryScore}/100</span>` : ''}
         ${signals.length ? `<div class="signal-row">${signals.map(signal => `<span class="signal">${escapeHtml(signal)}</span>`).join('')}</div>` : ''}
-        <div class="card-actions"><button class="card-action" data-action="open" type="button" aria-label="Open ${escapeHtml(s.user_name)} stream details">Details</button>${creatorMatchTwitchTrackerLinkHtml(s)}${activeTab === 'match' ? `<button class="card-action${shortlisted ? ' saved' : ''}" data-action="shortlist" type="button">${shortlisted ? 'Shortlisted ✓' : 'Shortlist'}</button>` : ''}<button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button" aria-label="${saved ? 'Unsave' : 'Save'} ${escapeHtml(s.user_name)}">${saved ? 'Saved' : 'Save'}</button><button class="card-action${bookmark ? ' saved' : ''}" data-action="bookmark" type="button" aria-label="Cycle local bookmark for ${escapeHtml(s.user_name)}">${escapeHtml(bookmarkLabel(bookmark))}</button><button class="card-action${moreLike ? ' saved' : ''}" data-action="more" type="button" aria-pressed="${moreLike}" aria-label="${moreLike ? 'Remove' : 'Add'} more like ${escapeHtml(s.user_name)} preference"${learningDisabled}>${moreLike ? 'More like this ✓' : 'More like this'}</button><button class="card-action" data-action="less" type="button" aria-label="Show fewer creators like ${escapeHtml(s.user_name)}"${learningDisabled}>Less like this</button><button class="card-action${followsCategory ? ' saved' : ''}" data-action="follow-category" type="button" aria-pressed="${followsCategory}" aria-label="${followsCategory ? 'Unfollow' : 'Follow'} ${escapeHtml(s.game_name || 'this category')} in NerdSync">${followsCategory ? 'Category followed' : 'Follow category'}</button>${historicalDiscoveryEnabled && ['discover','match','spotlight','gems','rising'].includes(activeTab) && !s._trackerSummary ? '<button class="card-action" data-action="retry-tracker" type="button">Retry 30D</button>' : ''}<button class="card-action" data-action="dismiss" type="button" aria-label="Hide ${escapeHtml(s.user_name)} for 30 days">Hide 30d</button><button class="card-action" data-action="never" type="button" aria-label="Never show ${escapeHtml(s.user_name)} again">Never show</button><button class="card-action" data-action="compare" type="button" aria-label="Add ${escapeHtml(s.user_name)} to comparison">Compare</button></div>
+        <div class="card-actions"><button class="card-action" data-action="open" type="button" aria-label="Open ${escapeHtml(s.user_name)} stream details">Details</button>${creatorMatchTwitchTrackerLinkHtml(s)}${activeTab === 'match' ? `<button class="card-action${shortlisted ? ' saved' : ''}" data-action="shortlist" type="button">${shortlisted ? 'Shortlisted ✓' : 'Shortlist'}</button>` : ''}<button class="card-action${saved ? ' saved' : ''}" data-action="save" type="button" aria-label="${saved ? 'Unsave' : 'Save'} ${escapeHtml(s.user_name)}">${saved ? 'Saved' : 'Save'}</button><button class="card-action${bookmark ? ' saved' : ''}" data-action="bookmark" type="button" aria-label="Cycle local bookmark for ${escapeHtml(s.user_name)}">${escapeHtml(bookmarkLabel(bookmark))}</button><button class="card-action" data-action="similar" type="button" aria-label="Find creators similar to ${escapeHtml(s.user_name)}">Find similar</button><button class="card-action${moreLike ? ' saved' : ''}" data-action="more" type="button" aria-pressed="${moreLike}" aria-label="${moreLike ? 'Remove' : 'Add'} more like ${escapeHtml(s.user_name)} preference"${learningDisabled}>${moreLike ? 'More like this ✓' : 'More like this'}</button><button class="card-action" data-action="less" type="button" aria-label="Show fewer creators like ${escapeHtml(s.user_name)}"${learningDisabled}>Less like this</button><button class="card-action${followsCategory ? ' saved' : ''}" data-action="follow-category" type="button" aria-pressed="${followsCategory}" aria-label="${followsCategory ? 'Unfollow' : 'Follow'} ${escapeHtml(s.game_name || 'this category')} in NerdSync">${followsCategory ? 'Category followed' : 'Follow category'}</button>${historicalDiscoveryEnabled && ['discover','match','spotlight','gems','rising'].includes(activeTab) && !s._trackerSummary ? '<button class="card-action" data-action="retry-tracker" type="button">Retry 30D</button>' : ''}<button class="card-action" data-action="dismiss" type="button" aria-label="Hide ${escapeHtml(s.user_name)} for 30 days">Hide 30d</button><button class="card-action" data-action="never" type="button" aria-label="Never show ${escapeHtml(s.user_name)} again">Never show</button><button class="card-action" data-action="compare" type="button" aria-label="Add ${escapeHtml(s.user_name)} to comparison">Compare</button></div>
       </div>
     </article>`;
 }
@@ -228,12 +230,16 @@ function renderGrid() {
     if (query) items = items.filter(s => s.user_name.toLowerCase().includes(query) || (s.game_name || '').toLowerCase().includes(query));
     if (creatorStage !== 'balanced' && creatorStage !== 'all') items = items.filter(stream => matchesCreatorStage(stream));
     if (cfg.hasCommonFilters) items = items.filter(passesCommonFilters);
-    if (cfg.isRisingHub) { renderEmergingSections(items, cfg); return; }
+    if (cfg.isRisingHub) { renderCategoryOpportunityReport(items); renderEmergingSections(items, cfg); return; }
     if (cfg.isRising) {
       if (risingStatusFilter !== 'all') items = items.filter(s => (s._broadcasterType || 'none') === risingStatusFilter);
       items.sort((a, b) => risingSort === 'potential' ? (b._risingScore || 0) - (a._risingScore || 0) : new Date(b._accountCreatedAt) - new Date(a._accountCreatedAt));
     }
-    if (cfg.isMatch && viewCountSort === 'default') items.sort((a,b) => (a._matchDistance || 0) - (b._matchDistance || 0));
+    if (cfg.isMatch && viewCountSort === 'default') items.sort((a,b) => {
+      const fitA = document.getElementById('match-collaboration-fit')?.checked && Number.isFinite(a._collabFit?.score) ? a._collabFit.score : -1;
+      const fitB = document.getElementById('match-collaboration-fit')?.checked && Number.isFinite(b._collabFit?.score) ? b._collabFit.score : -1;
+      return fitB - fitA || (a._matchDistance || 0) - (b._matchDistance || 0);
+    });
     if (viewCountSort === 'default' && (activeTab === 'discover' || activeTab === 'spotlight' || activeTab === 'gems')) items.sort((a,b) => (b._discoveryScore || 0) - (a._discoveryScore || 0) || a.viewer_count - b.viewer_count);
     if (viewCountSort === 'asc') items.sort((a,b) => a.viewer_count - b.viewer_count);
     if (viewCountSort === 'desc') items.sort((a,b) => b.viewer_count - a.viewer_count);
@@ -244,6 +250,8 @@ function renderGrid() {
       items = prioritizeFollowingTeamMembers(items);
     }
   }
+
+  renderCategoryOpportunityReport(items);
 
   const totalItems = items.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));

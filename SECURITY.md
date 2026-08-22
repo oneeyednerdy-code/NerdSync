@@ -1,6 +1,6 @@
 # NerdSync security model
 
-NerdSync Alpha-0.18.1 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy public TwitchTracker channel and category summaries for Historical Discovery and Creator Match 2.0. It intentionally has no D1 binding, cloud user profile, or background stream tracker.
+NerdSync Alpha-0.19.0 is a read-only Twitch client designed for Cloudflare Pages or Workers Static Assets. It includes stateless Cloudflare endpoints that proxy public TwitchTracker channel and category summaries for Historical Discovery and Creator Match 2.0. It intentionally has no D1 binding, cloud user profile, or background stream tracker.
 
 ## Authentication boundaries
 
@@ -18,8 +18,10 @@ NerdSync Alpha-0.18.1 is a read-only Twitch client designed for Cloudflare Pages
 - NerdSync does not perform raids, follows, moderation actions, chat writes, channel changes, or other Twitch mutations.
 - `/api/twitchtracker-summary` accepts only a validated public Twitch channel login and `/api/twitchtracker-category-summary` accepts only a numeric Twitch category ID. Both perform server-side GET requests to TwitchTracker. The browser's Twitch OAuth token is never included.
 - Historical Discovery automatically enriches at most 20 strong creator candidates and 6 categories per normal Discovery load when the setting is enabled. Explicit 30-day filters can raise the bounded creator lookup budget because those filters require historical data. Users can disable automatic Historical Discovery in Settings.
-- Creator Match 2.0 can request the signed-in user's own public TwitchTracker channel summary to suggest a 30-day typical audience. If the user explicitly chooses **30D typical** candidate matching, NerdSync requests summaries only for a limited candidate set. Twitch OAuth is never forwarded.
+- Creator Match 2.0 can request the signed-in user's own public TwitchTracker channel summary to suggest a 30-day typical audience. If the user explicitly chooses **30D typical** candidate matching, NerdSync requests summaries only for a limited candidate set. Schedule Intelligence may also request a candidate's public channel summary when that creator has no published Twitch schedule, solely to compare available public VOD duration with TwitchTracker's 30-day streamed-time total. Twitch OAuth is never forwarded.
 - TwitchTracker responses are treated as supplemental third-party data. A failure does not block Twitch API discovery, filters, Creator Match, clips, VODs, or schedules.
+- Schedule Intelligence requests only public Twitch schedule/VOD metadata through authenticated read-only Helix calls. It analyzes at most 30 archived broadcasts from the last 90 days for each no-schedule candidate among the strongest 12 Collaboration Fit results. The resulting observed pattern remains browser-memory data and is not written server-side.
+- Observed schedule labels are probabilistic historical inferences. Low-confidence patterns do not contribute numeric Collaboration Fit schedule points, and NerdSync never presents an inferred pattern as confirmed availability.
 - Successful TwitchTracker summaries are cached for six hours in the browser and at Cloudflare's edge to reduce repeated third-party requests. Unavailable lookups are suppressed for one hour in the browser session.
 
 ## Local data
@@ -31,7 +33,7 @@ NerdSync Alpha-0.18.1 is a read-only Twitch client designed for Cloudflare Pages
 - Downloaded diagnostic files contain coarse browser/OS/viewport information, active-section/filter counts, scan totals, endpoint paths and parameter names, and sanitized runtime/request failures.
 - Diagnostic reports omit OAuth tokens, URL parameter values, response bodies, chat content, raw user-agent strings, and creator/channel identities.
 
-## No-D1 boundary through Alpha-0.18.x
+## No-D1 boundary through Alpha-0.19.x
 
 - `wrangler.jsonc` contains no `d1_databases` binding.
 - No Pages Function or Worker writes a user profile, stream history, match history, shortlist, preference, or diagnostic record to server-side storage.

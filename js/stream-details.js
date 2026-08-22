@@ -16,6 +16,7 @@ streamGrid.addEventListener('click', async e => {
     if (action.dataset.action === 'never') recordCreatorFeedback(item, 'never');
     if (action.dataset.action === 'less') recordCreatorFeedback(item, 'less');
     if (action.dataset.action === 'more') recordCreatorFeedback(item, 'more');
+    if (action.dataset.action === 'similar') { findSimilarCreators(item); return; }
     if (action.dataset.action === 'follow-category') toggleFollowCategory(item);
     if (action.dataset.action === 'shortlist') { toggleMatchShortlist(item); renderGrid(); return; }
     if (action.dataset.action === 'bookmark') { cycleCreatorBookmark(item); renderGrid(); return; }
@@ -219,9 +220,12 @@ async function loadModalDetails(stream) {
     ? result.clips.map(c => `<a class="mini-card" href="${escapeHtml(safeTwitchUrl(c.url))}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(safeHttpsUrl(c.thumbnail_url))}" alt="" loading="lazy" decoding="async" /><span class="mini-title">${escapeHtml(c.title)}</span><span class="mini-meta">${new Intl.NumberFormat().format(c.view_count)} views</span></a>`).join('')
     : '<p class="status-msg">No clips in the last 30 days.</p>';
 
+  const scheduleEvidence = stream._collabFit?.scheduleEvidence || stream._scheduleEvidence || null;
   scheduleEl.innerHTML = result.schedule.length
     ? result.schedule.map(seg => `<div class="mini-card static"><span class="mini-title">${escapeHtml(seg.title || (seg.category && seg.category.name) || 'Scheduled stream')}</span><span class="mini-meta">${new Date(seg.start_time).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span></div>`).join('')
-    : '<p class="status-msg">No upcoming schedule published.</p>';
+    : scheduleEvidence?.kind === 'observed'
+      ? scheduleEvidenceHtml(scheduleEvidence)
+      : '<p class="status-msg">No upcoming schedule published and no reliable observed pattern is available.</p>';
 }
 
 // --- Session bootstrap ---

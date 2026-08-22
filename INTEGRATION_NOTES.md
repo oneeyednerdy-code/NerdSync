@@ -1,4 +1,4 @@
-# Alpha-0.18.1 Loading feedback + text-only branding
+# Alpha-0.19.0 Loading feedback + text-only branding
 
 - `js/ui-state.js` provides the shared loading spinner/status/button helpers used across async UI flows.
 - Discovery, Historical Discovery, Creator Match context/VOD loading, channel search, comparisons, Details sections, retries, Scan Deeper, and Twitch login now expose contextual loading feedback.
@@ -6,7 +6,7 @@
 - The old `assets/nerdsync-brain-circuit.svg` brand mark is removed. Primary NerdSync surfaces use only the existing Nerd/Sync text treatment.
 - No D1 or persistent server-side user storage is introduced.
 
-# Alpha-0.18.1 Creator Match 2.0 + no-D1 toolkit integration
+# Alpha-0.19.0 Creator Match 2.0 + no-D1 toolkit integration
 
 - Adds `js/local-workflows.js` after TwitchTracker helpers and before details/controls. It stores named filter presets, Creator Match history/shortlists, and export/bookmark workflow state only in browser `localStorage` partitioned by Twitch user ID.
 - Creator Match 2.0 adds Live, 30D Typical, Last Stream, Past Broadcast, and Custom audience sources. The number used for matching remains editable.
@@ -73,3 +73,17 @@ Creator Match cards now display the live channel's Twitch tags. Tags that exactl
 ## Alpha-0.16.6 Creator Match tag layout hotfix
 
 Creator Match tags now render beneath a dedicated **Twitch tags** label inside a wrapping pill row. Each tag is visually separated, stays intact as a single pill, and matching tags retain the highlighted check treatment.
+
+## Alpha-0.19.0 Schedule Intelligence integration
+
+Creator Match Collaboration Fit now uses a three-level schedule evidence hierarchy:
+
+1. **Published** — Twitch Helix schedule segments.
+2. **Observed** — recurring windows inferred from public archived VOD creation timestamps and durations when no published schedule exists.
+3. **Unavailable** — too little or too inconsistent public history to support an estimate.
+
+The observed path is deliberately bounded: only the strongest 12 Collaboration Fit candidates are checked, at most 30 VODs are requested per no-schedule candidate, VODs older than 90 days are ignored, and observed evidence is cached for six hours. TwitchTracker is used only to compare the sum of recent available VOD duration against the creator's public 30-day streamed-time total. It is not scraped for per-stream timestamps.
+
+The same evidence object is used by Creator Match cards, Comparison 2.0, and the Details schedule section when an observed pattern has already been calculated. Published evidence always receives greater score weight than inferred evidence.
+
+This remains inside the Alpha-0.19.x no-D1 boundary. There is no scheduled Worker, persistent creator schedule database, or background monitoring service.

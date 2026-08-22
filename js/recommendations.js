@@ -199,14 +199,23 @@ function streamFromSnapshot(snapshot) {
 }
 
 function renderSavedList() {
-  const saved = Object.entries(discoveryHistory).filter(([,item]) => item.saved);
+  let saved = Object.entries(discoveryHistory).filter(([,item]) => item.saved);
   updateSavedCount();
-  if (!saved.length) { savedList.innerHTML = '<p class="empty-compact">No creators saved yet.</p>'; return; }
+  if (activeSavedCollectionId) {
+    const collection = collectionFor(activeSavedCollectionId);
+    const allowed = new Set(collection?.creatorIds || []);
+    saved = saved.filter(([id]) => allowed.has(String(id)));
+  }
+  if (!saved.length) {
+    savedList.innerHTML = activeSavedCollectionId ? '<p class="empty-compact">No saved creators are in this collection yet.</p>' : '<p class="empty-compact">No creators saved yet.</p>';
+    return;
+  }
   savedList.innerHTML = saved.map(([id,item]) => {
     const creator = knownCreators.get(id) || (item.snapshot ? streamFromSnapshot(item.snapshot) : null);
     const name = creator?.user_name || item.snapshot?.name || 'Saved creator';
     const login = creator?.user_login || item.snapshot?.login || '';
     const image = safeHttpsUrl(creator?._profileImage || item.snapshot?.profileImage || '');
-    return `<div class="tool-result" data-creator-id="${escapeHtml(id)}">${image ? `<img src="${escapeHtml(image)}" alt="" />` : ''}<div class="tool-result-info"><p class="tool-result-title">${escapeHtml(name)}</p><p class="tool-result-meta">${escapeHtml(creator?.game_name || item.snapshot?.gameName || 'Category unavailable')}</p></div><div class="tool-result-actions">${login ? `<a class="btn-logout" href="https://twitch.tv/${encodeURIComponent(login)}" target="_blank" rel="noopener noreferrer">Twitch</a>` : ''}<button class="btn-logout" data-saved-action="compare" type="button">Compare</button><button class="btn-logout" data-saved-action="remove" type="button">Unsave</button></div></div>`;
+    const collectionNames = creatorCollectionNames(id);
+    return `<div class="tool-result" data-creator-id="${escapeHtml(id)}">${image ? `<img src="${escapeHtml(image)}" alt="" />` : ''}<div class="tool-result-info"><p class="tool-result-title">${escapeHtml(name)}</p><p class="tool-result-meta">${escapeHtml(creator?.game_name || item.snapshot?.gameName || 'Category unavailable')}</p>${collectionNames.length ? `<div class="signal-row">${collectionNames.map(label => `<span class="signal">${escapeHtml(label)}</span>`).join('')}</div>` : ''}</div><div class="tool-result-actions">${login ? `<a class="btn-logout" href="https://twitch.tv/${encodeURIComponent(login)}" target="_blank" rel="noopener noreferrer">Twitch</a>` : ''}<button class="btn-logout" data-saved-action="compare" type="button">Compare</button>${collectionOptionsHtml(id)}${activeSavedCollectionId ? `<button class="btn-logout" data-saved-action="remove-collection" type="button">Remove from collection</button>` : ''}<button class="btn-logout" data-saved-action="remove" type="button">Unsave</button></div></div>`;
   }).join('');
 }

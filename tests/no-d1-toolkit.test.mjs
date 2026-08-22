@@ -6,6 +6,7 @@ const root = new URL('../', import.meta.url);
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('../guide.html', import.meta.url), 'utf8');
 const foundation = await readFile(new URL('../js/app-foundation.js', import.meta.url), 'utf8');
+const meta = await readFile(new URL('../js/app-meta.js', import.meta.url), 'utf8');
 const discovery = await readFile(new URL('../js/discovery.js', import.meta.url), 'utf8');
 const creatorMatch = await readFile(new URL('../js/creator-match.js', import.meta.url), 'utf8');
 const discoveryContext = await readFile(new URL('../js/discovery-context.js', import.meta.url), 'utf8');
@@ -26,10 +27,11 @@ function sliceBetween(source, startText, endText) {
   return source.slice(start, end);
 }
 
-test('Alpha-0.18.x is visible and Creator Match is explicitly no-D1', () => {
-  assert.match(foundation, /APP_VERSION\s*=\s*'Alpha-0\.18\.1'/);
-  assert.match(html, /Alpha-0\.18\.1/);
-  assert.match(guide, /Alpha-0\.18\.1/);
+test('Alpha-0.19.x is visible and Creator Match is explicitly no-D1', () => {
+  assert.match(meta, /label:\s*'Alpha-0\.19\.0'/);
+  assert.match(meta, /const APP_VERSION = NERDSYNC_META\.label/);
+  assert.match(html, /Alpha-0\.19\.0/);
+  assert.match(guide, /Alpha-0\.19\.0/);
   assert.match(html, /Creator Match 2\.0/);
   assert.match(html, /Nothing here requires D1 or permanent server storage/);
 });
@@ -151,11 +153,11 @@ test('Creator Match and Discovery context remain separate modules under the modu
   for (const name of modules) {
     const source = await readFile(new URL(`../js/${name}`, import.meta.url), 'utf8');
     assert.ok(Buffer.byteLength(source, 'utf8') < 25000, `${name} stays below 25 KB`);
-    assert.match(html, new RegExp(`js/${name.replace('.', '\\.')}\\?v=0\\.18\\.1`));
+    assert.match(html, new RegExp(`js/${name.replace('.', '\\.')}\\?v=0\\.19\\.0`));
   }
 });
 
-test('Alpha-0.18.x has no D1 binding or server-side user persistence implementation', async () => {
+test('Alpha-0.19.x has no D1 binding or server-side user persistence implementation', async () => {
   assert.doesNotMatch(wrangler, /d1_databases|NERDSYNC_DB/i);
   const jsFiles = (await readdir(new URL('../js/', import.meta.url))).filter(name => name.endsWith('.js'));
   const serverFiles = ['worker.js','functions/api/twitchtracker-summary.js','functions/api/twitchtracker-category-summary.js'];
@@ -164,7 +166,7 @@ test('Alpha-0.18.x has no D1 binding or server-side user persistence implementat
   for (const name of serverFiles) serverAndClient += await readFile(new URL(`../${name}`, import.meta.url), 'utf8');
   assert.doesNotMatch(serverAndClient, /env\.NERDSYNC_DB|d1_databases|\.prepare\(\s*[`'"](?:INSERT|UPDATE|DELETE|SELECT)/i);
   assert.doesNotMatch(serverAndClient, /\/api\/(?:sync|stream-history)/);
-  assert.match(security, /No-D1 boundary through Alpha-0\.18\.x/);
+  assert.match(security, /No-D1 boundary through Alpha-0\.19\.x/);
 });
 
 test('D1 sync and background per-stream history are reserved for 3.0', () => {

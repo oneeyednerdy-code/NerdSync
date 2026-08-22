@@ -12,7 +12,6 @@ function debounce(fn, delay) {
 
 // --- CONFIGURATION ---
 const CLIENT_ID = (typeof CONFIG !== 'undefined' && CONFIG.TWITCH_CLIENT_ID) || '';
-const APP_VERSION = 'Alpha-0.18.1';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'user:read:follows';
 const REQUIRED_SCOPES = Object.freeze(SCOPES.split(' ').filter(Boolean));
@@ -23,7 +22,7 @@ const TOKEN_VALIDATION_INTERVAL_MS = 60 * 60 * 1000;
 const HISTORY_KEY = 'nerdsync_discovery_history_v1';
 const PREFERENCES_KEY = 'nerdsync_preferences_v2';
 const ACCESSIBILITY_KEY = 'nerdsync_accessibility_v1';
-const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v3';
+const PRIVACY_ACK_KEY = 'nerdsync_privacy_ack_v4';
 
 // Tuning knobs — kept small to stay well under Twitch's Helix rate limits.
 const MAX_FOLLOW_PAGES = 10;

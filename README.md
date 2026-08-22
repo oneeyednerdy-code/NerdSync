@@ -1,15 +1,17 @@
 # NerdSync
 
-Current release: **Alpha-0.18.1**
+Current release: **Alpha-0.19.0**
 
 
-## Alpha-0.18.1 Loading Feedback + Text Wordmark
+## Alpha-0.19.0 Plan A Complete — Collaboration + Local Workflow
 
-- Adds a small, reusable loading indicator system for Discovery scans, Historical Discovery enrichment, Creator Match context/VOD loading, channel search, comparisons, Details data, TwitchTracker retries, Scan Deeper, and the Twitch login handoff.
-- Adds `aria-busy` feedback for major asynchronous regions and loading-state treatment on buttons that start longer operations.
-- Respects reduced-motion settings by replacing spinning motion with a static dotted activity treatment.
-- Removes the previous brain logo artwork everywhere. NerdSync now uses a text-only **NerdSync** wordmark on privacy, login, the signed-in header, and the Field Guide. The brain SVG asset is no longer shipped.
-- Keeps the Alpha-0.18.x no-D1 boundary intact: no database binding, cloud profile, cross-device sync, or background stream tracking. Those remain reserved for NerdSync 3.0.
+- Completes the no-D1 Plan A roadmap with a centralized release manifest, native ES-module production bundle, shared Twitch request manager, versioned local backup/restore, Saved collections, guided Discovery Sessions, Find Similar, Collaboration Fit, Comparison 2.0, category opportunity context, deeper recommendation transparency, and local-only data portability.
+- Adds **Schedule Intelligence** to Creator Match and comparison. Published Twitch schedules are preferred. When a strong candidate has no published schedule, NerdSync can inspect up to 30 recent public archived broadcasts from the last 90 days and infer recurring day/time windows.
+- Observed schedules ignore very short broadcasts, favor more recent VODs, cluster recurring start times, and calculate a confidence score from sample size, recurrence, start-time consistency, and how closely 30-day VOD duration agrees with TwitchTracker's public 30-day streamed-time total.
+- Observed schedule labels are explicitly probabilistic: High, Medium, Low, or Insufficient. They are never presented as a creator's actual availability or future promise.
+- Collaboration Fit gives published schedule overlap full weight. High-confidence observed overlap receives at most 80% of published schedule weight, medium confidence 60%, and low-confidence observed overlap is informational only.
+- Schedule inference is bounded to the strongest 12 Collaboration Fit candidates and observed results are cached for six hours. It adds no D1 database or background tracking.
+- Bumps the local privacy acknowledgement because Schedule Intelligence can request a public TwitchTracker channel summary for a candidate even when live-viewer matching is selected, solely to cross-check whether available public VOD history represents recent streaming activity. Twitch OAuth is never forwarded to TwitchTracker.
 
 ## Alpha-0.17.3 Stability + Diagnostics
 
@@ -124,7 +126,7 @@ Current release: **Alpha-0.18.1**
 - Every recovered GHOST SIGNAL ending can export a private, credential-free `.txt` signal record from its ending screen.
 - Keeps **Secret Find** as the understated final utility link in the signed-in footer.
 
-NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no user database or Twitch client secret. Alpha-0.18.1 uses small stateless Cloudflare endpoints to proxy public TwitchTracker 30-day channel/category summaries when requested by Historical Discovery or Creator Match; Twitch OAuth is never forwarded.
+NerdSync is a personalized Twitch discovery app for finding relevant live creators at every audience stage. The browser experience remains plain HTML, CSS, and JavaScript with no user database or Twitch client secret. Alpha-0.19.0 uses small stateless Cloudflare endpoints to proxy public TwitchTracker 30-day channel/category summaries when requested by Historical Discovery or Creator Match; Twitch OAuth is never forwarded.
 
 ## Build and deploy on Cloudflare
 
@@ -137,7 +139,7 @@ NerdSync is a personalized Twitch discovery app for finding relevant live creato
 
 For an existing **Cloudflare Pages** project, set the build command to `npm run build` and the build output directory to `dist`. Do not deploy the source directory directly anymore.
 
-For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.18.1 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding. There is intentionally no D1 binding in this release.
+For **Wrangler / Workers Static Assets**, run `npm run preview` for local preview and `npm run deploy` to deploy the generated `dist/` directory using `wrangler.jsonc`. Alpha-0.19.0 includes `worker.js` so `/api/twitchtracker-summary` and `/api/twitchtracker-category-summary` run before static assets while every other request falls through to the `ASSETS` binding. There is intentionally no D1 binding in this release.
 
 For an existing **Cloudflare Pages** project, keep the root-level `functions/api/twitchtracker-summary.js` and `functions/api/twitchtracker-category-summary.js` files in the repository. Pages Functions are discovered from the project-root `functions/` directory, not from `dist/`.
 
@@ -376,6 +378,6 @@ Quick-choice discovery controls now use native buttons instead of checkbox-label
 
 Following Live includes an optional **Twitch teams first** control that checks Twitch team memberships for live followed creators, labels their teams, and prioritizes team-affiliated channels. The footer also links to the **NerdSync Field Guide**, a plain-language guide to the main sections and filters.
 
-### Alpha-0.18.1 module layout
+### Alpha-0.19.0 module layout
 
 Creator Match 2.0 lives in `js/creator-match.js`, while 30-day Discovery context and filter explanation/status helpers live in `js/discovery-context.js`. This keeps the main Discovery and feed-rendering modules below the project's 25 KB source-module target.

@@ -1,9 +1,11 @@
 'use strict';
 
-// Alpha-0.18.1 local-only workflow tools. These intentionally use browser storage only.
-const LOCAL_WORKFLOW_VERSION = 1;
+// Alpha-0.19.0 local-only workflow tools. These intentionally use browser storage only.
+const LOCAL_WORKFLOW_VERSION = typeof NERDSYNC_META !== 'undefined' ? NERDSYNC_META.localWorkflowSchema : 2;
 const LOCAL_WORKFLOW_KEY = 'nerdsync_local_workflows_v1';
-let localWorkflowData = { version:LOCAL_WORKFLOW_VERSION, filterPresets:[], matchHistory:[], matchShortlist:[] };
+let localWorkflowData = { version:LOCAL_WORKFLOW_VERSION, filterPresets:[], matchHistory:[], matchShortlist:[], collections:[] };
+let activeSavedCollectionId = '';
+let discoverySessionState = null;
 
 function localWorkflowStorageKey() {
   return `${LOCAL_WORKFLOW_KEY}:${currentUser?.id || 'anonymous'}`;
@@ -17,9 +19,10 @@ function loadLocalWorkflowData() {
       filterPresets:Array.isArray(parsed.filterPresets) ? parsed.filterPresets.slice(0, 20) : [],
       matchHistory:Array.isArray(parsed.matchHistory) ? parsed.matchHistory.slice(0, 20) : [],
       matchShortlist:Array.isArray(parsed.matchShortlist) ? parsed.matchShortlist.slice(0, 30) : [],
+      collections:Array.isArray(parsed.collections) ? parsed.collections.slice(0, 30).map(item => ({ ...item, creatorIds:Array.isArray(item.creatorIds) ? [...new Set(item.creatorIds.map(String))].slice(0, 500) : [] })) : [],
     };
   } catch {
-    localWorkflowData = { version:LOCAL_WORKFLOW_VERSION, filterPresets:[], matchHistory:[], matchShortlist:[] };
+    localWorkflowData = { version:LOCAL_WORKFLOW_VERSION, filterPresets:[], matchHistory:[], matchShortlist:[], collections:[] };
   }
   renderLocalWorkflowTools();
 }
@@ -221,6 +224,7 @@ function toggleMatchShortlist(stream) {
   localWorkflowData.matchShortlist = localWorkflowData.matchShortlist.slice(0, 30);
   saveLocalWorkflowData();
   renderMatchShortlist();
+  renderCollections();
 }
 
 function renderMatchShortlist() {
@@ -317,10 +321,120 @@ function exportMatchShortlist(format = 'txt') {
   downloadTextFile(`nerdsync-match-shortlist-${stamp}.txt`, text);
 }
 
+
+function createCollection(name) {
+  const clean = String(name || '').trim().slice(0, 50);
+  if (!clean) return null;
+  const existing = localWorkflowData.collections.find(item => item.name.toLowerCase() === clean.toLowerCase());
+  if (existing) return existing;
+  const collection = { id:localWorkflowId(), name:clean, creatorIds:[], createdAt:Date.now(), updatedAt:Date.now() };
+  localWorkflowData.collections.unshift(collection);
+  localWorkflowData.collections = localWorkflowData.collections.slice(0, 30);
+  saveLocalWorkflowData();
+  renderCollections();
+  return collection;
+}
+
+function collectionFor(id) { return localWorkflowData.collections.find(item => item.id === String(id)); }
+
+function addCreatorToCollection(creatorId, collectionId) {
+  const collection = collectionFor(collectionId);
+  if (!collection || !creatorId) return false;
+  const id = String(creatorId);
+  if (!collection.creatorIds.includes(id)) collection.creatorIds.push(id);
+  collection.creatorIds = collection.creatorIds.slice(-500);
+  collection.updatedAt = Date.now();
+  saveLocalWorkflowData();
+  renderCollections();
+  renderSavedList();
+  return true;
+}
+
+function removeCreatorFromCollection(creatorId, collectionId) {
+  const collection = collectionFor(collectionId);
+  if (!collection) return;
+  collection.creatorIds = collection.creatorIds.filter(id => id !== String(creatorId));
+  collection.updatedAt = Date.now();
+  saveLocalWorkflowData();
+  renderCollections();
+  renderSavedList();
+}
+
+function creatorCollectionNames(creatorId) {
+  return localWorkflowData.collections.filter(item => item.creatorIds.includes(String(creatorId))).map(item => item.name);
+}
+
+function renderCollections() {
+  const container = document.getElementById('saved-collections-list');
+  const select = document.getElementById('saved-collection-filter');
+  if (select) {
+    const current = activeSavedCollectionId;
+    select.innerHTML = '<option value="">All saved creators</option>' + localWorkflowData.collections.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} (${item.creatorIds.length})</option>`).join('');
+    select.value = localWorkflowData.collections.some(item => item.id === current) ? current : '';
+    if (select.value !== current) activeSavedCollectionId = '';
+  }
+  if (!container) return;
+  container.innerHTML = localWorkflowData.collections.length
+    ? localWorkflowData.collections.map(item => `<div class="local-tool-row"><button class="btn-logout local-tool-grow" type="button" data-view-collection="${escapeHtml(item.id)}"><strong>${escapeHtml(item.name)}</strong><span>${item.creatorIds.length} creator${item.creatorIds.length === 1 ? '' : 's'}</span></button><button class="footer-text-button" type="button" data-delete-collection="${escapeHtml(item.id)}">Delete</button></div>`).join('')
+    : '<p class="filter-hint">No collections yet. Create one for raids, collabs, games, podcast guests, or any workflow you want.</p>';
+}
+
+function collectionOptionsHtml(creatorId) {
+  if (!localWorkflowData.collections.length) return '';
+  const member = new Set(localWorkflowData.collections.filter(item => item.creatorIds.includes(String(creatorId))).map(item => item.id));
+  return `<select class="saved-collection-picker" data-saved-collection-picker aria-label="Add saved creator to collection"><option value="">Add to collection…</option>${localWorkflowData.collections.map(item => `<option value="${escapeHtml(item.id)}"${member.has(item.id) ? ' disabled' : ''}>${escapeHtml(item.name)}${member.has(item.id) ? ' ✓' : ''}</option>`).join('')}</select>`;
+}
+
+function startDiscoverySession() {
+  let candidates = exportRowsForCurrentView();
+  if (!candidates.length) { setStatus('Load some Discovery results before starting a Discovery Session.', true); return; }
+  discoverySessionState = { index:0, ids:candidates.slice(0, 40).map(item => String(item.user_id || item.id)), saved:0, more:0, raids:0, skipped:0, startedAt:Date.now() };
+  renderDiscoverySession();
+  document.getElementById('discovery-session-dialog')?.showModal();
+}
+
+function discoverySessionCurrent() {
+  if (!discoverySessionState) return null;
+  const id = discoverySessionState.ids[discoverySessionState.index];
+  return allStreams.find(item => String(item.user_id || item.id) === id) || knownCreators.get(id) || null;
+}
+
+function renderDiscoverySession() {
+  const dialog = document.getElementById('discovery-session-dialog');
+  const body = document.getElementById('discovery-session-body');
+  const progress = document.getElementById('discovery-session-progress');
+  if (!dialog || !body || !progress || !discoverySessionState) return;
+  const current = discoverySessionCurrent();
+  if (!current) {
+    progress.textContent = 'Session complete';
+    body.innerHTML = `<div class="discovery-session-summary"><h3>Discovery Session complete</h3><p>${discoverySessionState.ids.length} creators reviewed or queued.</p><div class="signal-row"><span class="signal">${discoverySessionState.saved} saved</span><span class="signal">${discoverySessionState.more} more-like-this</span><span class="signal">${discoverySessionState.raids} possible raids</span><span class="signal">${discoverySessionState.skipped} skipped</span></div></div>`;
+    document.getElementById('discovery-session-actions').classList.add('hidden');
+    return;
+  }
+  document.getElementById('discovery-session-actions').classList.remove('hidden');
+  progress.textContent = `Creator ${discoverySessionState.index + 1} of ${discoverySessionState.ids.length}`;
+  const tracker = current._trackerSummary;
+  body.innerHTML = `<article class="discovery-session-card"><div><p class="footer-eyebrow">${escapeHtml(current.game_name || 'No category')}</p><h3>${escapeHtml(current.user_name || current.user_login)}</h3><p>${Number.isFinite(current.viewer_count) ? `${new Intl.NumberFormat().format(current.viewer_count)} live viewers` : 'Offline context'}${Number.isFinite(tracker?.averageViewers) ? ` · ~${Math.round(tracker.averageViewers)} typical/30d` : ''}</p><p>${escapeHtml(current._why || discoveryScore(current).reasons.join(' · ') || 'Live on Twitch')}</p></div><div class="match-tags-list">${(current.tags || []).slice(0,8).map(tag => `<span class="match-tag">${escapeHtml(tag)}</span>`).join('')}</div></article>`;
+}
+
+function advanceDiscoverySession(action) {
+  const current = discoverySessionCurrent();
+  if (!current || !discoverySessionState) return;
+  if (action === 'save') { if (!historyFor(current.user_id).saved) recordCreatorFeedback(current, 'save'); discoverySessionState.saved += 1; }
+  if (action === 'more') { if (!historyFor(current.user_id).moreLike) recordCreatorFeedback(current, 'more'); discoverySessionState.more += 1; }
+  if (action === 'raid') { if (historyFor(current.user_id).bookmark !== 'raid') updateHistory(current.user_id, { bookmark:'raid', snapshot:creatorSnapshot(current) }); discoverySessionState.raids += 1; }
+  if (action === 'never') recordCreatorFeedback(current, 'never');
+  if (action === 'skip') discoverySessionState.skipped += 1;
+  discoverySessionState.index += 1;
+  renderDiscoverySession();
+  renderGrid(); renderSavedList();
+}
+
 function renderLocalWorkflowTools() {
   renderFilterPresets();
   renderMatchHistory();
   renderMatchShortlist();
+  renderCollections();
 }
 
 function installLocalWorkflowEvents() {
@@ -356,6 +470,34 @@ function installLocalWorkflowEvents() {
   });
   document.querySelectorAll('[data-export-current]').forEach(button => button.addEventListener('click', () => exportDiscovery(button.dataset.exportCurrent)));
   document.querySelectorAll('[data-export-shortlist]').forEach(button => button.addEventListener('click', () => exportMatchShortlist(button.dataset.exportShortlist)));
+  document.getElementById('create-saved-collection')?.addEventListener('click', () => {
+    const input = document.getElementById('saved-collection-name');
+    const collection = createCollection(input?.value);
+    if (!collection) { setStatus('Give the collection a name first.', true); return; }
+    if (input) input.value = '';
+    activeSavedCollectionId = collection.id;
+    renderCollections(); renderSavedList();
+    setStatus(`Created local collection “${collection.name}”.`);
+  });
+  document.getElementById('saved-collection-filter')?.addEventListener('change', event => { activeSavedCollectionId = event.target.value || ''; renderSavedList(); });
+  document.getElementById('saved-collections-list')?.addEventListener('click', event => {
+    const view = event.target.closest('[data-view-collection]');
+    const remove = event.target.closest('[data-delete-collection]');
+    if (view) { activeSavedCollectionId = view.dataset.viewCollection; renderCollections(); renderSavedList(); }
+    if (remove) {
+      const collection = collectionFor(remove.dataset.deleteCollection);
+      if (collection && window.confirm(`Delete the local collection “${collection.name}”? Saved creators themselves will stay saved.`)) {
+        localWorkflowData.collections = localWorkflowData.collections.filter(item => item.id !== collection.id);
+        if (activeSavedCollectionId === collection.id) activeSavedCollectionId = '';
+        saveLocalWorkflowData(); renderCollections(); renderSavedList();
+      }
+    }
+  });
+  document.getElementById('start-discovery-session')?.addEventListener('click', startDiscoverySession);
+  document.getElementById('discovery-session-close')?.addEventListener('click', () => document.getElementById('discovery-session-dialog')?.close());
+  document.getElementById('discovery-session-actions')?.addEventListener('click', event => {
+    const button = event.target.closest('[data-session-action]'); if (button) advanceDiscoverySession(button.dataset.sessionAction);
+  });
 
   document.addEventListener('keydown', event => {
     const typing = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement || event.target?.isContentEditable;

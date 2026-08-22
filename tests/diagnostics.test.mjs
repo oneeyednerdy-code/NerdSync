@@ -98,10 +98,10 @@ test('diagnostics UI is reachable from login, settings, and app footer', () => {
 });
 
 test('diagnostics loads immediately after foundation and is bundled in production', () => {
-  const foundationIndex = html.indexOf('js/app-foundation.js?v=0.18.1');
-  const diagnosticsIndex = html.indexOf('js/diagnostics.js?v=0.18.1');
-  const twitchIndex = html.indexOf('js/twitch-api.js?v=0.18.1');
+  const foundationIndex = html.indexOf('js/app-foundation.js?v=0.19.0');
+  const diagnosticsIndex = html.indexOf('js/diagnostics.js?v=0.19.0');
+  const twitchIndex = html.indexOf('js/twitch-api.js?v=0.19.0');
   assert.ok(foundationIndex >= 0 && diagnosticsIndex > foundationIndex && twitchIndex > diagnosticsIndex);
   assert.match(build, /'js\/diagnostics\.js'/);
-  assert.match(build, /\(\?:diagnostics\|ui-state\|filters/);
+  assert.match(build, /diagnostics\|request-manager\|ui-state\|filters/);
 });
